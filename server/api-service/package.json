@@ -15,7 +15,8 @@
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
-    "mssql": "^11.0.1"
+    "mssql": "^11.0.1",
+    "typeorm": "^0.3.21"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",

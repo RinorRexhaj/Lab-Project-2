@@ -1,34 +1,35 @@
-import sql from "mssql";
-import { getDBPool } from "../config/db";
+import { AppDataSource } from "../data-source";
+import { RefreshToken } from "../models/RefreshToken";
+import { User } from "../models/User";
 
 export class TokenRepo {
   static async storeRefreshToken(userId: number, token: string) {
-    const pool = getDBPool();
-    await pool
-      .request()
-      .input("userId", sql.Int, userId)
-      .input("token", sql.NVarChar, token)
-      .query(
-        "INSERT INTO RefreshTokens (userId, token) VALUES (@userId, @token)"
-      );
+    const refreshTokenRepo = AppDataSource.getRepository(RefreshToken);
+    const userRepo = AppDataSource.getRepository(User);
+
+    const user = await userRepo.findOne({ where: { id: userId } });
+    if (!user) throw new Error("User not found");
+
+    const refreshToken = refreshTokenRepo.create({ user, token });
+    await refreshTokenRepo.save(refreshToken);
   }
 
   static async findRefreshToken(userId: number) {
     if (!userId) return null;
-    const pool = getDBPool();
-    const result = await pool
-      .request()
-      .input("userId", sql.Int, userId)
-      .query("SELECT * FROM RefreshTokens WHERE userId = @userId");
-    return result.recordset[0]?.token;
+
+    const refreshTokenRepo = AppDataSource.getRepository(RefreshToken);
+    const refreshToken = await refreshTokenRepo.findOne({
+      where: { user: { id: userId } },
+      relations: ["user"],
+    });
+
+    return refreshToken ? refreshToken.token : null;
   }
 
   static async deleteRefreshToken(userId: number) {
     if (!userId) return;
-    const pool = getDBPool();
-    await pool
-      .request()
-      .input("userId", sql.Int, userId)
-      .query("DELETE FROM RefreshTokens WHERE userId = @userId");
+
+    const refreshTokenRepo = AppDataSource.getRepository(RefreshToken);
+    await refreshTokenRepo.delete({ user: { id: userId } });
   }
 }

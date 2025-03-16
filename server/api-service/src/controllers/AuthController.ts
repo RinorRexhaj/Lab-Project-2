@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { UserRepo } from "../repositories/UserRepo";
 import { TokenRepo } from "../repositories/TokenRepo";
-import { User } from "../types/User";
+import { User } from "../models/User";
 import { extractUserId, validToken } from "../services/TokenService";
 
 const JWT_SECRET = process.env.JWT_SECRET as string;
@@ -36,7 +36,7 @@ export const login: RequestHandler = async (
     return;
   }
 
-  const passwordMatch = await bcrypt.compare(password, user.Password);
+  const passwordMatch = await bcrypt.compare(password, user.password);
   if (!passwordMatch) {
     res.status(401).json({ error: "Invalid credentials" });
     return;
@@ -46,11 +46,11 @@ export const login: RequestHandler = async (
 
   res.json({
     user: {
-      id: user.ID,
-      fullname: user.FullName,
-      email: user.Email,
-      role: user.Role,
-      address: user.Address,
+      id: user.id,
+      fullname: user.fullName,
+      email: user.email,
+      role: user.role,
+      address: user.address,
     },
     token,
     refreshToken,
@@ -76,11 +76,11 @@ export const register: RequestHandler = async (
   const hashedPassword = await bcrypt.hash(password, 10);
 
   await UserRepo.createUser({
-    FullName: fullname,
-    Email: email,
-    Password: hashedPassword,
-    Role: "User",
-    Address: address,
+    fullName: fullname,
+    email: email,
+    password: hashedPassword,
+    role: "User",
+    address: address,
   });
   const newUser = await UserRepo.findByEmail(email);
 
@@ -123,11 +123,11 @@ export const refresh: RequestHandler = async (req: Request, res: Response) => {
 
   res.json({
     user: {
-      id: user.ID,
-      fullname: user.FullName,
-      email: user.Email,
-      role: user.Role,
-      address: user.Address,
+      id: user.id,
+      fullname: user.fullName,
+      email: user.email,
+      role: user.role,
+      address: user.address,
     },
     token,
     refreshToken,
@@ -137,16 +137,16 @@ export const refresh: RequestHandler = async (req: Request, res: Response) => {
 const generateTokens = async (user: User, refresh?: string) => {
   const token = jwt.sign(
     {
-      id: user.ID,
-      fullname: user.FullName,
-      email: user.Email,
-      role: user.Role,
+      id: user.id,
+      fullname: user.fullName,
+      email: user.email,
+      role: user.role,
     },
     JWT_SECRET,
     { expiresIn: "1h" }
   );
 
-  let refreshToken = await TokenRepo.findRefreshToken(user.ID || 0);
+  let refreshToken = await TokenRepo.findRefreshToken(user.id || 0);
 
   if (
     !refresh ||
@@ -156,15 +156,15 @@ const generateTokens = async (user: User, refresh?: string) => {
   ) {
     refreshToken = jwt.sign(
       {
-        id: user.ID,
-        fullname: user.FullName,
-        email: user.Email,
-        role: user.Role,
+        id: user.id,
+        fullname: user.fullName,
+        email: user.email,
+        role: user.role,
       },
       JWT_REFRESH,
       { expiresIn: "7d" }
     );
-    await TokenRepo.storeRefreshToken(user.ID || 0, refreshToken);
+    await TokenRepo.storeRefreshToken(user.id || 0, refreshToken);
   }
 
   return { token, refreshToken: refresh || refreshToken };

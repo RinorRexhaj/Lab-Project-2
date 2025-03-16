@@ -6,14 +6,17 @@ import {
   getUsers,
   updateUser,
 } from "../controllers/UserController";
-import { authenticateToken } from "../services/TokenService";
+import {
+  authenticateToken,
+  authenticateUserToken,
+} from "../services/TokenService";
 
 const router = Router();
 
 router.get("/", authenticateToken, getUsers);
-router.get("/id", authenticateToken, getUserById);
+router.get("/:id", authenticateUserToken, getUserById);
 router.get("/email", authenticateToken, getUserByEmail);
-router.patch("/", authenticateToken, updateUser);
-router.delete("/", authenticateToken, deleteUser);
+router.patch("/:id", authenticateUserToken, updateUser);
+router.delete("/:id", authenticateUserToken, deleteUser);
 
 export default router;

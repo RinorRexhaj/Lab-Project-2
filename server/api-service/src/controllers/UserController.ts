@@ -7,6 +7,7 @@ import {
   updateUserData,
 } from "../services/UserService";
 import { isValidEmail } from "./AuthController";
+import { extractUserRole } from "../services/TokenService";
 
 export const getUsers: RequestHandler = async (req, res): Promise<void> => {
   const users = await getAllUsers();
@@ -15,7 +16,7 @@ export const getUsers: RequestHandler = async (req, res): Promise<void> => {
 
 export const getUserById: RequestHandler = async (req, res) => {
   try {
-    const { id } = req.body;
+    const { id } = req.params;
     if (!id) {
       res.status(404).json({ error: "Invalid ID" });
       return;
@@ -43,16 +44,19 @@ export const getUserByEmail: RequestHandler = async (req, res) => {
 
 export const updateUser: RequestHandler = async (req, res) => {
   try {
-    const { id, fullname, role, address } = req.body;
-    if (!id || !fullname || !role) {
+    const { id } = req.params;
+    const { fullname, role, address } = req.body;
+    if (!fullname || !role) {
       res.status(404).json({ error: "User not found" });
       return;
     }
-    const user = await getUserId(id);
+    const authHeader = req.headers.authorization;
+    const token = authHeader && authHeader.split(" ")[1];
+    const requestRole = extractUserRole(token || "");
     const newUser = await updateUserData(
-      id,
+      parseInt(id),
       fullname,
-      user?.Role === "Admin" ? role : "User",
+      requestRole === "Admin" ? role : "User",
       address
     );
     res.json({ user: newUser });
@@ -63,12 +67,12 @@ export const updateUser: RequestHandler = async (req, res) => {
 
 export const deleteUser: RequestHandler = async (req, res) => {
   try {
-    const { id } = req.body;
+    const { id } = req.params;
     if (!id) {
       res.status(404).json({ error: "Id not found" });
       return;
     }
-    const deleted = await deleteUserId(id);
+    const deleted = await deleteUserId(parseInt(id));
     res.json({ deleted });
   } catch (error) {
     res.status(400).json({ error: "Bad Request" });

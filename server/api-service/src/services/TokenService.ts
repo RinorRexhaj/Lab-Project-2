@@ -9,7 +9,6 @@ export const authenticateToken = (
   next: NextFunction
 ): void => {
   const authHeader = req.headers.authorization;
-  const { id } = req.body;
   const token = authHeader && authHeader.split(" ")[1];
 
   if (!token) {
@@ -17,7 +16,35 @@ export const authenticateToken = (
     return;
   }
 
-  if (id !== extractUserId(token) && extractUserRole(token) !== "Admin") {
+  if (extractUserRole(token) !== "Admin") {
+    res.status(403).json({ error: "Forbidden" });
+    return;
+  }
+
+  jwt.verify(token, JWT_SECRET, async (err, user) => {
+    if (err) {
+      return res.status(403).json({ error: "Invalid token" });
+    }
+    next();
+  });
+};
+
+export const authenticateUserToken = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): void => {
+  const authHeader = req.headers.authorization;
+  const { id } = req.params;
+  const token = authHeader && authHeader.split(" ")[1];
+
+  if (!token) {
+    res.status(401).json({ error: "Access denied" });
+    return;
+  }
+  const role = extractUserRole(token);
+
+  if (role !== "Admin" && parseInt(id) !== extractUserId(token)) {
     res.status(403).json({ error: "Forbidden" });
     return;
   }

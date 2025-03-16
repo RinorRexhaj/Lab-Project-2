@@ -9,4 +9,10 @@ create table Users(
 	Address varchar(100),
 )
 
-select * from users
+CREATE TABLE RefreshTokens (
+    id INT PRIMARY KEY IDENTITY(1,1),
+    userId INT NOT NULL,
+    token NVARCHAR(255) NOT NULL UNIQUE,
+    createdAt DATETIME DEFAULT GETDATE(),
+    FOREIGN KEY (userId) REFERENCES Users(id) ON DELETE CASCADE
+);

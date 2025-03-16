@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 
-const JWT_SECRET = process.env.JWT_SECRET || "default_secret";
+const JWT_SECRET = process.env.JWT_SECRET as string;
 
 export const authenticateToken = (
   req: Request,
@@ -9,6 +9,7 @@ export const authenticateToken = (
   next: NextFunction
 ): void => {
   const authHeader = req.headers.authorization;
+  const { id } = req.body;
   const token = authHeader && authHeader.split(" ")[1];
 
   if (!token) {
@@ -16,7 +17,12 @@ export const authenticateToken = (
     return;
   }
 
-  jwt.verify(token, JWT_SECRET, (err, user) => {
+  if (id !== extractUserId(token) && extractUserRole(token) !== "Admin") {
+    res.status(403).json({ error: "Forbidden" });
+    return;
+  }
+
+  jwt.verify(token, JWT_SECRET, async (err, user) => {
     if (err) {
       return res.status(403).json({ error: "Invalid token" });
     }
@@ -32,13 +38,20 @@ export const validToken = (token: string, secret: string) => {
   }
 };
 
-export const extractUserId = (token: string, secret: string): number | null => {
+export const extractUserId = (token: string): number => {
   try {
-    const decoded = jwt.verify(token, secret) as {
-      id: number;
-    };
-    return decoded.id;
-  } catch (error) {
-    return null;
+    const decoded = jwt.decode(token) as { id: number } | null;
+    return decoded?.id || 0;
+  } catch {
+    return 0;
+  }
+};
+
+export const extractUserRole = (token: string) => {
+  try {
+    const decoded = jwt.decode(token) as { role: "User" | "Admin" } | null;
+    return decoded?.role || 0;
+  } catch {
+    return 0;
   }
 };

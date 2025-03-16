@@ -14,15 +14,17 @@ export class TokenRepo {
   }
 
   static async findRefreshToken(userId: number) {
+    if (!userId) return null;
     const pool = getDBPool();
     const result = await pool
       .request()
       .input("userId", sql.Int, userId)
       .query("SELECT * FROM RefreshTokens WHERE userId = @userId");
-    return result.recordset[0].token;
+    return result.recordset[0]?.token;
   }
 
   static async deleteRefreshToken(userId: number) {
+    if (!userId) return;
     const pool = getDBPool();
     await pool
       .request()

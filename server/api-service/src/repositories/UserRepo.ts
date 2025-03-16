@@ -16,6 +16,11 @@ export class UserRepo {
       );
   }
 
+  static async getUsers(): Promise<User[]> {
+    const users = await getDBPool().request().query("SELECT * FROM Users");
+    return users.recordset;
+  }
+
   static async findById(id: number): Promise<User | null> {
     const pool = getDBPool();
     const result = await pool
@@ -31,13 +36,41 @@ export class UserRepo {
     const result = await pool
       .request()
       .input("Email", sql.VarChar, email)
-      .query("SELECT * FROM Users WHERE Email = @email");
+      .query("SELECT * FROM Users WHERE Email = @Email");
 
     return result.recordset.length > 0 ? result.recordset[0] : null;
   }
 
-  static async getUsers(): Promise<User[]> {
-    const users = await getDBPool().request().query("SELECT * FROM Users");
-    return users.recordset;
+  static async updateUser(
+    id: number,
+    fullname: string,
+    role: string,
+    address: string
+  ): Promise<User | null> {
+    const pool = getDBPool();
+    const result = await pool
+      .request()
+      .input("ID", sql.Int, id)
+      .input("FullName", sql.VarChar, fullname)
+      .input("Role", sql.VarChar, role)
+      .input("Address", sql.VarChar, address)
+      .query(
+        `UPDATE Users 
+         SET FullName = @FullName, Role = @Role, Address = @Address 
+         WHERE ID = @ID;
+         SELECT * FROM Users WHERE ID = @ID;`
+      );
+
+    return result.recordset.length > 0 ? result.recordset[0] : null;
+  }
+
+  static async deleteUser(id: number): Promise<boolean> {
+    const pool = getDBPool();
+    const result = await pool
+      .request()
+      .input("ID", sql.Int, id)
+      .query("DELETE FROM Users WHERE ID = @ID");
+
+    return result.rowsAffected[0] > 0;
   }
 }

@@ -4,7 +4,6 @@ import jwt from "jsonwebtoken";
 import { UserRepo } from "../repositories/UserRepo";
 import { TokenRepo } from "../repositories/TokenRepo";
 import { User } from "../types/User";
-import { error } from "console";
 import { extractUserId, validToken } from "../services/TokenService";
 
 const JWT_SECRET = process.env.JWT_SECRET as string;
@@ -16,7 +15,7 @@ if (!JWT_SECRET || !JWT_REFRESH) {
   );
 }
 
-const isValidEmail = (email: string): boolean => {
+export const isValidEmail = (email: string): boolean => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
 };
@@ -98,14 +97,6 @@ export const register: RequestHandler = async (
   });
 };
 
-export const getUsers: RequestHandler = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
-  const users = await UserRepo.getUsers();
-  res.json({ users });
-};
-
 export const refresh: RequestHandler = async (req: Request, res: Response) => {
   const { refresh } = req.body;
   if (!refresh) {
@@ -113,7 +104,7 @@ export const refresh: RequestHandler = async (req: Request, res: Response) => {
     return;
   }
 
-  const id = extractUserId(refresh, JWT_REFRESH);
+  const id = extractUserId(refresh);
   if (!id) {
     res.status(404).json({ error: "Invalid refresh" });
     return;
@@ -145,9 +136,14 @@ export const refresh: RequestHandler = async (req: Request, res: Response) => {
 
 const generateTokens = async (user: User, refresh?: string) => {
   const token = jwt.sign(
-    { id: user.ID, fullname: user.FullName, email: user.Email },
+    {
+      id: user.ID,
+      fullname: user.FullName,
+      email: user.Email,
+      role: user.Role,
+    },
     JWT_SECRET,
-    { expiresIn: "15m" }
+    { expiresIn: "1h" }
   );
 
   let refreshToken = await TokenRepo.findRefreshToken(user.ID || 0);
@@ -159,7 +155,12 @@ const generateTokens = async (user: User, refresh?: string) => {
     !validToken(refreshToken, JWT_REFRESH)
   ) {
     refreshToken = jwt.sign(
-      { id: user.ID, fullname: user.FullName, email: user.Email },
+      {
+        id: user.ID,
+        fullname: user.FullName,
+        email: user.Email,
+        role: user.Role,
+      },
       JWT_REFRESH,
       { expiresIn: "7d" }
     );

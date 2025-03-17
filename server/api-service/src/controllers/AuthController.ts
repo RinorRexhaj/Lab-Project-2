@@ -91,7 +91,13 @@ export const register: RequestHandler = async (
   const { token, refreshToken } = await generateTokens(newUser);
 
   res.json({
-    message: `User ${fullname} registered successfully`,
+    user: {
+      id: newUser.id,
+      fullname: newUser.fullName,
+      email: newUser.email,
+      role: newUser.role,
+      address: newUser.address,
+    },
     token,
     refreshToken,
   });

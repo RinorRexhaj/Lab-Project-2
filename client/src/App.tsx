@@ -1,5 +1,7 @@
+import AppRouter from "./routes/AppRouter";
+
 const App = () => {
-  return <div className="relative flex flex-col items-center">Lab 2</div>;
+  return <AppRouter />;
 };
 
 export default App;

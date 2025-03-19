@@ -3,6 +3,10 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { validateEmail, validatePassword } from "../utils/validation";
 import useApi from "../hooks/useApi";
+import { useUserStore } from "../store/useUserStore";
+import { useSessionStore } from "../store/useSessionStore";
+import { useNavigate } from "react-router-dom";
+import { LoginResponse } from "../types/response/LoginResponse";
 
 const LogIn = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -15,7 +19,10 @@ const LogIn = () => {
     password: "",
     fullname: "",
   });
+  const navigate = useNavigate();
   const { post, loading, error, setError } = useApi();
+  const { setUser, resetUser } = useUserStore();
+  const { setAccessToken } = useSessionStore();
 
   const handleEmailChange = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -38,6 +45,17 @@ const LogIn = () => {
     }));
   };
 
+  const isDisabled = () => {
+    return isLogin
+      ? !email || !password || !!errors.email || !!errors.password
+      : !email ||
+          !password ||
+          !fullname ||
+          !!errors.email ||
+          !!errors.password ||
+          !!errors.fullname;
+  };
+
   const handleNameChange = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setFullname(value);
@@ -56,7 +74,7 @@ const LogIn = () => {
     e.preventDefault();
     if (!errors.email && !errors.password && email && password) {
       const response = await post("/auth/login", { email, password });
-      if (response) console.log(response);
+      setSession(response);
     }
   };
 
@@ -76,7 +94,21 @@ const LogIn = () => {
         address,
         password,
       });
-      if (response) console.log(response);
+      setSession(response);
+    }
+  };
+
+  const setSession = (response: LoginResponse) => {
+    if (response) {
+      const { user, token, refreshToken } = response;
+      setUser(user);
+      setAccessToken(token);
+      localStorage.setItem("refreshToken", refreshToken);
+      navigate("/", { replace: true });
+    } else if (!response || error) {
+      resetUser();
+      setAccessToken("");
+      localStorage.setItem("refreshToken", "");
     }
   };
 
@@ -142,17 +174,8 @@ const LogIn = () => {
         </div>
         <button
           type="submit"
-          disabled={
-            isLogin
-              ? !email || !password || !!errors.email || !!errors.password
-              : !email ||
-                !password ||
-                !fullname ||
-                !!errors.email ||
-                !!errors.password ||
-                !!errors.fullname
-          }
-          className="px-3 py-2 flex items-center justify-center bg-emerald-500 hover:bg-emerald-600 disabled:bg-emerald-200 disabled:cursor-not-allowed duration-150 rounded-md text-white font-semibold"
+          disabled={isDisabled()}
+          className="h-10 px-3 py-2 flex items-center justify-center bg-emerald-500 hover:bg-emerald-600 disabled:bg-emerald-200 disabled:cursor-not-allowed duration-150 rounded-md text-white font-semibold"
         >
           {loading ? (
             <FontAwesomeIcon icon={faSpinner} spinPulse className="text-lg" />

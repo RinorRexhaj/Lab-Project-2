@@ -60,7 +60,7 @@ const useApi = () => {
     [request]
   );
 
-  return { get, post, put, del, loading, error, setError };
+  return { get, post, put, del, loading, setLoading, error, setError };
 };
 
 export default useApi;

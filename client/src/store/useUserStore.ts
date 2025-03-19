@@ -1,21 +1,14 @@
 import { create } from "zustand";
+import { User } from "../types/User";
 
 interface UserState {
-  id: number;
-  fullname: string;
-  email: string;
-  role: string;
-  address?: string;
-  setFullname: (fullname: string) => void;
-  setAddress: (address: string) => void;
+  user: User | null;
+  setUser: (user: User) => void;
+  resetUser: () => void;
 }
 
 export const useUserStore = create<UserState>((set) => ({
-  id: 0,
-  fullname: "",
-  email: "",
-  role: "User",
-  address: "",
-  setFullname: (fullname) => set({ fullname: fullname }),
-  setAddress: (address) => set({ address: address }),
+  user: null,
+  setUser: (user) => set({ user: user }),
+  resetUser: () => set({ user: null }),
 }));

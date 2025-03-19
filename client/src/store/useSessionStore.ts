@@ -9,7 +9,7 @@ interface SessionState {
 
 export const useSessionStore = create<SessionState>((set) => ({
   accessToken: "",
-  role: "User",
+  role: "",
   setAccessToken: (token) => set({ accessToken: token }),
   setRole: (role) => set({ role: role }),
 }));

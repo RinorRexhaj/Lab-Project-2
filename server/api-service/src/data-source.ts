@@ -16,6 +16,7 @@ export const AppDataSource = new DataSource({
     encrypt: false,
     trustServerCertificate: true,
   },
+  requestTimeout: 60000,
   entities: [__dirname + "/models/*.ts"],
 });
 

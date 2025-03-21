@@ -7,6 +7,8 @@ import { useSessionStore } from "../store/useSessionStore";
 import { useUserStore } from "../store/useUserStore";
 import useApi from "../hooks/useApi";
 import Forbidden from "../pages/Forbidden";
+import Navbar from "../components/Navbar";
+import Users from "../pages/Users";
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -29,7 +31,7 @@ const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 const AppRouter: React.FC = () => {
   const { post } = useApi();
   const { setUser } = useUserStore();
-  const { setAccessToken, setRole } = useSessionStore();
+  const { accessToken, setAccessToken, setRole } = useSessionStore();
   const [isRefreshing, setIsRefreshing] = useState(true);
 
   useEffect(() => {
@@ -57,33 +59,40 @@ const AppRouter: React.FC = () => {
   if (isRefreshing) return <Loading />;
 
   return (
-    <Routes>
-      <Route path="*" element={<Navigate to="/" replace />} />
-      <Route
-        path="/"
-        element={
-          <ProtectedRoute>
-            <Home />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/users"
-        element={
-          <AdminRoute>
-            <Home />
-          </AdminRoute>
-        }
-      />
-      <Route
-        path="/login"
-        element={
-          <PublicRoute>
-            <Login />
-          </PublicRoute>
-        }
-      />
-    </Routes>
+    <div
+      className={`w-full flex flex-col items-center relative ${
+        accessToken && "mt-20 "
+      }`}
+    >
+      {accessToken && <Navbar />}
+      <Routes>
+        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <Home />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/users"
+          element={
+            <AdminRoute>
+              <Users />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/login"
+          element={
+            <PublicRoute>
+              <Login />
+            </PublicRoute>
+          }
+        />
+      </Routes>
+    </div>
   );
 };
 

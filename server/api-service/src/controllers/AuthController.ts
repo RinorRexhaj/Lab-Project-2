@@ -47,7 +47,7 @@ export const login: RequestHandler = async (
   res.json({
     user: {
       id: user.id,
-      fullname: user.fullName,
+      fullName: user.fullName,
       email: user.email,
       role: user.role,
       address: user.address,
@@ -93,7 +93,7 @@ export const register: RequestHandler = async (
   res.json({
     user: {
       id: newUser.id,
-      fullname: newUser.fullName,
+      fullName: newUser.fullName,
       email: newUser.email,
       role: newUser.role,
       address: newUser.address,
@@ -130,7 +130,7 @@ export const refresh: RequestHandler = async (req: Request, res: Response) => {
   res.json({
     user: {
       id: user.id,
-      fullname: user.fullName,
+      fullName: user.fullName,
       email: user.email,
       role: user.role,
       address: user.address,
@@ -144,7 +144,7 @@ const generateTokens = async (user: User, refresh?: string) => {
   const token = jwt.sign(
     {
       id: user.id,
-      fullname: user.fullName,
+      fullName: user.fullName,
       email: user.email,
       role: user.role,
     },
@@ -163,7 +163,7 @@ const generateTokens = async (user: User, refresh?: string) => {
     refreshToken = jwt.sign(
       {
         id: user.id,
-        fullname: user.fullName,
+        fullName: user.fullName,
         email: user.email,
         role: user.role,
       },

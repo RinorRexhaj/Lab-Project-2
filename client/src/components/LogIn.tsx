@@ -3,10 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { validateEmail, validatePassword } from "../utils/validation";
 import useApi from "../hooks/useApi";
-import { useUserStore } from "../store/useUserStore";
-import { useSessionStore } from "../store/useSessionStore";
-import { useNavigate } from "react-router-dom";
-import { LoginResponse } from "../types/response/LoginResponse";
+import useSession from "../hooks/useSession";
 
 const LogIn = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -19,10 +16,8 @@ const LogIn = () => {
     password: "",
     fullname: "",
   });
-  const navigate = useNavigate();
   const { post, loading, error, setError } = useApi();
-  const { setUser, resetUser } = useUserStore();
-  const { setAccessToken } = useSessionStore();
+  const { setSession } = useSession();
 
   const handleEmailChange = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -95,20 +90,6 @@ const LogIn = () => {
         password,
       });
       setSession(response);
-    }
-  };
-
-  const setSession = (response: LoginResponse) => {
-    if (response) {
-      const { user, token, refreshToken } = response;
-      setUser(user);
-      setAccessToken(token);
-      localStorage.setItem("refreshToken", refreshToken);
-      navigate("/", { replace: true });
-    } else if (!response || error) {
-      resetUser();
-      setAccessToken("");
-      localStorage.setItem("refreshToken", "");
     }
   };
 

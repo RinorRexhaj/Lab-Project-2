@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 
 const Forbidden = () => {
   return (
-    <div className="h-screen w-screen flex flex-col gap-10 items-center justify-center">
+    <div className="h-96 mt-20 w-full flex flex-col gap-10 items-center justify-center">
       <FontAwesomeIcon icon={faBan} className="text-red-500 w-16 h-16" />
       <div className="flex flex-col items-center">
         <h1 className="font-bold text-3xl">403 Forbidden</h1>

@@ -9,9 +9,13 @@ export class TokenRepo {
 
     const user = await userRepo.findOne({ where: { id: userId } });
     if (!user) throw new Error("User not found");
-
-    const refreshToken = refreshTokenRepo.create({ user, token });
-    await refreshTokenRepo.save(refreshToken);
+    try {
+      refreshTokenRepo.delete({ user: { id: userId } });
+      const refreshToken = refreshTokenRepo.create({ user, token });
+      await refreshTokenRepo.save(refreshToken);
+    } catch (error: any) {
+      console.log(error);
+    }
   }
 
   static async findRefreshToken(userId: number) {

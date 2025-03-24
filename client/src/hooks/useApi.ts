@@ -17,7 +17,7 @@ const useApi = () => {
 
   const request = useCallback(
     async (
-      method: "GET" | "POST" | "PUT" | "DELETE",
+      method: "GET" | "POST" | "PATCH" | "DELETE",
       url: string,
       data?: any,
       params?: any
@@ -50,9 +50,9 @@ const useApi = () => {
     (url: string, data?: any) => request("POST", url, data),
     [request]
   );
-  const put = useCallback(
+  const patch = useCallback(
     (url: string, data?: any, params?: any) =>
-      request("PUT", url, data, params),
+      request("PATCH", url, data, params),
     [request]
   );
   const del = useCallback(
@@ -60,7 +60,7 @@ const useApi = () => {
     [request]
   );
 
-  return { get, post, put, del, loading, setLoading, error, setError };
+  return { get, post, patch, del, loading, setLoading, error, setError };
 };
 
 export default useApi;

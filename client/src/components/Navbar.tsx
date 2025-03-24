@@ -3,15 +3,13 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import ProfileModal from "./ProfileModal";
-import { useUserStore } from "../store/useUserStore";
-import LogOutButton from "../shared/LogOutButton";
+import Chat from "./Chat/Chat";
 
 const Navbar = () => {
   const [hasShadow, setHasShadow] = useState(false);
   const [activeLink, setActiveLink] = useState(0);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [profile, setProfile] = useState(false);
-  const { user } = useUserStore();
 
   const links = ["Home", "Rides", "Eat", "Groceries", "Payment"];
 
@@ -51,26 +49,31 @@ const Navbar = () => {
           <h1 className="text-emerald-500 text-3xl tb:text-2xl font-bold">
             Lab Project 2
           </h1>
-          <div className="flex md:hidden items-center gap-5">
-            {links.map((link, index) => (
-              <Link
-                to={link === "Home" ? "/" : "/" + link.toLowerCase()}
-                className={`px-3 py-2 tb:px-2 tb:py-1.5 tb:text-base font-semibold rounded-lg ${
-                  activeLink === index && "bg-emerald-500 text-white"
-                } hover:bg-emerald-500 hover:text-white duration-200`}
-                key={link + index}
-                onClick={() => setActiveLink(index)}
+          <div className="flex gap-6 items-center">
+            <div className="flex md:hidden items-center gap-5 tb:gap-3">
+              {links.map((link, index) => (
+                <Link
+                  to={link === "Home" ? "/" : "/" + link.toLowerCase()}
+                  className={`px-3 py-2 tb:px-2 tb:py-1.5 tb:text-base font-semibold rounded-lg ${
+                    activeLink === index && "bg-emerald-500 text-white"
+                  } hover:bg-emerald-500 hover:text-white duration-200`}
+                  key={link + index}
+                  onClick={() => setActiveLink(index)}
+                >
+                  {link}
+                </Link>
+              ))}
+            </div>
+            <div className="flex gap-5 items-center md:absolute md:right-24 md:gap-3">
+              <Chat />
+              <button
+                id="profile-btn"
+                className="w-10 h-10 flex items-center justify-center bg-emerald-500 hover:bg-emerald-600 duration-150 rounded-full"
+                onClick={() => setProfile(!profile)}
               >
-                {link}
-              </Link>
-            ))}
-            <button
-              id="profile-btn"
-              className="w-10 h-10 flex items-center justify-center bg-emerald-500 rounded-full"
-              onClick={() => setProfile(!profile)}
-            >
-              <FontAwesomeIcon icon={faUser} className="w-5 h-5 text-white" />
-            </button>
+                <FontAwesomeIcon icon={faUser} className="w-5 h-5 text-white" />
+              </button>
+            </div>
           </div>
 
           <button
@@ -104,12 +107,6 @@ const Navbar = () => {
                 {link}
               </Link>
             ))}
-            <div className="px-4 py-1 w-10/12 flex gap-5 items-center justify-between">
-              <p className="font-semibold text-emerald-500 text-lg">
-                {user?.fullName}
-              </p>
-              <LogOutButton />
-            </div>
           </div>
           {profile && <ProfileModal setProfile={setProfile} />}
         </div>

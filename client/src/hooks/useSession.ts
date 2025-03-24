@@ -14,9 +14,9 @@ const useSession = () => {
     if (response) {
       const { user, token, refreshToken } = response;
       setUser(user);
+      setRole(user.role);
       setAccessToken(token);
       localStorage.setItem("refreshToken", refreshToken);
-      navigate("/", { replace: true });
     } else if (!response || error) {
       resetSession();
     }

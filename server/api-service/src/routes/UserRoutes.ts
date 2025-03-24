@@ -7,15 +7,15 @@ import {
   updateUser,
 } from "../controllers/UserController";
 import {
-  authenticateToken,
+  authenticateAdminToken,
   authenticateUserToken,
 } from "../services/TokenService";
 
 const router = Router();
 
-router.get("/", authenticateToken, getUsers);
+router.get("/", authenticateAdminToken, getUsers);
 router.get("/:id", authenticateUserToken, getUserById);
-router.get("/email", authenticateToken, getUserByEmail);
+router.get("/email", authenticateAdminToken, getUserByEmail);
 router.patch("/:id", authenticateUserToken, updateUser);
 router.delete("/:id", authenticateUserToken, deleteUser);
 

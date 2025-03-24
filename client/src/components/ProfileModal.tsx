@@ -12,7 +12,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ setProfile }) => {
   const { user } = useUserStore();
 
   return (
-    <div className="fixed top-20 md:top-[470px] max-w-7xl w-11/12 pr-6">
+    <div className="fixed top-20 max-w-7xl w-11/12 pr-6">
       <div
         id="profile-modal"
         className="relative w-60 px-6 bg-white py-4 rounded-lg flex flex-col gap-2 font-medium text-black animate-fadeIn shadow-lg border border-gray-300 z-50"

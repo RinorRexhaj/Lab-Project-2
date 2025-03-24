@@ -45,7 +45,7 @@ const Home = () => {
       <div className="max-w-7xl flex flex-col p-3 w-11/12 mx-auto space-y-12">
         {/* Hero Section */}
         <section className="text-center py-14 px-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-2xl shadow-lg">
-          <h1 className="text-4xl md:text-xl font-bold">
+          <h1 className="text-3xl md:text-xl font-bold">
             Your All-in-One Transport, Food, and Payment Solution
           </h1>
           <p className="text-lg md:text-base mt-4">
@@ -79,7 +79,7 @@ const Home = () => {
         {/* About Us Section */}
         <section className="w-9/12 md:w-11/12 md:flex-col mx-auto py-16 text-center flex items-center gap-10">
           <div className="w-1/2 flex flex-col items-start gap-5 md:gap-3 md:w-full md:items-center">
-            <h1 className="font-semibold text-3xl md:text-2xl md:text-center">
+            <h1 className="font-bold text-3xl md:text-2xl md:text-center">
               About Us
             </h1>
             <p className="w-10/12 text-start md:text-sm md:text-center">
@@ -95,6 +95,7 @@ const Home = () => {
           />
         </section>
       </div>
+
       {/* Footer Section */}
       <footer className="w-full bg-gray-900 text-white py-8 mt-16">
         <div className="max-w-7xl w-11/12 mx-auto flex flex-wrap gap-3 justify-between px-3">

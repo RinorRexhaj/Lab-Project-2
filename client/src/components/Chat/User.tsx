@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUser } from "@fortawesome/free-solid-svg-icons";
 import { useChatStore } from "../../store/useChatStore";
-import { Message } from "../../types/Message";
 import { ChatUser } from "../../types/ChatUser";
 import { useChat } from "../../hooks/useChat";
 import { useTimeAgo } from "../../hooks/useTimeAgo";
@@ -11,13 +10,12 @@ import { useUserStore } from "../../store/useUserStore";
 interface UserProps {
   user: ChatUser;
   active: boolean;
-  last: boolean;
 }
-const User: React.FC<UserProps> = ({ user, active, last }) => {
+const User: React.FC<UserProps> = ({ user, active }) => {
   const [profile, setProfile] = useState(false);
   const { user: currUser } = useUserStore();
-  const { typing, setCurrentUser } = useChatStore();
-  const { getMessages, setSeen } = useChat();
+  const { typing, setOpenUser } = useChatStore();
+  const { openChat, getMessages } = useChat();
   const { formatTime } = useTimeAgo();
 
   const userMessage = (): string => {
@@ -52,9 +50,9 @@ const User: React.FC<UserProps> = ({ user, active, last }) => {
     <div
       className="relative w-full min-h-15 flex py-2 mt-1 hover:bg-slate-100 duration-150 ease-linear cursor-pointer"
       onClick={() => {
-        setCurrentUser(user);
+        setOpenUser(user);
+        openChat(user.id);
         getMessages(user.id);
-        setSeen(user.id);
       }}
     >
       {profile ? (

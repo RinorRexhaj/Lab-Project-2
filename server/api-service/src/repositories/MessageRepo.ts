@@ -34,6 +34,7 @@ export class MessageRepo {
       receiver: message.receiver.id,
       text: message.text,
       sent: message.sent,
+      delivered: message.delivered,
       seen: message.seen,
     }));
   }
@@ -85,7 +86,7 @@ export class MessageRepo {
               sender: lastMessage.sender.id,
               receiver: lastMessage.receiver.id,
               text:
-                unseenMessagesCount > 1
+                unseenMessagesCount > 1 && lastMessage.sender.id !== userId
                   ? `${unseenMessagesCount} new messages`
                   : lastMessage.text,
               sent: lastMessage.sent,
@@ -105,10 +106,26 @@ export class MessageRepo {
     });
   }
 
-  static async updateUnseenMessagesToSeen(
+  static async updateMessagesToDelivered(
     senderId: number,
     receiverId: number
   ): Promise<void> {
+    const messageRepo = AppDataSource.getRepository(Message);
+
+    await messageRepo.update(
+      {
+        sender: { id: senderId },
+        receiver: { id: receiverId },
+        delivered: new Date("01/01/2000"),
+      },
+      { delivered: new Date() }
+    );
+  }
+
+  static async updateUnseenMessagesToSeen(
+    senderId: number,
+    receiverId: number
+  ): Promise<MessageType[]> {
     const messageRepo = AppDataSource.getRepository(Message);
 
     await messageRepo.update(
@@ -119,5 +136,7 @@ export class MessageRepo {
       },
       { seen: new Date() }
     );
+
+    return this.getMessages(senderId, receiverId);
   }
 }

@@ -1,8 +1,9 @@
 import React from "react";
-import { useChatStore } from "../../store/useChatStore";
 import { Message as MessageType } from "../../types/Message";
 import { useUserStore } from "../../store/useUserStore";
 import { useTimeAgo } from "../../hooks/useTimeAgo";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCheck, faCheckDouble } from "@fortawesome/free-solid-svg-icons";
 
 interface MessageProps {
   current: MessageType;
@@ -12,15 +13,13 @@ interface MessageProps {
 }
 
 const Message: React.FC<MessageProps> = ({ current, prev, next, last }) => {
-  const { currentTyping } = useChatStore();
   const { user } = useUserStore();
   const { formatTime, formatDate, formatSent, getDiff } = useTimeAgo();
 
   const getLastMessageAgo = () => {
     if (!last) return;
     if (current.sender !== user?.id) return;
-    const date =
-      new Date(current.seen).getFullYear() > 2000 ? current.seen : current.sent;
+    const date = isSeen() ? current.seen : current.sent;
     return (date === current.seen ? "Seen " : "Sent ") + formatTime(date);
   };
 
@@ -48,11 +47,15 @@ const Message: React.FC<MessageProps> = ({ current, prev, next, last }) => {
     return current.sender === user?.id;
   };
 
+  const isSeen = () => {
+    return new Date(current.seen).getFullYear() > 2000;
+  };
+
   return (
     <>
       {/* Message Time Separator */}
       {getDiffDate() && (
-        <p className="w-full mt-5 mb-3 flex justify-center text-slate-500 text-sm font-light">
+        <p className="w-full my-5 flex justify-center text-slate-500 text-sm font-light">
           {formatDate(current.sent)}
         </p>
       )}
@@ -77,15 +80,23 @@ const Message: React.FC<MessageProps> = ({ current, prev, next, last }) => {
             }`}
           ></div>
         )}
+
+        {/* Message Time and Ticks */}
         <div
-          className={`relative -right-1 ${
+          className={`relative w-fit flex gap-1 -right-1 ${
             userSent() ? "text-gray-200" : "text-slate-500"
           } text-xs`}
           style={{
             top: "calc(100% - 10px)",
           }}
         >
-          {formatSent(current.sent)}
+          {formatSent(current.sent)}{" "}
+          {userSent() && (
+            <FontAwesomeIcon
+              icon={isSeen() ? faCheckDouble : faCheck}
+              className={`relative top-0.5 ${isSeen() && "text-teal-700"}`}
+            />
+          )}
         </div>
       </div>
 
@@ -100,7 +111,3 @@ const Message: React.FC<MessageProps> = ({ current, prev, next, last }) => {
 };
 
 export default Message;
-
-// <div className="ml-2 w-2 h-2 rounded-full bg-gray-800 animate-typing [animation-delay:-1s]"></div>
-//           <div className="w-2 h-2 rounded-full bg-gray-800 animate-typing [animation-delay:-0.3s]"></div>
-//           <div className="w-2 h-2 rounded-full bg-gray-800 animate-typing [animation-delay:0.4s]"></div>

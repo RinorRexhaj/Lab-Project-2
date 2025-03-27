@@ -13,6 +13,9 @@ export class Message {
   sent!: Date;
 
   @Column()
+  delivered!: Date;
+
+  @Column()
   seen!: Date;
 
   @ManyToOne(() => User, (user) => user.id, {

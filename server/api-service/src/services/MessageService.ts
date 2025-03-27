@@ -32,12 +32,22 @@ export const getUsersWithConversations = async (
   return await MessageRepo.getUsersWithConversations(userId);
 };
 
-export const updateUnseenMessagesToSeen = async (
+export const updateMessagesToDelivered = async (
   senderId: number,
   receiverId: number
 ): Promise<void> => {
   if (!senderId || !receiverId) {
     throw new Error("Both senderId and receiverId are required.");
   }
-  await MessageRepo.updateUnseenMessagesToSeen(senderId, receiverId);
+  await MessageRepo.updateMessagesToDelivered(senderId, receiverId);
+};
+
+export const updateUnseenMessagesToSeen = async (
+  senderId: number,
+  receiverId: number
+): Promise<MessageType[]> => {
+  if (!senderId || !receiverId) {
+    throw new Error("Both senderId and receiverId are required.");
+  }
+  return await MessageRepo.updateUnseenMessagesToSeen(senderId, receiverId);
 };

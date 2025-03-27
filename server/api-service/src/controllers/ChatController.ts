@@ -3,6 +3,7 @@ import {
   createMessage,
   getMessages as getMessagesUsers,
   getUsersWithConversations,
+  updateMessagesToDelivered,
   updateUnseenMessagesToSeen,
 } from "../services/MessageService";
 
@@ -35,14 +36,27 @@ export const getUsers: RequestHandler = async (req, res): Promise<void> => {
   }
 };
 
+export const makeMessagesDelivered: RequestHandler = async (
+  req,
+  res
+): Promise<void> => {
+  try {
+    const { sender, receiver } = req.body;
+    await updateMessagesToDelivered(sender, receiver);
+    res.status(200).json({ message: "Successfully delivered!" });
+  } catch (error: any) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
 export const makeMessagesSeen: RequestHandler = async (
   req,
   res
 ): Promise<void> => {
   try {
     const { sender, receiver } = req.body;
-    await updateUnseenMessagesToSeen(sender, receiver);
-    res.status(200).json({ message: "Successfully seen!" });
+    const messages = await updateUnseenMessagesToSeen(sender, receiver);
+    res.status(200).json({ messages });
   } catch (error: any) {
     res.status(400).json({ error: error.message });
   }

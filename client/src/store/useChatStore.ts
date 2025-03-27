@@ -5,20 +5,23 @@ import { ChatUser } from "../types/ChatUser";
 interface ChatState {
   messages: Message[];
   users: ChatUser[];
-  currentUser: ChatUser | null;
+  openUser: ChatUser | null;
   typing: number[];
   currentTyping: boolean;
   setMessages: (messages: Message[]) => void;
   addMessage: (message: Message) => void;
   deleteMessage: (id: number) => void;
   setUsers: (users: ChatUser[]) => void;
-  setCurrentUser: (user: ChatUser | null) => void;
+  setOpenUser: (user: ChatUser | null) => void;
+  setCurrentTyping: (typing: boolean) => void;
+  addTyping: (user: number) => void;
+  removeTyping: (user: number) => void;
 }
 
 export const useChatStore = create<ChatState>((set) => ({
   messages: [],
   users: [],
-  currentUser: null,
+  openUser: null,
   typing: [],
   currentTyping: false,
 
@@ -45,5 +48,12 @@ export const useChatStore = create<ChatState>((set) => ({
 
   setUsers: (users) => set({ users }),
 
-  setCurrentUser: (user) => set({ currentUser: user }),
+  setOpenUser: (user) => set({ openUser: user }),
+
+  addTyping: (user) => set((state) => ({ typing: [...state.typing, user] })),
+
+  removeTyping: (user) =>
+    set((state) => ({ typing: [...state.typing].filter((u) => u !== user) })),
+
+  setCurrentTyping: (typing) => set({ currentTyping: typing }),
 }));

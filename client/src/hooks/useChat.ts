@@ -12,8 +12,16 @@ const SOCKET_SERVER_URL = environment.apiUrl;
 export const useChat = () => {
   const [socket, setSocket] = useState<Socket | null>(null);
   const { user } = useUserStore();
-  const { currentUser, addMessage, setUsers, setMessages } = useChatStore();
-  const { get, post, patch } = useApi();
+  const {
+    openUser,
+    addTyping,
+    addMessage,
+    setUsers,
+    setMessages,
+    setCurrentTyping,
+    removeTyping: rmvTyping,
+  } = useChatStore();
+  const { get, post } = useApi();
 
   useEffect(() => {
     initialize();
@@ -27,8 +35,24 @@ export const useChat = () => {
 
     getUsers();
 
-    newSocket.on("receiveMessage", (message) => {
+    newSocket.on("receiveMessage", (message: Message) => {
       receiveMessage(message);
+    });
+
+    newSocket.on("seenMessage", (receiver: number) => {
+      if (openUser?.id === receiver) getMessages(receiver);
+      else if (!openUser) getUsers();
+    });
+
+    newSocket.on(
+      "receiveTyping",
+      (sender: number, sameChat: number | undefined) => {
+        receiveTyping(sender, sameChat);
+      }
+    );
+
+    newSocket.on("receiveRemoveTyping", (sender: number) => {
+      rmvTyping(sender);
     });
 
     return () => {
@@ -37,7 +61,7 @@ export const useChat = () => {
   };
 
   const getMessages = async (receiver: number) => {
-    if (socket && user && receiver) {
+    if (user && receiver) {
       const messages: Message[] = await get(`/chat/${user.id}/${receiver}`);
       setMessages(messages);
     }
@@ -49,6 +73,18 @@ export const useChat = () => {
     setUsers(users);
   };
 
+  const openChat = async (openChatId: number) => {
+    if (socket && user) {
+      socket.emit("openChat", user.id, openChatId);
+    }
+  };
+
+  const closeChat = async () => {
+    if (socket && user) {
+      socket.emit("closeChat", user.id);
+    }
+  };
+
   const sendMessage = async (receiver: number, text: string) => {
     if (socket && user) {
       const message: Message = await post("/chat/", {
@@ -56,6 +92,7 @@ export const useChat = () => {
         receiver,
         text,
         sent: new Date(),
+        delivered: new Date("01/01/2000"),
         seen: new Date("01/01/2000"),
       });
       addMessage(message);
@@ -65,19 +102,41 @@ export const useChat = () => {
 
   const receiveMessage = (message: Message) => {
     if (user && message) {
-      if (currentUser) {
+      if (openUser?.id === message.sender) {
         addMessage(message);
-      } else {
+      } else if (!openUser) {
         getUsers();
       }
     }
   };
 
-  const setSeen = async (sender: number) => {
-    if (socket && user) {
-      await patch("/chat/seen", { sender, receiver: user.id });
+  const sendTyping = () => {
+    if (socket && user && openUser) {
+      socket.emit("sendTyping", user.id, openUser.id);
     }
   };
 
-  return { getUsers, getMessages, sendMessage, setSeen };
+  const receiveTyping = (sender: number, sameChat: number | undefined) => {
+    addTyping(sender);
+    if (sameChat && openUser) {
+      setCurrentTyping(true);
+    }
+  };
+
+  const sendRemoveTyping = (receiver: number) => {
+    if (socket && user && receiver) {
+      socket.emit("removeTyping", user.id, receiver);
+    }
+  };
+
+  return {
+    getUsers,
+    getMessages,
+    openChat,
+    closeChat,
+    sendMessage,
+    sendTyping,
+    receiveTyping,
+    sendRemoveTyping,
+  };
 };

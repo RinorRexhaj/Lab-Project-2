@@ -6,6 +6,11 @@ export const useTimeAgo = () => {
   const timeAgo = new TimeAgo("en-US");
 
   const formatTime = (date: Date) => {
+    const now = new Date();
+    const diffInSeconds = (now.getTime() - new Date(date).getTime()) / 1000;
+    if (diffInSeconds < 10) {
+      return "now";
+    }
     return timeAgo.format(new Date(date), "mini-now");
   };
 

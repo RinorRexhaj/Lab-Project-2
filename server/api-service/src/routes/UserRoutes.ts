@@ -13,7 +13,7 @@ import {
 
 const router = Router();
 
-router.get("/", authenticateAdminToken, getUsers);
+router.get("/", authenticateUserToken, getUsers);
 router.get("/:id", authenticateUserToken, getUserById);
 router.get("/email", authenticateAdminToken, getUserByEmail);
 router.patch("/:id", authenticateUserToken, updateUser);

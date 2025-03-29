@@ -13,12 +13,21 @@ import Input from "./Input";
 import User from "./User";
 import { useChat } from "../../hooks/useChat";
 import Typing from "./Typing";
+import Search from "./Search";
 
 const Chat = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrollDown, setScrollDown] = useState(false);
-  const { messages, users, typing, openUser, setOpenUser, setMessages } =
-    useChatStore();
+  const {
+    messages,
+    users,
+    query,
+    filteredUsers,
+    typing,
+    openUser,
+    setOpenUser,
+    setMessages,
+  } = useChatStore();
   const { getUsers, getMessages, closeChat, sendRemoveTyping } = useChat();
   const messagesRef = useRef<HTMLDivElement>(null);
   const chatWindowRef = useRef<HTMLDivElement>(null);
@@ -60,6 +69,23 @@ const Chat = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isOpen, sendRemoveTyping]);
 
+  const mapUsers = () => {
+    let newUsers = [];
+    if (query || filteredUsers.length > 0) newUsers = [...filteredUsers];
+    else newUsers = [...users];
+    if (newUsers.length > 0) {
+      return newUsers.map((user) => {
+        return <User user={user} active={false} key={"chat-user-" + user.id} />;
+      });
+    } else {
+      return (
+        <h1 className="text-center font-semibold mt-8">
+          {query ? "No users found..." : "Start a conversation..."}
+        </h1>
+      );
+    }
+  };
+
   const handleScroll = () => {
     if (!messagesRef.current) return;
     const element = messagesRef.current;
@@ -94,12 +120,16 @@ const Chat = () => {
       {isOpen && (
         <div
           ref={chatWindowRef}
-          className={`fixed bottom-6 right-[5%] w-96 sm:max-w-[350px] bg-white shadow-xl z-50 rounded-lg p-4 mt-3 border border-gray-300 ${
+          className={`fixed bottom-6 right-[5%] h-[420px] w-96 sm:max-w-[350px] bg-white shadow-xl z-50 rounded-lg p-4 mt-3 border border-gray-300 ${
             isOpen ? "animate-fadeIn" : "animate-fadeOut"
           } [animation-fill-mode:backwards]`}
         >
           {/* Chat Header */}
-          <div className="flex justify-between items-center border-b pb-2">
+          <div
+            className={`flex justify-between items-center ${
+              openUser && "border-b pb-2"
+            }`}
+          >
             <div className="flex items-start gap-2">
               {openUser && (
                 <FontAwesomeIcon
@@ -150,15 +180,10 @@ const Chat = () => {
                 )}
               </>
             ) : (
-              users.map((user) => {
-                return (
-                  <User
-                    user={user}
-                    active={false}
-                    key={"chat-user-" + user.id}
-                  />
-                );
-              })
+              <>
+                <Search />
+                {mapUsers()}
+              </>
             )}
 
             {/* Scroll to Bottom */}

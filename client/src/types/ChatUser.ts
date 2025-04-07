@@ -4,4 +4,5 @@ export interface ChatUser {
   id: number;
   fullName: string;
   lastMessage: Message;
+  active?: boolean;
 }

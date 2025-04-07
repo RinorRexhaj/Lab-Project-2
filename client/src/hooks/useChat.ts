@@ -1,4 +1,3 @@
-// src/hooks/useChatSocket.ts
 import { useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import { environment } from "../environment/environment";
@@ -6,6 +5,7 @@ import { useUserStore } from "../store/useUserStore";
 import { useChatStore } from "../store/useChatStore";
 import { Message } from "../types/Message";
 import useApi from "./useApi";
+import { useChatUsersStore } from "../store/useChatUsersStore";
 
 const SOCKET_SERVER_URL = environment.apiUrl;
 
@@ -16,11 +16,14 @@ export const useChat = () => {
     openUser,
     addTyping,
     addMessage,
-    setUsers,
     setMessages,
+    setMessagesSeen,
+    setNewMessages,
     setCurrentTyping,
     removeTyping: rmvTyping,
   } = useChatStore();
+
+  const { setUsers } = useChatUsersStore();
   const { get, post } = useApi();
 
   useEffect(() => {
@@ -33,14 +36,12 @@ export const useChat = () => {
     const newSocket = io(SOCKET_SERVER_URL, { query: { userId: user.id } });
     setSocket(newSocket);
 
-    getUsers();
-
     newSocket.on("receiveMessage", (message: Message) => {
       receiveMessage(message);
     });
 
     newSocket.on("seenMessage", (receiver: number) => {
-      if (openUser?.id === receiver) getMessages(receiver);
+      if (openUser?.id === receiver) setMessagesSeen(user.id);
       else if (!openUser) getUsers();
     });
 
@@ -69,7 +70,8 @@ export const useChat = () => {
 
   const getUsers = async () => {
     setMessages([]);
-    const { users } = await get(`/chat/users/${user?.id}`);
+    const { users, newChats } = await get(`/chat/users/${user?.id}`);
+    setNewMessages(newChats);
     setUsers(users);
   };
 
@@ -87,13 +89,19 @@ export const useChat = () => {
 
   const sendMessage = async (receiver: number, text: string) => {
     if (socket && user) {
+      const { active } = await get("/chat/active/" + receiver);
+      let same = null;
+      if (active) {
+        const { sameChat } = await get(`/chat/same/${user.id}/${receiver}`);
+        same = sameChat;
+      }
       const message: Message = await post("/chat/", {
         sender: user.id,
         receiver,
         text,
         sent: new Date(),
-        delivered: new Date("01/01/2000"),
-        seen: new Date("01/01/2000"),
+        delivered: active ? new Date() : new Date("01/01/2000"),
+        seen: same ? new Date() : new Date("01/01/2000"),
       });
       addMessage(message);
       socket.emit("sendMessage", message);

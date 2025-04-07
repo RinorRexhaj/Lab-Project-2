@@ -11,8 +11,15 @@ const useApi = () => {
     baseURL: environment.apiUrl,
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${accessToken}`,
     },
+  });
+
+  api.interceptors.request.use((config) => {
+    const token = useSessionStore.getState().accessToken;
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
   });
 
   const request = useCallback(
@@ -33,7 +40,7 @@ const useApi = () => {
         });
         return response.data;
       } catch (err: any) {
-        setError(err.response.data.error);
+        setError(err.response?.data.error);
         return null;
       } finally {
         setLoading(false);

@@ -2,6 +2,8 @@ import { MessageRepo } from "../repositories/MessageRepo";
 import { Message } from "../models/Message";
 import { Message as MessageType } from "../types/Message";
 import { ChatUser } from "../types/ChatUser";
+import { SearchUsers } from "../types/SearchUsers";
+import { GetUsers } from "../types/GetUsers";
 
 export const createMessage = async (
   data: Partial<Message>
@@ -15,39 +17,57 @@ export const createMessage = async (
 
 export const getMessages = async (
   senderId: number,
-  receiverId: number
+  receiverId: number,
+  page: number
 ): Promise<MessageType[]> => {
   if (!senderId || !receiverId) {
     throw new Error("Both senderId and receiverId are required.");
   }
-  return await MessageRepo.getMessages(senderId, receiverId);
+  if (!page) page = 1;
+  return await MessageRepo.getMessages(senderId, receiverId, page);
 };
 
 export const getUsersWithConversations = async (
   userId: number
-): Promise<ChatUser[]> => {
+): Promise<GetUsers> => {
   if (!userId) {
     throw new Error("User ID is required.");
   }
   return await MessageRepo.getUsersWithConversations(userId);
 };
 
-export const updateMessagesToDelivered = async (
-  senderId: number,
-  receiverId: number
-): Promise<void> => {
-  if (!senderId || !receiverId) {
-    throw new Error("Both senderId and receiverId are required.");
+export const searchChatUsers = async (
+  id: number,
+  page: number,
+  query: string
+): Promise<SearchUsers> => {
+  if (!page) {
+    page = 1;
   }
-  await MessageRepo.updateMessagesToDelivered(senderId, receiverId);
+  return await MessageRepo.searchUsers(id, page, query);
+};
+
+export const updateMessagesToDelivered = async (
+  senderId: number
+): Promise<void> => {
+  if (!senderId) {
+    throw new Error("senderId is required.");
+  }
+  await MessageRepo.updateMessagesToDelivered(senderId);
 };
 
 export const updateUnseenMessagesToSeen = async (
   senderId: number,
-  receiverId: number
-): Promise<MessageType[]> => {
+  receiverId: number,
+  page: number
+): Promise<boolean> => {
   if (!senderId || !receiverId) {
     throw new Error("Both senderId and receiverId are required.");
   }
-  return await MessageRepo.updateUnseenMessagesToSeen(senderId, receiverId);
+  if (!page) page = 1;
+  return await MessageRepo.updateUnseenMessagesToSeen(
+    senderId,
+    receiverId,
+    page
+  );
 };

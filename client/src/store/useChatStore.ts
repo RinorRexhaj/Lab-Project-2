@@ -4,38 +4,52 @@ import { ChatUser } from "../types/ChatUser";
 
 interface ChatState {
   messages: Message[];
-  users: ChatUser[];
-  query: string;
-  filteredUsers: ChatUser[];
+  page: number;
   openUser: ChatUser | null;
   typing: number[];
   currentTyping: boolean;
+  newMessages: number;
   setMessages: (messages: Message[]) => void;
+  setPage: (page: number) => void;
+  resetMessages: () => void;
   addMessage: (message: Message) => void;
+  setMessagesSeen: (user: number) => void;
   deleteMessage: (id: number) => void;
-  setUsers: (users: ChatUser[]) => void;
-  setQuery: (query: string) => void;
-  setFilteredUsers: (users: ChatUser[]) => void;
   setOpenUser: (user: ChatUser | null) => void;
   setCurrentTyping: (typing: boolean) => void;
   addTyping: (user: number) => void;
   removeTyping: (user: number) => void;
+  setNewMessages: (newMessages: number) => void;
 }
 
 export const useChatStore = create<ChatState>((set) => ({
   messages: [],
-  users: [],
-  query: "",
-  filteredUsers: [],
+  page: 1,
   openUser: null,
   typing: [],
   currentTyping: false,
+  newMessages: 0,
 
   setMessages: (messages) => set({ messages }),
+
+  setPage: (page) => set({ page }),
+
+  resetMessages: () => set({ messages: [] }),
 
   addMessage: (message) =>
     set((state) => ({
       messages: [...state.messages, { ...message, created: true }],
+    })),
+
+  setMessagesSeen: (user) =>
+    set((state) => ({
+      messages: [
+        ...state.messages.map((msg) => {
+          if (msg.sender === user && new Date(msg.seen).getFullYear() <= 2000)
+            return { ...msg, seen: new Date() };
+          return msg;
+        }),
+      ],
     })),
 
   deleteMessage: (id) => {
@@ -52,12 +66,6 @@ export const useChatStore = create<ChatState>((set) => ({
     }, 300);
   },
 
-  setQuery: (query) => set({ query }),
-
-  setUsers: (users) => set({ users }),
-
-  setFilteredUsers: (users) => set({ filteredUsers: users }),
-
   setOpenUser: (user) => set({ openUser: user }),
 
   addTyping: (user) => set((state) => ({ typing: [...state.typing, user] })),
@@ -66,4 +74,6 @@ export const useChatStore = create<ChatState>((set) => ({
     set((state) => ({ typing: [...state.typing].filter((u) => u !== user) })),
 
   setCurrentTyping: (typing) => set({ currentTyping: typing }),
+
+  setNewMessages: (newMessages) => set({ newMessages }),
 }));

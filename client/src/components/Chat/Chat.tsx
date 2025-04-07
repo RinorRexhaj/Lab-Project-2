@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import {
-  faArrowDown,
   faCircleLeft,
   faMessage,
   faUser,
@@ -8,47 +7,45 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useChatStore } from "../../store/useChatStore";
-import Message from "./Message";
 import Input from "./Input";
-import User from "./User";
 import { useChat } from "../../hooks/useChat";
-import Typing from "./Typing";
 import Search from "./Search";
+import Messages from "./Messages";
+import { useChatUsersStore } from "../../store/useChatUsersStore";
+import useApi from "../../hooks/useApi";
 
 const Chat = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [scrollDown, setScrollDown] = useState(false);
-  const {
-    messages,
-    users,
-    query,
-    filteredUsers,
-    typing,
-    openUser,
-    setOpenUser,
-    setMessages,
-  } = useChatStore();
+  const { openUser, newMessages, setOpenUser, resetMessages } = useChatStore();
   const { getUsers, getMessages, closeChat, sendRemoveTyping } = useChat();
-  const messagesRef = useRef<HTMLDivElement>(null);
+  const { openUserActive, setOpenUserActive } = useChatUsersStore();
+  const { get } = useApi();
   const chatWindowRef = useRef<HTMLDivElement>(null);
   const lastOpenUserRef = useRef(openUser);
 
   useEffect(() => {
+    if (isOpen) {
+      closeChat();
+    }
+    getUsers();
+  }, [isOpen]);
+
+  useEffect(() => {
+    clickUser();
+  }, [openUser]);
+
+  const clickUser = async () => {
     lastOpenUserRef.current = openUser;
     if (!openUser) {
-      setMessages([]);
+      resetMessages();
       closeChat();
       getUsers();
     } else {
+      const { active } = await get(`/chat/active/${openUser.id}`);
+      setOpenUserActive(active);
       getMessages(openUser.id);
     }
-  }, [openUser]);
-
-  useEffect(() => {
-    if (messagesRef.current) {
-      scrollToBottom(false);
-    }
-  }, [messages, isOpen]);
+  };
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -69,38 +66,6 @@ const Chat = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isOpen, sendRemoveTyping]);
 
-  const mapUsers = () => {
-    let newUsers = [];
-    if (query || filteredUsers.length > 0) newUsers = [...filteredUsers];
-    else newUsers = [...users];
-    if (newUsers.length > 0) {
-      return newUsers.map((user) => {
-        return <User user={user} active={false} key={"chat-user-" + user.id} />;
-      });
-    } else {
-      return (
-        <h1 className="text-center font-semibold mt-8">
-          {query ? "No users found..." : "Start a conversation..."}
-        </h1>
-      );
-    }
-  };
-
-  const handleScroll = () => {
-    if (!messagesRef.current) return;
-    const element = messagesRef.current;
-    const isUserScrolledUp =
-      element.scrollTop + element.clientHeight < element.scrollHeight - 200;
-    setScrollDown(isUserScrolledUp);
-  };
-
-  const scrollToBottom = (behavior: boolean) => {
-    messagesRef.current?.scrollTo({
-      top: messagesRef.current.scrollHeight,
-      behavior: behavior ? "smooth" : "instant",
-    });
-  };
-
   return (
     <div className="flex flex-col items-end tb:text-base z-50">
       {/* Floating Button */}
@@ -113,7 +78,15 @@ const Chat = () => {
           setOpenUser(null);
         }}
       >
-        <FontAwesomeIcon icon={faMessage} className="w-5 h-5 text-white" />
+        <FontAwesomeIcon
+          icon={faMessage}
+          className="absolute w-5 h-5 text-white"
+        />
+        {newMessages > 0 && (
+          <div className="relative -top-4 -right-5 border-2 border-white h-5 w-5 rounded-full bg-red-500 text-white flex justify-center items-center text-xs font-semibold">
+            {newMessages}
+          </div>
+        )}
       </button>
 
       {/* Chat Window */}
@@ -151,53 +124,17 @@ const Chat = () => {
                 } else setIsOpen(false);
               }}
             ></FontAwesomeIcon>
+            {openUser && openUserActive && (
+              <div className="absolute top-8 left-8 border-2 border-white h-2.5 w-2.5 rounded-full bg-green-400"></div>
+            )}
           </div>
 
           <div
-            ref={messagesRef}
-            className="mt-3 h-72 flex flex-col overflow-y-auto overflow-x-hidden gap-[1px]"
-            onScroll={handleScroll}
+            className={`mt-3 ${
+              openUser ? "h-72" : "h-96"
+            } flex flex-col overflow-y-auto overflow-x-hidden gap-[1px]`}
           >
-            {openUser ? (
-              <>
-                {messages.map((msg, index) => {
-                  return (
-                    <Message
-                      key={"message" + msg.id}
-                      current={msg}
-                      prev={messages[index - 1]}
-                      next={messages[index + 1]}
-                      last={index === messages.length - 1}
-                    />
-                  );
-                })}
-                {typing.includes(openUser.id) && (
-                  <Typing
-                    key={"typing-" + openUser.id}
-                    scrollDown={scrollDown}
-                    scrollToBottom={scrollToBottom}
-                  />
-                )}
-              </>
-            ) : (
-              <>
-                <Search />
-                {mapUsers()}
-              </>
-            )}
-
-            {/* Scroll to Bottom */}
-            {scrollDown && (
-              <button
-                onClick={() => scrollToBottom(true)}
-                className="absolute bottom-20 left-1/2 -translate-x-1/2 text-center flex items-center justify-center p-1.5 bg-slate-700 rounded-full shadow-md animate-fadeIn"
-              >
-                <FontAwesomeIcon
-                  icon={faArrowDown}
-                  className="w-5 h-5 text-white"
-                />
-              </button>
-            )}
+            {openUser ? <Messages /> : <Search />}
           </div>
 
           {openUser ? <Input /> : <div className="h-10"></div>}

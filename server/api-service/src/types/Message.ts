@@ -4,5 +4,6 @@ export interface Message {
   receiver: number;
   text: string;
   sent: Date;
+  delivered: Date;
   seen: Date;
 }

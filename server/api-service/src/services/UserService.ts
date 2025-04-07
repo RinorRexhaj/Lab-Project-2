@@ -1,6 +1,5 @@
 import { isValidEmail } from "../controllers/AuthController";
 import { UserRepo } from "../repositories/UserRepo";
-import { User } from "../types/User";
 
 export const getAllUsers = async () => {
   return await UserRepo.getUsers();

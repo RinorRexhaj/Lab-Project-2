@@ -4,7 +4,6 @@ import Login from "../pages/Login";
 import Home from "../pages/Home";
 import Loading from "../pages/Loading";
 import { useSessionStore } from "../store/useSessionStore";
-import { useUserStore } from "../store/useUserStore";
 import useApi from "../hooks/useApi";
 import Forbidden from "../pages/Forbidden";
 import Navbar from "../components/Navbar";
@@ -31,8 +30,7 @@ const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
 const AppRouter: React.FC = () => {
   const { post } = useApi();
-  const { setUser } = useUserStore();
-  const { accessToken, setAccessToken } = useSessionStore();
+  const { accessToken } = useSessionStore();
   const { setSession } = useSession();
   const [isRefreshing, setIsRefreshing] = useState(true);
 
@@ -50,7 +48,7 @@ const AppRouter: React.FC = () => {
     refresh();
     const interval = setInterval(refresh, 3600000);
     return () => clearInterval(interval);
-  }, [post, setUser, setAccessToken]);
+  }, [accessToken]);
 
   if (isRefreshing) return <Loading />;
 

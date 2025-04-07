@@ -19,8 +19,18 @@ const Message: React.FC<MessageProps> = ({ current, prev, next, last }) => {
   const getLastMessageAgo = () => {
     if (!last) return;
     if (current.sender !== user?.id) return;
-    const date = isSeen() ? current.seen : current.sent;
-    return (date === current.seen ? "Seen " : "Sent ") + formatTime(date);
+    let date, text;
+    if (isSeen()) {
+      text = "Seen ";
+      date = current.seen;
+    } else if (isDelivered()) {
+      text = "Delivered ";
+      date = current.delivered;
+    } else {
+      text = "Sent ";
+      date = current.sent;
+    }
+    return text + formatTime(date);
   };
 
   const getNonConsecutive = () => {
@@ -51,6 +61,10 @@ const Message: React.FC<MessageProps> = ({ current, prev, next, last }) => {
     return new Date(current.seen).getFullYear() > 2000;
   };
 
+  const isDelivered = () => {
+    return new Date(current.delivered).getFullYear() > 2000;
+  };
+
   return (
     <>
       {/* Message Time Separator */}
@@ -69,7 +83,26 @@ const Message: React.FC<MessageProps> = ({ current, prev, next, last }) => {
           current.created && "animate-fadeIn [animation-fill-mode:backwards]"
         }`}
       >
-        {current.text}
+        <p className="relative">{current.text}</p>
+
+        {/* Message Time and Ticks */}
+        <div
+          className={`relative w-fit h-2 flex gap-1 -right-1 ${
+            userSent() ? "text-gray-200" : "text-slate-500"
+          } text-xs`}
+          style={{
+            top: "calc(100% - 10px)",
+          }}
+        >
+          {formatSent(current.sent)}{" "}
+          {userSent() && (
+            <FontAwesomeIcon
+              icon={isSeen() || isDelivered() ? faCheckDouble : faCheck}
+              className={`relative top-0.5 ${isSeen() && "text-teal-700"}`}
+            />
+          )}
+        </div>
+
         {/* Last Consecutive Message Tail */}
         {getMessageTail() && (
           <div
@@ -80,24 +113,6 @@ const Message: React.FC<MessageProps> = ({ current, prev, next, last }) => {
             }`}
           ></div>
         )}
-
-        {/* Message Time and Ticks */}
-        <div
-          className={`relative w-fit flex gap-1 -right-1 ${
-            userSent() ? "text-gray-200" : "text-slate-500"
-          } text-xs`}
-          style={{
-            top: "calc(100% - 10px)",
-          }}
-        >
-          {formatSent(current.sent)}{" "}
-          {userSent() && (
-            <FontAwesomeIcon
-              icon={isSeen() ? faCheckDouble : faCheck}
-              className={`relative top-0.5 ${isSeen() && "text-teal-700"}`}
-            />
-          )}
-        </div>
       </div>
 
       {/* Last Message Ago Indicator */}

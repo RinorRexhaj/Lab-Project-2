@@ -2,15 +2,20 @@ import { Server, Socket } from "socket.io";
 import { Message } from "../types/Message";
 import { MessageRepo } from "../repositories/MessageRepo";
 
-const users = new Map<string, string>();
-const chats = new Map<number, number>();
+export const users = new Map<string, string>();
+export const chats = new Map<number, number>();
 
 export const setupSocket = (io: Server) => {
-  io.on("connection", (socket: Socket) => {
+  io.on("connection", async (socket: Socket) => {
     const userId = socket.handshake.query.userId as string;
 
     if (userId) {
-      users.set(userId, socket.id);
+      const alreadyConnected = users.has(String(userId));
+      users.set(String(userId), socket.id);
+
+      if (!alreadyConnected) {
+        await MessageRepo.updateMessagesToDelivered(Number(userId));
+      }
       // console.log(`User ${userId} connected with socket ${socket.id}`);
     }
 
@@ -21,8 +26,12 @@ export const setupSocket = (io: Server) => {
     socket.on("openChat", async (userId: number, openChatId: number) => {
       chats.set(userId, openChatId);
       const user = users.get(String(openChatId));
-      await MessageRepo.updateUnseenMessagesToSeen(openChatId, userId);
-      if (user) {
+      const seen = await MessageRepo.updateUnseenMessagesToSeen(
+        openChatId,
+        userId,
+        1
+      );
+      if (user && seen) {
         io.to(user).emit("seenMessage", userId);
       }
     });
@@ -31,19 +40,11 @@ export const setupSocket = (io: Server) => {
       chats.delete(userId);
     });
 
-    socket.on("sendMessage", async (message: Message) => {
+    socket.on("sendMessage", async (message: Message, page: number) => {
       const receiverSocketId = users.get(String(message.receiver));
       const senderSocketId = users.get(String(message.sender));
       if (receiverSocketId && senderSocketId) {
-        const sameChat = chats.get(message.receiver);
         io.to(receiverSocketId).emit("receiveMessage", message);
-        if (sameChat === message.sender) {
-          await MessageRepo.updateUnseenMessagesToSeen(
-            message.sender,
-            message.receiver
-          );
-          io.to(senderSocketId).emit("seenMessage", message.receiver);
-        }
       } else {
         console.log(`User ${message.receiver} not found`);
       }

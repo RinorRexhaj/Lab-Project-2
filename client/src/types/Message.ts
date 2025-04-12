@@ -6,6 +6,8 @@ export interface Message {
   sent: Date;
   delivered: Date;
   seen: Date;
+  reaction?: string;
+  replyTo?: Message;
   created?: boolean;
   deleted?: boolean;
 }

@@ -13,6 +13,7 @@ interface ChatState {
   setPage: (page: number) => void;
   resetMessages: () => void;
   addMessage: (message: Message) => void;
+  reactMessage: (id: number, reaction?: string) => void;
   setMessagesSeen: (user: number) => void;
   deleteMessage: (id: number) => void;
   setOpenUser: (user: ChatUser | null) => void;
@@ -39,6 +40,14 @@ export const useChatStore = create<ChatState>((set) => ({
   addMessage: (message) =>
     set((state) => ({
       messages: [...state.messages, { ...message, created: true }],
+    })),
+
+  reactMessage: (id, reaction) =>
+    set((state) => ({
+      messages: [...state.messages].map((msg) => {
+        if (id === msg.id) return { ...msg, reaction: reaction };
+        return msg;
+      }),
     })),
 
   setMessagesSeen: (user) =>

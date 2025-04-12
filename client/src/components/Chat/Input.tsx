@@ -1,19 +1,30 @@
 import { faPaperPlane } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useChat } from "../../hooks/useChat";
 import { useChatStore } from "../../store/useChatStore";
+import { Message } from "../../types/Message";
 
-const Input = () => {
+interface InputProps {
+  reply: Message | null;
+  setReply: (message: Message | null) => void;
+}
+
+const Input: React.FC<InputProps> = ({ reply, setReply }) => {
   const [userInput, setUserInput] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
   const { sendMessage, sendTyping, sendRemoveTyping } = useChat();
   const { openUser } = useChatStore();
 
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, [reply]);
+
   const send = () => {
     if (!userInput || !openUser) return;
-    sendMessage(openUser?.id, userInput);
+    sendMessage(openUser?.id, userInput, reply || undefined);
     setUserInput("");
+    setReply(null);
     sendRemoveTyping(openUser.id);
   };
 
@@ -23,7 +34,7 @@ const Input = () => {
         ref={inputRef}
         type="text"
         className="flex-1 p-2 border border-slate-300 rounded-xl text-base focus:outline-emerald-500"
-        placeholder="Type a message..."
+        placeholder={reply ? "Reply..." : `Type a message...`}
         value={userInput}
         onChange={(e) => {
           setUserInput(e.target.value);

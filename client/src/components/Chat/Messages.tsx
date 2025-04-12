@@ -4,14 +4,28 @@ import Message from "./Message";
 import Typing from "./Typing";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowDown } from "@fortawesome/free-solid-svg-icons";
+import Reply from "./Reply";
+import { Message as MessageType } from "../../types/Message";
+import { useUserStore } from "../../store/useUserStore";
 
-const Messages = () => {
+interface MessagesProps {
+  reply: MessageType | null;
+  setReply: (message: MessageType | null) => void;
+}
+
+const Messages: React.FC<MessagesProps> = ({ reply, setReply }) => {
   const [scrollDown, setScrollDown] = useState(false);
   const { messages, typing, openUser } = useChatStore();
+  const { user } = useUserStore();
   const messagesRef = useRef<HTMLDivElement>(null);
+  const messageRefs = useRef<Map<number, HTMLDivElement>>(new Map());
+  const prevMessageCount = useRef(messages.length);
 
   useEffect(() => {
-    scrollToBottom(false);
+    if (messages.length > prevMessageCount.current) {
+      scrollToBottom(false);
+    }
+    prevMessageCount.current = messages.length;
   }, [messages]);
 
   const scrollToBottom = (behavior: boolean) => {
@@ -19,6 +33,24 @@ const Messages = () => {
       top: messagesRef.current.scrollHeight,
       behavior: behavior ? "smooth" : "instant",
     });
+  };
+
+  const scrollToMessage = (messageId: number) => {
+    const target = messageRefs.current.get(messageId);
+    if (target) {
+      target.scrollIntoView({ behavior: "smooth", block: "center" });
+      const classList = target.classList;
+      if (classList.contains("bg-emerald-500"))
+        classList.replace("bg-emerald-500", "bg-emerald-700");
+      else if (classList.contains("bg-gray-200"))
+        classList.replace("bg-gray-200", "bg-gray-400");
+      setTimeout(() => {
+        if (classList.contains("bg-emerald-700"))
+          classList.replace("bg-emerald-700", "bg-emerald-500");
+        else if (classList.contains("bg-gray-400"))
+          classList.replace("bg-gray-400", "bg-gray-200");
+      }, 1500);
+    }
   };
 
   const handleScroll = () => {
@@ -45,6 +77,9 @@ const Messages = () => {
             prev={messages[index - 1]}
             next={messages[index + 1]}
             last={index === messages.length - 1}
+            setReply={setReply}
+            refMap={messageRefs}
+            onReplyClick={scrollToMessage}
           />
         );
       })}
@@ -59,10 +94,17 @@ const Messages = () => {
       {scrollDown && (
         <button
           onClick={() => scrollToBottom(true)}
-          className="absolute bottom-20 left-1/2 -translate-x-1/2 text-center flex items-center justify-center p-1.5 bg-slate-700 rounded-full shadow-md animate-fadeIn animation-fill-mode:backwards]"
+          className="absolute bottom-20 left-1/2 -translate-x-1/2 text-center flex items-center z-50 justify-center p-1.5 bg-emerald-500 border border-slate-100 rounded-full shadow-md animate-fadeIn animation-fill-mode:backwards]"
         >
           <FontAwesomeIcon icon={faArrowDown} className="w-5 h-5 text-white" />
         </button>
+      )}
+      {reply && (
+        <Reply
+          senderName={reply.sender === user?.id ? "You" : openUser.fullName}
+          text={reply.text}
+          setReply={setReply}
+        />
       )}
     </div>
   );

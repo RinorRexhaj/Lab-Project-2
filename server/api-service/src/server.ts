@@ -7,6 +7,7 @@ import { connectDB } from "./data-source";
 import authRoutes from "./routes/AuthRoutes";
 import userRoutes from "./routes/UserRoutes";
 import chatRoutes from "./routes/ChatRoutes";
+import reactionRoutes from "./routes/ReactionRoutes";
 import { setupSocket } from "./chat/Chat";
 
 dotenv.config();
@@ -18,7 +19,7 @@ const httpServer = createServer(app);
 
 const io = new Server(httpServer, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: "*",
     methods: ["GET", "POST"],
   },
 });
@@ -29,6 +30,7 @@ app.use(express.json());
 app.use("/auth", authRoutes);
 app.use("/user", userRoutes);
 app.use("/chat", chatRoutes);
+app.use("/reaction", reactionRoutes);
 
 setupSocket(io);
 

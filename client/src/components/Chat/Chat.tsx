@@ -13,9 +13,11 @@ import Search from "./Search";
 import Messages from "./Messages";
 import { useChatUsersStore } from "../../store/useChatUsersStore";
 import useApi from "../../hooks/useApi";
+import { Message } from "../../types/Message";
 
 const Chat = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [reply, setReply] = useState<Message | null>(null);
   const { openUser, newMessages, setOpenUser, resetMessages } = useChatStore();
   const { getUsers, getMessages, closeChat, sendRemoveTyping } = useChat();
   const { openUserActive, setOpenUserActive } = useChatUsersStore();
@@ -134,10 +136,18 @@ const Chat = () => {
               openUser ? "h-72" : "h-96"
             } flex flex-col overflow-y-auto overflow-x-hidden gap-[1px]`}
           >
-            {openUser ? <Messages /> : <Search />}
+            {openUser ? (
+              <Messages reply={reply} setReply={setReply} />
+            ) : (
+              <Search />
+            )}
           </div>
 
-          {openUser ? <Input /> : <div className="h-10"></div>}
+          {openUser ? (
+            <Input reply={reply} setReply={setReply} />
+          ) : (
+            <div className="h-10"></div>
+          )}
         </div>
       )}
     </div>

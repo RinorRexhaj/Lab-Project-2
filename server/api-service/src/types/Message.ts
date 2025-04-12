@@ -6,4 +6,10 @@ export interface Message {
   sent: Date;
   delivered: Date;
   seen: Date;
+  reaction?: string;
+  replyTo?: {
+    id: number;
+    text: string;
+    sender: number;
+  };
 }

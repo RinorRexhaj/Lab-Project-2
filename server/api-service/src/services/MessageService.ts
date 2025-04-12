@@ -1,13 +1,12 @@
 import { MessageRepo } from "../repositories/MessageRepo";
 import { Message } from "../models/Message";
 import { Message as MessageType } from "../types/Message";
-import { ChatUser } from "../types/ChatUser";
 import { SearchUsers } from "../types/SearchUsers";
 import { GetUsers } from "../types/GetUsers";
 
 export const createMessage = async (
-  data: Partial<Message>
-): Promise<Message> => {
+  data: Partial<Message> & { replyTo?: { id: number } }
+): Promise<MessageType> => {
   if (!data.sender || !data.receiver || !data.text) {
     throw new Error("Sender, receiver, and content are required.");
   }

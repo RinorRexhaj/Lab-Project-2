@@ -16,6 +16,7 @@ export const useChat = () => {
     openUser,
     addTyping,
     addMessage,
+    reactMessage,
     setMessages,
     setMessagesSeen,
     setNewMessages,
@@ -56,6 +57,11 @@ export const useChat = () => {
       rmvTyping(sender);
     });
 
+    newSocket.on("receiveReaction", (message: Message) => {
+      if (openUser?.id === message.receiver)
+        reactMessage(message.id, message.reaction);
+    });
+
     return () => {
       newSocket.disconnect();
     };
@@ -87,7 +93,11 @@ export const useChat = () => {
     }
   };
 
-  const sendMessage = async (receiver: number, text: string) => {
+  const sendMessage = async (
+    receiver: number,
+    text: string,
+    reply?: Message
+  ) => {
     if (socket && user) {
       const { active } = await get("/chat/active/" + receiver);
       let same = null;
@@ -102,6 +112,7 @@ export const useChat = () => {
         sent: new Date(),
         delivered: active ? new Date() : new Date("01/01/2000"),
         seen: same ? new Date() : new Date("01/01/2000"),
+        replyTo: reply,
       });
       addMessage(message);
       socket.emit("sendMessage", message);
@@ -137,6 +148,16 @@ export const useChat = () => {
     }
   };
 
+  const sendReaction = async (message: Message) => {
+    if (socket && user) {
+      const { sameChat } = await get(`/chat/same/${user.id}/${message.sender}`);
+      if (sameChat) {
+        socket.emit("sendReaction", message);
+      }
+      await post("/reaction/" + message.id, { reaction: message.reaction });
+    }
+  };
+
   return {
     getUsers,
     getMessages,
@@ -146,5 +167,6 @@ export const useChat = () => {
     sendTyping,
     receiveTyping,
     sendRemoveTyping,
+    sendReaction,
   };
 };

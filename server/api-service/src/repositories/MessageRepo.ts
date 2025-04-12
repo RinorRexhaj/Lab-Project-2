@@ -5,15 +5,61 @@ import { Message as MessageType } from "../types/Message";
 import { User } from "../models/User";
 import { ChatUser } from "../types/ChatUser";
 import { SearchUsers } from "../types/SearchUsers";
-import { GetMessages } from "../types/GetMessages";
 import { GetUsers } from "../types/GetUsers";
+import { Reply } from "../models/Reply";
+import { Reaction } from "../models/Reaction";
 
 export class MessageRepo {
-  static async createMessage(message: Partial<Message>): Promise<Message> {
-    const messageRepo = AppDataSource.getRepository(Message);
-    const newMessage = messageRepo.create(message);
-    await messageRepo.save(newMessage);
-    return newMessage;
+  static messageRepo = AppDataSource.getRepository(Message);
+  static userRepo = AppDataSource.getRepository(User);
+  static replyRepo = AppDataSource.getRepository(Reply);
+  static reactionRepo = AppDataSource.getRepository(Reaction);
+
+  static async createMessage(
+    message: Partial<Message> & { replyTo?: { id: number } }
+  ): Promise<MessageType> {
+    const replyToId = message.replyTo?.id;
+    const { replyTo, ...messageData } = message;
+
+    const newMessage = MessageRepo.messageRepo.create(messageData);
+    await MessageRepo.messageRepo.save(newMessage);
+
+    let replyToMessage: Message | null = null;
+
+    if (replyToId) {
+      const reply = MessageRepo.replyRepo.create({
+        message: newMessage,
+        replyTo: { id: replyToId } as Message,
+      });
+      await MessageRepo.replyRepo.save(reply);
+
+      replyToMessage = await MessageRepo.messageRepo.findOne({
+        where: { id: replyToId },
+        relations: ["sender"],
+      });
+    }
+
+    const fullMessage = await MessageRepo.messageRepo.findOneOrFail({
+      where: { id: newMessage.id },
+      relations: ["sender", "receiver"],
+    });
+
+    return {
+      id: fullMessage.id,
+      sender: fullMessage.sender.id,
+      receiver: fullMessage.receiver.id,
+      text: fullMessage.text,
+      sent: fullMessage.sent,
+      delivered: fullMessage.delivered,
+      seen: fullMessage.seen,
+      replyTo: replyToMessage
+        ? {
+            id: replyToMessage.id,
+            text: replyToMessage.text,
+            sender: replyToMessage.sender?.id ?? null,
+          }
+        : undefined,
+    };
   }
 
   static async getMessages(
@@ -21,38 +67,73 @@ export class MessageRepo {
     receiverId: number,
     page: number
   ): Promise<MessageType[]> {
-    const messageRepo = AppDataSource.getRepository(Message);
     const pageSize = 50;
 
     if (!page) page = 1;
 
-    const messages = await messageRepo.find({
+    const messages = await MessageRepo.messageRepo.find({
       where: [
         { sender: { id: senderId }, receiver: { id: receiverId } },
         { sender: { id: receiverId }, receiver: { id: senderId } },
       ] as FindOptionsWhere<Message>[],
       order: { id: "ASC" },
       relations: ["sender", "receiver"],
+      take: pageSize + 1,
+      skip: (page - 1) * pageSize,
     });
+
+    const messageIds = messages.map((m) => m.id);
+
+    const replies = await MessageRepo.replyRepo.find({
+      where: {
+        message: { id: In(messageIds) },
+      },
+      relations: ["message", "replyTo", "replyTo.sender"],
+    });
+
+    const replyMap = new Map<number, Reply>();
+    for (const reply of replies) {
+      replyMap.set(reply.message.id, reply);
+    }
+
+    const reactions = await this.reactionRepo.find({
+      where: { message: { id: In(messageIds) } },
+      relations: ["message"],
+    });
+
+    const reactionMap = new Map<number, string>();
+    for (const reaction of reactions) {
+      reactionMap.set(reaction.message.id, reaction.reaction);
+    }
 
     const hasNextPage = messages.length > pageSize;
 
-    return messages.map((message) => ({
-      id: message.id,
-      sender: message.sender.id,
-      receiver: message.receiver.id,
-      text: message.text,
-      sent: message.sent,
-      delivered: message.delivered,
-      seen: message.seen,
-    }));
+    return messages.map((message) => {
+      const reply = replyMap.get(message.id);
+      const reaction = reactionMap.get(message.id);
+
+      return {
+        id: message.id,
+        sender: message.sender.id,
+        receiver: message.receiver.id,
+        text: message.text,
+        sent: message.sent,
+        delivered: message.delivered,
+        seen: message.seen,
+        reaction: reaction ?? undefined,
+        replyTo: reply
+          ? {
+              id: reply.replyTo.id,
+              text: reply.replyTo.text,
+              sender: reply.replyTo.sender?.id ?? null,
+            }
+          : undefined,
+      };
+    });
   }
 
   static async getUsersWithConversations(userId: number): Promise<GetUsers> {
-    const messageRepo = AppDataSource.getRepository(Message);
-    const userRepo = AppDataSource.getRepository(User);
-
-    const messages = await messageRepo.find({
+    const messages = await MessageRepo.messageRepo.find({
       where: [{ sender: { id: userId } }, { receiver: { id: userId } }],
       select: ["id", "sender", "receiver", "text", "sent", "delivered", "seen"],
       relations: ["sender", "receiver"],
@@ -67,7 +148,7 @@ export class MessageRepo {
 
     if (userIds.size === 0) return { users: [], newChats: 0 };
 
-    const users = await userRepo.find({
+    const users = await MessageRepo.userRepo.find({
       where: { id: In(Array.from(userIds)) },
       select: ["id", "fullName"],
     });
@@ -128,13 +209,10 @@ export class MessageRepo {
     page: number,
     query: string
   ): Promise<SearchUsers> {
-    const userRepo = AppDataSource.getRepository(User);
-    const messageRepo = AppDataSource.getRepository(Message);
-
     if (!page) page = 1;
     const pageSize = 25;
 
-    const users = await userRepo.find({
+    const users = await MessageRepo.userRepo.find({
       where: { id: Not(id), fullName: Like(`%${query}%`) },
       select: ["id", "fullName"],
       take: pageSize + 1,
@@ -148,7 +226,7 @@ export class MessageRepo {
 
     const userIds = users.map((user) => user.id);
 
-    const messages = await messageRepo.find({
+    const messages = await MessageRepo.messageRepo.find({
       where: [
         { sender: { id: In(userIds) } },
         { receiver: { id: In(userIds) } },
@@ -205,9 +283,7 @@ export class MessageRepo {
   }
 
   static async updateMessagesToDelivered(senderId: number): Promise<void> {
-    const messageRepo = AppDataSource.getRepository(Message);
-
-    await messageRepo.update(
+    await MessageRepo.messageRepo.update(
       {
         receiver: { id: senderId },
         delivered: new Date("01/01/2000"),
@@ -221,9 +297,7 @@ export class MessageRepo {
     receiverId: number,
     page: number
   ): Promise<boolean> {
-    const messageRepo = AppDataSource.getRepository(Message);
-
-    const messages = await messageRepo.update(
+    const messages = await MessageRepo.messageRepo.update(
       {
         sender: { id: senderId },
         receiver: { id: receiverId },

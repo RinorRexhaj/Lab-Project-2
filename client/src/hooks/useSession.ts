@@ -6,7 +6,7 @@ import useApi from "./useApi";
 
 const useSession = () => {
   const { setUser, resetUser } = useUserStore();
-  const { accessToken, setAccessToken, setRole } = useSessionStore();
+  const { setAccessToken, setRole } = useSessionStore();
   const { error } = useApi();
   const navigate = useNavigate();
 
@@ -16,7 +16,6 @@ const useSession = () => {
       setUser(user);
       setRole(user.role);
       setAccessToken(token);
-      console.log(accessToken);
       localStorage.setItem("refreshToken", refreshToken);
     } else if (!response || error) {
       resetSession();

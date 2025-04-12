@@ -45,8 +45,6 @@ export const setupSocket = (io: Server) => {
       const senderSocketId = users.get(String(message.sender));
       if (receiverSocketId && senderSocketId) {
         io.to(receiverSocketId).emit("receiveMessage", message);
-      } else {
-        console.log(`User ${message.receiver} not found`);
       }
     });
 
@@ -60,6 +58,13 @@ export const setupSocket = (io: Server) => {
 
     socket.on("removeTyping", (sender: number, receiver: number) => {
       removeTyping(sender, receiver);
+    });
+
+    socket.on("sendReaction", (message: Message) => {
+      const receiverSocketId = users.get(String(message.sender));
+      if (receiverSocketId) {
+        io.to(receiverSocketId).emit("receiveReaction", message);
+      }
     });
 
     socket.on("disconnect", () => {

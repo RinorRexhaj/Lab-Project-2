@@ -12,7 +12,7 @@ interface UserProps {
   user: ChatUser;
 }
 const User: React.FC<UserProps> = ({ user }) => {
-  const [profile, setProfile] = useState(false);
+  const [profile] = useState(false);
   const { user: currUser } = useUserStore();
   const { typing, newMessages, setNewMessages, setOpenUser } = useChatStore();
   const { setOpenUserActive } = useChatUsersStore();
@@ -24,10 +24,11 @@ const User: React.FC<UserProps> = ({ user }) => {
     if (typing.includes(user.id)) return "Typing...";
     else {
       let text = user.lastMessage.text;
+      if (user.lastMessage.sender !== user.id) text = "You: " + text;
       if (text.length > 25) {
         if (user.lastMessage.sender === user.id)
           text = text.slice(0, 20) + "...";
-        else text = "You: " + text.slice(0, 15) + "...";
+        else text = text.slice(0, 15) + "...";
       }
       return text;
     }

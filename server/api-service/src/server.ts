@@ -24,7 +24,12 @@ const io = new Server(httpServer, {
   },
 });
 
-app.use(cors());
+app.use(
+  cors({
+    origin: "https://lab-project-2.vercel.app",
+    credentials: true,
+  })
+);
 app.use(express.json());
 
 app.use("/auth", authRoutes);

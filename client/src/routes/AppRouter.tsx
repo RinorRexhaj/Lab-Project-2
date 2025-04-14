@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import Login from "../pages/Login";
 import Home from "../pages/Home";
+import Rides from "../pages/Rides";
 import Loading from "../pages/Loading";
 import { useSessionStore } from "../store/useSessionStore";
 import { useUserStore } from "../store/useUserStore";
@@ -67,6 +68,14 @@ const AppRouter: React.FC = () => {
           element={
             <ProtectedRoute>
               <Home />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/rides"
+          element={
+            <ProtectedRoute>
+              <Rides />
             </ProtectedRoute>
           }
         />

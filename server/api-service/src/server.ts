@@ -4,6 +4,7 @@ import cors from "cors";
 import { createServer } from "http";
 import { Server } from "socket.io";
 import { connectDB } from "./data-source";
+import { seedDatabase } from "./seeds/seed";
 import authRoutes from "./routes/AuthRoutes";
 import userRoutes from "./routes/UserRoutes";
 import chatRoutes from "./routes/ChatRoutes";
@@ -41,6 +42,7 @@ setupSocket(io);
 async function startServer() {
   try {
     await connectDB();
+    await seedDatabase();
     httpServer.listen(PORT, () => {
       console.log(`🚀 Server running on http://localhost:${PORT}`);
     });

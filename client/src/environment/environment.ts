@@ -1,4 +1,4 @@
 export const environment = {
-  production: false,
-  apiUrl: "http://localhost:5000",
+  production: process.env.NODE_ENV === "production",
+  apiUrl: process.env.REACT_APP_API_URL || "http://localhost:5000",
 };

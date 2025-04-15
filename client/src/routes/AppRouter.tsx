@@ -8,6 +8,7 @@ import useApi from "../hooks/useApi";
 import Forbidden from "../pages/Forbidden";
 import Navbar from "../components/Navbar";
 import Users from "../pages/Users";
+import EatPage from "../pages/EatPage";
 import useSession from "../hooks/useSession";
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
@@ -74,6 +75,14 @@ const AppRouter: React.FC = () => {
             <AdminRoute>
               <Users />
             </AdminRoute>
+          }
+        />
+        <Route
+          path="/eat"
+          element={
+            <ProtectedRoute>
+              <EatPage />
+            </ProtectedRoute>
           }
         />
         <Route

@@ -8,6 +8,8 @@ import authRoutes from "./routes/AuthRoutes";
 import userRoutes from "./routes/UserRoutes";
 import chatRoutes from "./routes/ChatRoutes";
 import reactionRoutes from "./routes/ReactionRoutes";
+import restaurantRoutes from "./routes/RestaurantRoutes";
+import orderRoutes from "./routes/OrderRoutes";
 import { setupSocket } from "./chat/Chat";
 
 dotenv.config();
@@ -31,6 +33,8 @@ app.use("/auth", authRoutes);
 app.use("/user", userRoutes);
 app.use("/chat", chatRoutes);
 app.use("/reaction", reactionRoutes);
+app.use("/restaurant", restaurantRoutes);
+app.use("/order", orderRoutes);
 
 setupSocket(io);
 

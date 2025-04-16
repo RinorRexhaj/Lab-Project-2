@@ -28,6 +28,15 @@ export class Restaurant {
 
   @Column({ length: 50, nullable: true, default: 'All' })
   category?: string;
+  
+  @Column({ length: 10, nullable: true })
+  openingTime?: string;
+  
+  @Column({ length: 10, nullable: true })
+  closingTime?: string;
+  
+  @Column({ default: false })
+  isOpen24Hours?: boolean;
 
   @OneToMany(() => FoodCategory, (category) => category.restaurant)
   categories!: FoodCategory[];

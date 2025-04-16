@@ -10,6 +10,9 @@ export interface Restaurant {
   rating: number;
   category?: string;
   menu?: FoodCategory[];
+  openingTime?: string;
+  closingTime?: string;
+  isOpen24Hours?: boolean;
 }
 
 export interface FoodCategory {

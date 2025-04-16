@@ -24,7 +24,8 @@ export async function seedDatabase() {
         estimatedDeliveryTime: "25-40 min",
         rating: 4.8,
         imageUrl: "assets/img/restaurants/fast_food-1.jpg",
-        category: "Fast Food"
+        category: "Fast Food",
+        isOpen24Hours: true // Open 24h 
       },
       {
         name: "Pizza Palace",
@@ -33,7 +34,10 @@ export async function seedDatabase() {
         estimatedDeliveryTime: "30-45 min",
         rating: 4.7,
         imageUrl: "assets/img/restaurants/pizza-1.jpg",
-        category: "Pizza"
+        category: "Pizza",
+        isOpen24Hours: false,
+        openingTime: "11:00",
+        closingTime: "04:00"
       },
       {
         name: "Sushi Supreme",
@@ -42,7 +46,10 @@ export async function seedDatabase() {
         estimatedDeliveryTime: "35-50 min",
         rating: 4.9,
         imageUrl: "assets/img/restaurants/asian-1.jpg",
-        category: "Asian"
+        category: "Asian",
+        isOpen24Hours: false,
+        openingTime: "11:00",
+        closingTime: "22:00"
       },
       {
         name: "Taco Fiesta",
@@ -51,7 +58,10 @@ export async function seedDatabase() {
         estimatedDeliveryTime: "25-35 min",
         rating: 4.6,
         imageUrl: "assets/img/restaurants/mexican-1.jpg",
-        category: "Mexican"
+        category: "Mexican",
+        isOpen24Hours: false,
+        openingTime: "10:00",
+        closingTime: "23:00"
       },
       {
         name: "Green Leaf",
@@ -60,7 +70,10 @@ export async function seedDatabase() {
         estimatedDeliveryTime: "20-30 min",
         rating: 4.5,
         imageUrl: "assets/img/restaurants/healthy-1.jpg",
-        category: "Healthy"
+        category: "Healthy",
+        isOpen24Hours: false,
+        openingTime: "07:00",
+        closingTime: "21:00"
       },
       {
         name: "Sweet Treats",
@@ -69,7 +82,10 @@ export async function seedDatabase() {
         estimatedDeliveryTime: "25-35 min",
         rating: 4.7,
         imageUrl: "assets/img/restaurants/desserts-1.jpg",
-        category: "Desserts"
+        category: "Desserts",
+        isOpen24Hours: false,
+        openingTime: "10:00",
+        closingTime: "22:00"
       },
       {
         name: "Pasta Paradise",
@@ -78,7 +94,10 @@ export async function seedDatabase() {
         estimatedDeliveryTime: "30-45 min",
         rating: 4.6,
         imageUrl: "assets/img/restaurants/italian-1.jpg",
-        category: "Italian"
+        category: "Italian",
+        isOpen24Hours: false,
+        openingTime: "11:00",
+        closingTime: "22:30"
       },
       {
         name: "Spice Route",
@@ -87,7 +106,10 @@ export async function seedDatabase() {
         estimatedDeliveryTime: "35-50 min",
         rating: 4.7,
         imageUrl: "assets/img/restaurants/indian-1.jpg",
-        category: "Indian"
+        category: "Indian",
+        isOpen24Hours: false,
+        openingTime: "11:30",
+        closingTime: "22:30"
       },
       {
         name: "Crispy Chicken",
@@ -96,7 +118,10 @@ export async function seedDatabase() {
         estimatedDeliveryTime: "25-40 min",
         rating: 4.5,
         imageUrl: "assets/img/restaurants/fast_food-2.jpg",
-        category: "Fast Food"
+        category: "Fast Food",
+        isOpen24Hours: false,
+        openingTime: "10:00",
+        closingTime: "01:00"
       },
       {
         name: "Mediterranean Delight",
@@ -105,7 +130,10 @@ export async function seedDatabase() {
         estimatedDeliveryTime: "30-45 min",
         rating: 4.8,
         imageUrl: "assets/img/restaurants/mediterranean-1.jpg",
-        category: "Mediterranean"
+        category: "Mediterranean",
+        isOpen24Hours: false,
+        openingTime: "11:00",
+        closingTime: "22:00"
       },
       {
         name: "Wok Master",
@@ -114,7 +142,10 @@ export async function seedDatabase() {
         estimatedDeliveryTime: "25-40 min",
         rating: 4.6,
         imageUrl: "assets/img/restaurants/asian-2.jpg",
-        category: "Asian"
+        category: "Asian",
+        isOpen24Hours: false,
+        openingTime: "11:00",
+        closingTime: "23:00"
       },
       {
         name: "BBQ Shack",
@@ -123,7 +154,10 @@ export async function seedDatabase() {
         estimatedDeliveryTime: "35-50 min",
         rating: 4.8,
         imageUrl: "assets/img/restaurants/american-1.jpg",
-        category: "American"
+        category: "American",
+        isOpen24Hours: false,
+        openingTime: "12:00",
+        closingTime: "02:00" 
       }
     ];
 
@@ -188,7 +222,7 @@ export async function seedDatabase() {
     // 3. Seed Food Items
     console.log("Seeding food items...");
     
-    // Convert the TSV data into proper food items
+
     const tsvData = `id	name	description	price	imageUrl	categoryId
 1	Classic Burger	Beef patty with lettuce, tomato, onion, and our special sauce	8.99	assets/img/food_items/Burger.png	1
 2	Cheese Burger	Beef patty with American cheese, lettuce, tomato, and our special sauce	9.99	assets/img/food_items/Burger.png	1
@@ -305,7 +339,7 @@ export async function seedDatabase() {
 121	Fresh Fruit Smoothie	Blended seasonal fruits with a hint of honey	4.99	assets/img/food_items/Smoothie.png	49`;
 
     const foodItems = tsvData.split('\n')
-      .slice(1) // Skip the header row
+      .slice(1) 
       .map(line => {
         const [id, name, description, price, imageUrl, categoryId] = line.split('\t');
         return {

@@ -18,7 +18,10 @@ import { Message } from "../../types/Message";
 const Chat = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [reply, setReply] = useState<Message | null>(null);
-  const { openUser, newMessages, setOpenUser, resetMessages } = useChatStore();
+  const [scrollDown, setScrollDown] = useState(false);
+  const [hasNewMessage, setHasNewMessage] = useState(false);
+  const { typing, openUser, newMessages, setOpenUser, resetMessages } =
+    useChatStore();
   const { getUsers, getMessages, closeChat, sendRemoveTyping } = useChat();
   const { openUserActive, setOpenUserActive } = useChatUsersStore();
   const { get } = useApi();
@@ -35,19 +38,6 @@ const Chat = () => {
   useEffect(() => {
     clickUser();
   }, [openUser]);
-
-  const clickUser = async () => {
-    lastOpenUserRef.current = openUser;
-    if (!openUser) {
-      resetMessages();
-      closeChat();
-      getUsers();
-    } else {
-      const { active } = await get(`/chat/active/${openUser.id}`);
-      setOpenUserActive(active);
-      getMessages(openUser.id);
-    }
-  };
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -67,6 +57,29 @@ const Chat = () => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isOpen, sendRemoveTyping]);
+
+  const clickUser = async () => {
+    lastOpenUserRef.current = openUser;
+    if (!openUser) {
+      resetMessages();
+      closeChat();
+      getUsers();
+    } else {
+      const { active } = await get(`/chat/active/${openUser.id}`);
+      setOpenUserActive(active);
+      getMessages(openUser.id);
+    }
+  };
+
+  const getChatDetails = () => {
+    if (scrollDown && openUser) {
+      if (typing.includes(openUser.id)) {
+        return "Typing...";
+      } else if (hasNewMessage) {
+        return "New Messages";
+      }
+    }
+  };
 
   return (
     <div className="flex flex-col items-end tb:text-base z-50">
@@ -115,6 +128,7 @@ const Chat = () => {
               <h2 className="text-lg font-semibold">
                 {openUser?.fullName || "Chat"}
               </h2>
+              <p className="relative text-sm top-1">{getChatDetails()}</p>
             </div>
             <FontAwesomeIcon
               icon={openUser ? faCircleLeft : faXmarkCircle}
@@ -137,7 +151,13 @@ const Chat = () => {
             } flex flex-col overflow-y-auto overflow-x-hidden gap-[1px]`}
           >
             {openUser ? (
-              <Messages reply={reply} setReply={setReply} />
+              <Messages
+                reply={reply}
+                setReply={setReply}
+                scrollDown={scrollDown}
+                setScrollDown={setScrollDown}
+                setHasNewMessage={setHasNewMessage}
+              />
             ) : (
               <Search />
             )}

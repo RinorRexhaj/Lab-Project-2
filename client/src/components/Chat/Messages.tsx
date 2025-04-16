@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { useChatStore } from "../../store/useChatStore";
 import Message from "./Message";
 import Typing from "./Typing";
@@ -11,10 +11,18 @@ import { useUserStore } from "../../store/useUserStore";
 interface MessagesProps {
   reply: MessageType | null;
   setReply: (message: MessageType | null) => void;
+  scrollDown: boolean;
+  setScrollDown: (scroll: boolean) => void;
+  setHasNewMessage: (has: boolean) => void;
 }
 
-const Messages: React.FC<MessagesProps> = ({ reply, setReply }) => {
-  const [scrollDown, setScrollDown] = useState(false);
+const Messages: React.FC<MessagesProps> = ({
+  reply,
+  setReply,
+  scrollDown,
+  setScrollDown,
+  setHasNewMessage,
+}) => {
   const { messages, typing, openUser } = useChatStore();
   const { user } = useUserStore();
   const messagesRef = useRef<HTMLDivElement>(null);
@@ -23,12 +31,18 @@ const Messages: React.FC<MessagesProps> = ({ reply, setReply }) => {
 
   useEffect(() => {
     if (messages.length > prevMessageCount.current) {
-      scrollToBottom(false);
+      if (!scrollDown) {
+        scrollToBottom(false);
+        setScrollDown(false);
+      } else {
+        setHasNewMessage(true);
+      }
     }
     prevMessageCount.current = messages.length;
   }, [messages]);
 
   const scrollToBottom = (behavior: boolean) => {
+    setHasNewMessage(false);
     messagesRef.current?.scrollTo({
       top: messagesRef.current.scrollHeight,
       behavior: behavior ? "smooth" : "instant",
@@ -57,7 +71,7 @@ const Messages: React.FC<MessagesProps> = ({ reply, setReply }) => {
     if (!messagesRef.current) return;
     const element = messagesRef.current;
     const isUserScrolledUp =
-      element.scrollTop + element.clientHeight < element.scrollHeight - 200;
+      element.scrollTop + element.clientHeight < element.scrollHeight - 50;
     setScrollDown(isUserScrolledUp);
   };
 

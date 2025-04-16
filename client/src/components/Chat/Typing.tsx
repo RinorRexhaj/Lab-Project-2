@@ -1,10 +1,16 @@
+import { useEffect } from "react";
+
 interface TypingProps {
   scrollDown: boolean;
   scrollToBottom: (smooth: boolean) => void;
 }
 
 const Typing: React.FC<TypingProps> = ({ scrollDown, scrollToBottom }) => {
-  if (!scrollDown) scrollToBottom(false);
+  useEffect(() => {
+    if (!scrollDown) {
+      scrollToBottom(false);
+    }
+  }, [scrollDown, scrollToBottom]);
 
   return (
     <div

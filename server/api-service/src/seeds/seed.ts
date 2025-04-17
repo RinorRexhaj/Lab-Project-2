@@ -164,65 +164,71 @@ export async function seedDatabase() {
     const savedRestaurants = await AppDataSource.getRepository(Restaurant).save(restaurants);
     console.log(`✅ Seeded ${savedRestaurants.length} restaurants successfully`);
 
-    // 2. Seed Food Categories
+    // 2. Seed Food Categories - with specific IDs to match food items
     console.log("Seeding food categories...");
+    
     const foodCategories = [
-      { name: "Burgers", restaurantId: 1 },
-      { name: "Sides", restaurantId: 1 },
-      { name: "Beverages", restaurantId: 1 },
-      { name: "Classic Pizzas", restaurantId: 2 },
-      { name: "Specialty Pizzas", restaurantId: 2 },
-      { name: "Sides", restaurantId: 2 },
-      { name: "Beverages", restaurantId: 2 },
-      { name: "Sushi", restaurantId: 3 },
-      { name: "Sashimi", restaurantId: 3 },
-      { name: "Appetizers", restaurantId: 3 },
-      { name: "Beverages", restaurantId: 3 },
-      { name: "Tacos", restaurantId: 4 },
-      { name: "Burritos", restaurantId: 4 },
-      { name: "Sides", restaurantId: 4 },
-      { name: "Beverages", restaurantId: 4 },
-      { name: "Salads", restaurantId: 5 },
-      { name: "Bowls", restaurantId: 5 },
-      { name: "Smoothies", restaurantId: 5 },
-      { name: "Beverages", restaurantId: 5 },
-      { name: "Cakes", restaurantId: 6 },
-      { name: "Ice Cream", restaurantId: 6 },
-      { name: "Cookies", restaurantId: 6 },
-      { name: "Beverages", restaurantId: 6 },
-      { name: "Pasta", restaurantId: 7 },
-      { name: "Risotto", restaurantId: 7 },
-      { name: "Appetizers", restaurantId: 7 },
-      { name: "Beverages", restaurantId: 7 },
-      { name: "Curries", restaurantId: 8 },
-      { name: "Tandoori", restaurantId: 8 },
-      { name: "Rice Dishes", restaurantId: 8 },
-      { name: "Beverages", restaurantId: 8 },
-      { name: "Chicken", restaurantId: 9 },
-      { name: "Sandwiches", restaurantId: 9 },
-      { name: "Sides", restaurantId: 9 },
-      { name: "Beverages", restaurantId: 9 },
-      { name: "Mezze", restaurantId: 10 },
-      { name: "Main Dishes", restaurantId: 10 },
-      { name: "Sides", restaurantId: 10 },
-      { name: "Beverages", restaurantId: 10 },
-      { name: "Noodles", restaurantId: 11 },
-      { name: "Rice Dishes", restaurantId: 11 },
-      { name: "Appetizers", restaurantId: 11 },
-      { name: "Beverages", restaurantId: 11 },
-      { name: "Ribs & Brisket", restaurantId: 12 },
-      { name: "Sandwiches", restaurantId: 12 },
-      { name: "Sides", restaurantId: 12 },
-      { name: "Beverages", restaurantId: 12 }
+      { id: 1, name: "Burgers", restaurantId: 1 },
+      { id: 2, name: "Sides", restaurantId: 1 },
+      { id: 3, name: "Beverages", restaurantId: 1 },
+      { id: 5, name: "Classic Pizzas", restaurantId: 2 },
+      { id: 6, name: "Specialty Pizzas", restaurantId: 2 },
+      { id: 7, name: "Sides", restaurantId: 2 },
+      { id: 8, name: "Beverages", restaurantId: 2 },
+      { id: 9, name: "Sushi", restaurantId: 3 },
+      { id: 10, name: "Sashimi", restaurantId: 3 },
+      { id: 11, name: "Appetizers", restaurantId: 3 },
+      { id: 12, name: "Beverages", restaurantId: 3 },
+      { id: 13, name: "Tacos", restaurantId: 4 },
+      { id: 14, name: "Burritos", restaurantId: 4 },
+      { id: 15, name: "Sides", restaurantId: 4 },
+      { id: 16, name: "Beverages", restaurantId: 4 },
+      { id: 17, name: "Salads", restaurantId: 5 },
+      { id: 18, name: "Bowls", restaurantId: 5 },
+      { id: 19, name: "Smoothies", restaurantId: 5 },
+      { id: 20, name: "Beverages", restaurantId: 5 },
+      { id: 21, name: "Cakes", restaurantId: 6 },
+      { id: 22, name: "Ice Cream", restaurantId: 6 },
+      { id: 23, name: "Cookies", restaurantId: 6 },
+      { id: 24, name: "Beverages", restaurantId: 6 },
+      { id: 25, name: "Pasta", restaurantId: 7 },
+      { id: 26, name: "Risotto", restaurantId: 7 },
+      { id: 27, name: "Appetizers", restaurantId: 7 },
+      { id: 28, name: "Beverages", restaurantId: 7 },
+      { id: 29, name: "Curries", restaurantId: 8 },
+      { id: 30, name: "Tandoori", restaurantId: 8 },
+      { id: 31, name: "Rice Dishes", restaurantId: 8 },
+      { id: 32, name: "Beverages", restaurantId: 8 },
+      { id: 33, name: "Chicken", restaurantId: 9 },
+      { id: 34, name: "Sandwiches", restaurantId: 9 },
+      { id: 35, name: "Sides", restaurantId: 9 },
+      { id: 36, name: "Beverages", restaurantId: 9 },
+      { id: 37, name: "Mezze", restaurantId: 10 },
+      { id: 38, name: "Main Dishes", restaurantId: 10 },
+      { id: 39, name: "Sides", restaurantId: 10 },
+      { id: 40, name: "Beverages", restaurantId: 10 },
+      { id: 41, name: "Noodles", restaurantId: 11 },
+      { id: 42, name: "Rice Dishes", restaurantId: 11 },
+      { id: 43, name: "Appetizers", restaurantId: 11 },
+      { id: 44, name: "Beverages", restaurantId: 11 },
+      { id: 45, name: "Ribs & Brisket", restaurantId: 12 },
+      { id: 46, name: "Sandwiches", restaurantId: 12 },
+      { id: 47, name: "Sides", restaurantId: 12 },
+      { id: 49, name: "Beverages", restaurantId: 12 }
     ];
 
-    const savedCategories = await AppDataSource.getRepository(FoodCategory).save(foodCategories);
-    console.log(`✅ Seeded ${savedCategories.length} food categories successfully`);
+    // Use raw query - make sure IDs are preserved
+    await AppDataSource.createQueryBuilder()
+      .insert()
+      .into(FoodCategory)
+      .values(foodCategories)
+      .execute();
+    
+    console.log(`✅ Seeded ${foodCategories.length} food categories successfully`);
 
     // 3. Seed Food Items
     console.log("Seeding food items...");
     
-
     const tsvData = `id	name	description	price	imageUrl	categoryId
 1	Classic Burger	Beef patty with lettuce, tomato, onion, and our special sauce	8.99	assets/img/food_items/Burger.png	1
 2	Cheese Burger	Beef patty with American cheese, lettuce, tomato, and our special sauce	9.99	assets/img/food_items/Burger.png	1
@@ -338,19 +344,26 @@ export async function seedDatabase() {
 120	Classic Milkshake	Hand-spun vanilla, chocolate, or strawberry shake	5.99	assets/img/food_items/Milkshake.png	49
 121	Fresh Fruit Smoothie	Blended seasonal fruits with a hint of honey	4.99	assets/img/food_items/Smoothie.png	49`;
 
+    // Process the TSV data to create food items
     const foodItems = tsvData.split('\n')
-      .slice(1) 
+      .filter(line => line.trim() && !line.startsWith('id'))  // Skip header and empty lines
       .map(line => {
         const [id, name, description, price, imageUrl, categoryId] = line.split('\t');
-        return {
-          name,
-          description,
-          price: parseFloat(price),
-          imageUrl,
-          categoryId: parseInt(categoryId)
-        };
-      });
+        // Verify we have all required data
+        if (name && description && price && imageUrl && categoryId) {
+          return {
+            name,
+            description,
+            price: parseFloat(price),
+            imageUrl,
+            categoryId: parseInt(categoryId)
+          };
+        }
+        return null;
+      })
+      .filter(item => item !== null); // Remove any invalid entries
 
+    // Save all food items
     const savedFoodItems = await AppDataSource.getRepository(FoodItem).save(foodItems);
     console.log(`✅ Seeded ${savedFoodItems.length} food items successfully`);
 

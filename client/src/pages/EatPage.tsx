@@ -141,10 +141,10 @@ const EatPage: React.FC = () => {
   return (
     <div className="w-full max-w-7xl mx-auto px-4 py-8 pb-16 bg-gray-50 min-h-screen">
 
-      <div className="mb-10 bg-gradient-to-r from-emerald-500 to-emerald-700 text-white p-6 rounded-xl shadow-md">
-        <h1 className="text-3xl font-bold mb-2">Food Delivery</h1>
-        <p className="text-emerald-100">Order delicious food from your favorite restaurants</p>
-      </div>
+      <section className="text-center py-14 px-3 mb-10 bg-gradient-to-r from-emerald-500 to-emerald-700 text-white rounded-2xl shadow-lg max-w-7xl w-full mx-auto">
+        <h1 className="text-3xl md:text-xl font-bold">Food Delivery</h1>
+        <p className="text-lg md:text-base mt-4">Order delicious food from your favorite restaurants</p>
+      </section>
       
       {/* Search Bar with Autocomplete */}
       <div className="relative mb-8" ref={searchRef}>

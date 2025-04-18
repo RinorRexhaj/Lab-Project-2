@@ -10,6 +10,7 @@ import Navbar from "../components/Navbar";
 import Users from "../pages/Users";
 import EatPage from "../pages/EatPage";
 import useSession from "../hooks/useSession";
+import ProfileSettingsPage from "../pages/Profile/ProfileSettingsPage";
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -82,6 +83,14 @@ const AppRouter: React.FC = () => {
           element={
             <ProtectedRoute>
               <EatPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <ProfileSettingsPage />
             </ProtectedRoute>
           }
         />

@@ -17,6 +17,9 @@ const useSession = () => {
       setRole(user.role);
       setAccessToken(token);
       localStorage.setItem("refreshToken", refreshToken);
+      localStorage.setItem("accessToken", token);
+      // Also store user data in localStorage - for persistence across refreshes - Bug fix qe nuk u bojke update avatari menihere.
+      localStorage.setItem("userData", JSON.stringify(user));
     } else if (!response || error) {
       resetSession();
     }

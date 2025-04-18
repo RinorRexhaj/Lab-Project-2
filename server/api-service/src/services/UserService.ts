@@ -19,10 +19,21 @@ export const updateUserData = async (
   id: number,
   fullname: string,
   role: string,
-  address: string
+  address: string,
+  avatar?: string
 ) => {
   if (!id || !fullname || !role) return null;
-  return await UserRepo.updateUser(id, fullname, role, address);
+  return await UserRepo.updateUser(id, fullname, role, address, avatar);
+};
+
+export const updateUserAvatar = async (id: number, avatar: string) => {
+  if (!id || !avatar) return null;
+  return await UserRepo.updateAvatar(id, avatar);
+};
+
+export const updateUserPassword = async (id: number, currentPassword: string, newPassword: string) => {
+  if (!id || !currentPassword || !newPassword) return null;
+  return await UserRepo.updatePassword(id, currentPassword, newPassword);
 };
 
 export const deleteUserId = async (id: number) => {

@@ -10,7 +10,7 @@ import Navbar from "../components/Navbar";
 import Users from "../pages/Users";
 import EatPage from "../pages/EatPage";
 import useSession from "../hooks/useSession";
-import ProfileSettingsPage from "../pages/Profile/ProfileSettingsPage";
+import ProfileSettingsPage from "../pages/ProfileSettingsPage";
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
   children,

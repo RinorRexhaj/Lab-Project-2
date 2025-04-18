@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useBeforeUnload } from "react-router-dom";
 import toast from "react-hot-toast";
-import { useUserStore } from "../../store/useUserStore";
-import { useSessionStore } from "../../store/useSessionStore";
-import { userService } from "../../api/UserService";
+import { useUserStore } from "../store/useUserStore";
+import { useSessionStore } from "../store/useSessionStore";
+import { userService } from "../api/UserService";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faArrowLeft,
@@ -14,9 +14,9 @@ import {
   faLock,
   faExclamationTriangle,
 } from "@fortawesome/free-solid-svg-icons";
-import AvatarPickerModal from "./components/AvatarPickerModal";
-import ConfirmDialog from "../../shared/ConfirmDialog";
-import AvatarPickerSidebar from "./components/AvatarPickerSidebar";
+import AvatarPickerModal from "../components/Profile/AvatarPickerModal";
+import ConfirmDialog from "../shared/ConfirmDialog";
+import AvatarPickerSidebar from "../components/Profile/AvatarPickerSidebar";
 
 const ProfileSettingsPage: React.FC = () => {
   const { user, updateUser, updateAvatar, resetUser } = useUserStore();
@@ -30,7 +30,7 @@ const ProfileSettingsPage: React.FC = () => {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [avatar, setAvatar] = useState(user?.avatar || "user-avatar-1.png");
-  
+
   // UI states
   const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
@@ -40,7 +40,7 @@ const ProfileSettingsPage: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
-  
+
   // Responsive state
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 700);
 
@@ -55,13 +55,13 @@ const ProfileSettingsPage: React.FC = () => {
 
   // Track form changes
   useEffect(() => {
-    const formChanged = 
+    const formChanged =
       fullName !== (user?.fullName || "") ||
       address !== (user?.address || "") ||
       avatar !== (user?.avatar || "user-avatar-1.png") ||
       currentPassword !== "" ||
       newPassword !== "";
-      
+
     setHasChanges(formChanged);
   }, [fullName, address, avatar, currentPassword, newPassword, user]);
 
@@ -71,8 +71,8 @@ const ProfileSettingsPage: React.FC = () => {
       setIsMobile(window.innerWidth <= 700);
     };
 
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   // Form validation
@@ -82,13 +82,13 @@ const ProfileSettingsPage: React.FC = () => {
       toast.error("Passwords don't match");
       return false;
     }
-    
+
     if (newPassword && newPassword.length < 6) {
       setPasswordError("Password must be at least 6 characters");
       toast.error("Password must be at least 6 characters");
       return false;
     }
-    
+
     setPasswordError("");
     return true;
   };
@@ -97,16 +97,16 @@ const ProfileSettingsPage: React.FC = () => {
   const handleAvatarChange = async (newAvatar: string) => {
     setAvatar(newAvatar);
     setIsAvatarModalOpen(false);
-    
+
     // Only update if changed and user exists
     if (newAvatar !== (user?.avatar || "user-avatar-1.png") && user) {
       try {
         // Immediately update avatar in backend
         const updatedUser = await userService.updateAvatar(user.id, newAvatar);
-        
+
         // Update local state
         updateAvatar(newAvatar);
-        
+
         toast.success("Avatar updated successfully!");
       } catch (error) {
         toast.error("Failed to update avatar. Please try again.");
@@ -119,23 +119,28 @@ const ProfileSettingsPage: React.FC = () => {
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (newPassword && !validatePasswordMatch()) {
       return;
     }
-    
+
     if (user) {
       try {
         setIsSubmitting(true);
-        
+
         // Create object to track which fields have changed
-        const updates: { fullName?: string; address?: string; avatar?: string } = {};
-        
+        const updates: {
+          fullName?: string;
+          address?: string;
+          avatar?: string;
+        } = {};
+
         // Check which fields have changed
         if (fullName !== user.fullName) updates.fullName = fullName;
         if (address !== (user.address || "")) updates.address = address;
-        if (avatar !== (user.avatar || "user-avatar-1.png")) updates.avatar = avatar;
-        
+        if (avatar !== (user.avatar || "user-avatar-1.png"))
+          updates.avatar = avatar;
+
         // Only make API call if there are changes
         if (Object.keys(updates).length > 0) {
           // Send API request to update profile
@@ -145,27 +150,27 @@ const ProfileSettingsPage: React.FC = () => {
             address || "",
             avatar
           );
-          
+
           // Update local state
           updateUser({
             fullName: updatedUser.fullName,
-            address: updatedUser.address
+            address: updatedUser.address,
           });
-          
+
           // If avatar changed, update it in store
           if (updates.avatar) {
             updateAvatar(avatar);
           }
-          
+
           // Show success message
           toast.success("Profile updated successfully!");
         }
-        
+
         // Handle password update if provided
         if (newPassword && currentPassword) {
           await handlePasswordUpdate();
         }
-        
+
         setHasChanges(false);
       } catch (error) {
         if (error instanceof Error) {
@@ -178,25 +183,25 @@ const ProfileSettingsPage: React.FC = () => {
       }
     }
   };
-  
+
   // Handle password update
   const handlePasswordUpdate = async () => {
     if (!user || !validatePasswordMatch()) return;
-    
+
     try {
       setIsUpdatingPassword(true);
-      
+
       const result = await userService.updatePassword(
         user.id,
         currentPassword,
         newPassword
       );
-      
+
       // Reset password fields
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
-      
+
       toast.success("Password updated successfully");
       return true;
     } catch (error: any) {
@@ -206,31 +211,31 @@ const ProfileSettingsPage: React.FC = () => {
       setIsUpdatingPassword(false);
     }
   };
-  
+
   // Handle account deletion
   const handleDeleteAccount = async () => {
     if (!user) return;
-    
+
     try {
       setIsDeleting(true);
-      
+
       const result = await userService.deleteAccount(user.id);
-      
+
       if (result.deleted) {
         // Clear user state
         resetUser();
-        
+
         // Clear session
         setAccessToken("");
         setRole("");
-        
+
         // Clear localStorage
         localStorage.removeItem("accessToken");
         localStorage.removeItem("refreshToken");
         localStorage.removeItem("userData");
-        
+
         toast.success("Your account has been deleted");
-        
+
         // Redirect to login page
         navigate("/login");
       } else {
@@ -239,8 +244,8 @@ const ProfileSettingsPage: React.FC = () => {
     } catch (error: any) {
       console.error("Delete account error:", error);
       toast.error(
-        error.response?.data?.error || 
-        "An error occurred while deleting your account. Please try again later."
+        error.response?.data?.error ||
+          "An error occurred while deleting your account. Please try again later."
       );
     } finally {
       setIsDeleting(false);
@@ -256,7 +261,7 @@ const ProfileSettingsPage: React.FC = () => {
       navigate("/");
     }
   };
-  
+
   const handleConfirmLeave = () => {
     navigate("/");
   };
@@ -276,11 +281,11 @@ const ProfileSettingsPage: React.FC = () => {
 
   return (
     <div className="w-full bg-gray-50">
-      <div className="max-w-7xl flex flex-col p-3 w-11/12 mx-auto space-y-12">
+      <div className="max-w-7xl flex flex-col p-3 w-11/12 mx-auto">
         {/* Back Button */}
         <div className="mb-6">
-          <Link 
-            to="/" 
+          <Link
+            to="/"
             className="inline-flex items-center text-emerald-600 hover:text-emerald-700 font-medium"
           >
             <FontAwesomeIcon icon={faArrowLeft} className="mr-2" />
@@ -292,7 +297,7 @@ const ProfileSettingsPage: React.FC = () => {
           {/* Avatar Sidebar - Only visible on larger screens */}
           {!isMobile && (
             <div className="w-1/4 md:w-full">
-              <AvatarPickerSidebar 
+              <AvatarPickerSidebar
                 currentAvatar={avatar}
                 onSelect={handleAvatarChange}
               />
@@ -300,7 +305,7 @@ const ProfileSettingsPage: React.FC = () => {
           )}
 
           {/* Main Content */}
-          <div className={`${isMobile ? 'w-full' : 'w-3/4'}`}>
+          <div className={`${isMobile ? "w-full" : "w-3/4"}`}>
             <form onSubmit={handleSubmit} className="space-y-8">
               {/* Avatar Section - Only visible on smaller screens */}
               {isMobile && (
@@ -308,13 +313,16 @@ const ProfileSettingsPage: React.FC = () => {
                   <div className="relative mb-4">
                     <div className="w-32 h-32 rounded-full overflow-hidden bg-gradient-to-r from-emerald-500 to-teal-500 flex items-center justify-center border-4 border-white shadow-lg relative">
                       {avatar ? (
-                        <img 
-                          src={`/assets/img/user_avatar/${avatar}`} 
-                          alt="User Avatar" 
+                        <img
+                          src={`/assets/img/user_avatar/${avatar}`}
+                          alt="User Avatar"
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <FontAwesomeIcon icon={faUser} className="w-16 h-16 text-white" />
+                        <FontAwesomeIcon
+                          icon={faUser}
+                          className="w-16 h-16 text-white"
+                        />
                       )}
                     </div>
                     <button
@@ -338,14 +346,19 @@ const ProfileSettingsPage: React.FC = () => {
               {/* Profile Info Section */}
               <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
                 <div className="flex items-center mb-4 pb-3 border-b border-gray-100">
-                  <FontAwesomeIcon icon={faIdCard} className="text-emerald-500 mr-3" />
-                  <h2 className="text-xl font-semibold text-gray-800">Profile Information</h2>
+                  <FontAwesomeIcon
+                    icon={faIdCard}
+                    className="text-emerald-500 mr-3"
+                  />
+                  <h2 className="text-xl font-semibold text-gray-800">
+                    Profile Information
+                  </h2>
                 </div>
-                
+
                 <div className="space-y-5">
                   {/* Name field */}
                   <div>
-                    <label 
+                    <label
                       htmlFor="fullName"
                       className="block text-sm font-medium text-gray-700 mb-1"
                     >
@@ -360,10 +373,10 @@ const ProfileSettingsPage: React.FC = () => {
                       required
                     />
                   </div>
-                  
+
                   {/* Email field (read-only) */}
                   <div>
-                    <label 
+                    <label
                       htmlFor="email"
                       className="block text-sm font-medium text-gray-700 mb-1"
                     >
@@ -377,10 +390,10 @@ const ProfileSettingsPage: React.FC = () => {
                       readOnly
                     />
                   </div>
-                  
+
                   {/* Address field */}
                   <div>
-                    <label 
+                    <label
                       htmlFor="address"
                       className="block text-sm font-medium text-gray-700 mb-1"
                     >
@@ -401,14 +414,19 @@ const ProfileSettingsPage: React.FC = () => {
               {/* Password Update Section */}
               <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
                 <div className="flex items-center mb-4 pb-3 border-b border-gray-100">
-                  <FontAwesomeIcon icon={faLock} className="text-emerald-500 mr-3" />
-                  <h2 className="text-xl font-semibold text-gray-800">Password Update</h2>
+                  <FontAwesomeIcon
+                    icon={faLock}
+                    className="text-emerald-500 mr-3"
+                  />
+                  <h2 className="text-xl font-semibold text-gray-800">
+                    Password Update
+                  </h2>
                 </div>
-                
+
                 <div className="space-y-5">
                   {/* Current Password */}
                   <div>
-                    <label 
+                    <label
                       htmlFor="currentPassword"
                       className="block text-sm font-medium text-gray-700 mb-1"
                     >
@@ -423,10 +441,10 @@ const ProfileSettingsPage: React.FC = () => {
                       placeholder="Enter current password"
                     />
                   </div>
-                  
+
                   {/* New Password */}
                   <div>
-                    <label 
+                    <label
                       htmlFor="newPassword"
                       className="block text-sm font-medium text-gray-700 mb-1"
                     >
@@ -441,10 +459,10 @@ const ProfileSettingsPage: React.FC = () => {
                       placeholder="Enter new password"
                     />
                   </div>
-                  
+
                   {/* Confirm New Password */}
                   <div>
-                    <label 
+                    <label
                       htmlFor="confirmPassword"
                       className="block text-sm font-medium text-gray-700 mb-1"
                     >
@@ -462,7 +480,9 @@ const ProfileSettingsPage: React.FC = () => {
                       placeholder="Confirm new password"
                     />
                     {passwordError && (
-                      <p className="mt-1 text-sm text-red-600">{passwordError}</p>
+                      <p className="mt-1 text-sm text-red-600">
+                        {passwordError}
+                      </p>
                     )}
                   </div>
                 </div>
@@ -482,14 +502,17 @@ const ProfileSettingsPage: React.FC = () => {
                   type="submit"
                   className={`px-6 py-2 bg-emerald-500 text-white font-medium rounded-md flex items-center transition-colors ${
                     hasChanges && !isSubmitting
-                      ? "hover:bg-emerald-600" 
+                      ? "hover:bg-emerald-600"
                       : "opacity-50 cursor-not-allowed"
                   }`}
                   disabled={!hasChanges || isSubmitting}
                 >
                   {isSubmitting ? (
                     <>
-                      <FontAwesomeIcon icon={faSpinner} className="mr-2 animate-spin" />
+                      <FontAwesomeIcon
+                        icon={faSpinner}
+                        className="mr-2 animate-spin"
+                      />
                       Saving...
                     </>
                   ) : (
@@ -501,11 +524,17 @@ const ProfileSettingsPage: React.FC = () => {
               {/* Danger Zone */}
               <div className="bg-white p-6 rounded-lg shadow-sm border border-red-100 mt-12">
                 <div className="flex items-center mb-4 pb-3 border-b border-red-100">
-                  <FontAwesomeIcon icon={faExclamationTriangle} className="text-red-500 mr-3" />
-                  <h2 className="text-xl font-semibold text-red-500">Danger Zone</h2>
+                  <FontAwesomeIcon
+                    icon={faExclamationTriangle}
+                    className="text-red-500 mr-3"
+                  />
+                  <h2 className="text-xl font-semibold text-red-500">
+                    Danger Zone
+                  </h2>
                 </div>
                 <p className="text-gray-600 mb-4">
-                  Permanently delete your account and all associated data. This action cannot be undone.
+                  Permanently delete your account and all associated data. This
+                  action cannot be undone.
                 </p>
                 <div>
                   <button
@@ -516,7 +545,10 @@ const ProfileSettingsPage: React.FC = () => {
                   >
                     {isDeleting ? (
                       <>
-                        <FontAwesomeIcon icon={faSpinner} className="mr-2 animate-spin" />
+                        <FontAwesomeIcon
+                          icon={faSpinner}
+                          className="mr-2 animate-spin"
+                        />
                         Deleting...
                       </>
                     ) : (
@@ -538,7 +570,7 @@ const ProfileSettingsPage: React.FC = () => {
           onClose={() => setIsAvatarModalOpen(false)}
         />
       )}
-      
+
       {/* Confirm Dialog for Unsaved Changes */}
       <ConfirmDialog
         isOpen={showConfirmDialog}
@@ -550,7 +582,7 @@ const ProfileSettingsPage: React.FC = () => {
         cancelText="Stay"
         type="warning"
       />
-      
+
       {/* Confirm Dialog for Account Deletion */}
       <ConfirmDialog
         isOpen={showDeleteConfirm}

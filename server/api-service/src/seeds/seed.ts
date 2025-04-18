@@ -2,6 +2,29 @@ import { AppDataSource } from "../data-source";
 import { Restaurant } from "../models/Restaurant";
 import { FoodCategory } from "../models/FoodCategory";
 import { FoodItem } from "../models/FoodItem";
+import { User } from "../models/User";
+
+// Function to ensure avatar column exists for all users
+async function ensureUserAvatars() {
+  console.log("Ensuring all users have avatar values...");
+  
+  try {
+    // Check if there are any users without avatars
+    const users = await AppDataSource.getRepository(User).find();
+    
+    // Set default avatar for users that don't have one
+    for (const user of users) {
+      if (!user.avatar) {
+        user.avatar = "user-avatar-1.png";
+        await AppDataSource.getRepository(User).save(user);
+      }
+    }
+    
+    console.log(`✅ Checked avatars for ${users.length} users`);
+  } catch (error) {
+    console.error("Error ensuring user avatars:", error);
+  }
+}
 
 export async function seedDatabase() {
   try {
@@ -366,6 +389,9 @@ export async function seedDatabase() {
     // Save all food items
     const savedFoodItems = await AppDataSource.getRepository(FoodItem).save(foodItems);
     console.log(`✅ Seeded ${savedFoodItems.length} food items successfully`);
+
+    // Ensure all users have an avatar
+    await ensureUserAvatars();
 
     console.log("🌱 Database seeding completed successfully!");
     return true;

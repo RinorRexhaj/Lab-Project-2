@@ -21,13 +21,25 @@ export class User {
 
   @Column({ length: 100, nullable: true })
   address?: string;
+  
+  @Column({ length: 50, default: "user-avatar-1.png" })
+  avatar!: string;
 
-  @OneToMany(() => RefreshToken, (refreshToken) => refreshToken.user)
+  @OneToMany(() => RefreshToken, (refreshToken) => refreshToken.user, {
+    cascade: true,
+    onDelete: "CASCADE"
+  })
   refreshToken!: RefreshToken;
 
-  @OneToMany(() => Message, (message) => message.sender)
+  @OneToMany(() => Message, (message) => message.sender, {
+    cascade: true,
+    onDelete: "CASCADE"
+  })
   sentMessage!: Message;
 
-  @OneToMany(() => Message, (message) => message.receiver)
+  @OneToMany(() => Message, (message) => message.receiver, {
+    cascade: true,
+    onDelete: "CASCADE"
+  })
   receivedMessage!: Message;
 }

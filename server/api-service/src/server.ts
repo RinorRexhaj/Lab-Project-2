@@ -17,6 +17,7 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+const prod = process.env.PROD === "true";
 
 const httpServer = createServer(app);
 
@@ -29,7 +30,7 @@ const io = new Server(httpServer, {
 
 app.use(
   cors({
-    origin: "*",
+    origin: prod ? "https://lab-2-olive.vercel.app/" : "*",
     credentials: true,
   })
 );

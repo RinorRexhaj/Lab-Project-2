@@ -6,8 +6,12 @@ import { useSessionStore } from "../store/useSessionStore";
 const useApi = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const url =
+    import.meta.env.VITE_PROD === "true"
+      ? environment.prodUrl
+      : environment.apiUrl;
   const api = axios.create({
-    baseURL: environment.apiUrl,
+    baseURL: url,
     headers: {
       "Content-Type": "application/json",
     },

@@ -13,7 +13,7 @@ export const AppDataSource = new DataSource({
   synchronize: true,
   logging: false,
   options: {
-    encrypt: false,
+    encrypt: true,
     trustServerCertificate: true,
   },
   requestTimeout: 60000,

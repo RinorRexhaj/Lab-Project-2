@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import Login from "../pages/Login";
 import Home from "../pages/Home";
 import Loading from "../pages/Loading";
@@ -34,7 +34,9 @@ const AppRouter: React.FC = () => {
   const { post } = useApi();
   const { accessToken } = useSessionStore();
   const { setSession } = useSession();
+  const location = useLocation();
   const [isRefreshing, setIsRefreshing] = useState(true);
+  const [activeLink, setActiveLink] = useState(0);
 
   useEffect(() => {
     const refresh = async () => {
@@ -52,6 +54,18 @@ const AppRouter: React.FC = () => {
     return () => clearInterval(interval);
   }, [accessToken]);
 
+  useEffect(() => {
+    const pathToIndex: Record<string, number> = {
+      "/": 0,
+      "/rides": 1,
+      "/eat": 2,
+      "/groceries": 3,
+      "/payment": 3,
+    };
+
+    setActiveLink(pathToIndex[location.pathname] ?? -1);
+  }, [location.pathname]);
+
   if (isRefreshing) return <Loading />;
 
   return (
@@ -60,7 +74,9 @@ const AppRouter: React.FC = () => {
         accessToken && "mt-20 "
       }`}
     >
-      {accessToken && <Navbar />}
+      {accessToken && (
+        <Navbar activeLink={activeLink} setActiveLink={setActiveLink} />
+      )}
       <Routes>
         <Route
           path="/"

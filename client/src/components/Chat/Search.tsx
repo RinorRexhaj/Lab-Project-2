@@ -50,7 +50,7 @@ const Search = () => {
 
   return (
     <>
-      <div className="fixed w-[350px] z-50 py-2 px-3 rounded-lg bg-slate-200 flex items-center">
+      <div className="fixed w-[350px] sm:w-[320px] z-50 py-2 px-3 rounded-lg bg-slate-200 flex items-center">
         <FontAwesomeIcon icon={faMagnifyingGlass} />
         {/* Search Input */}
         <input

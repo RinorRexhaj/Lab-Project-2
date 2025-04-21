@@ -25,6 +25,7 @@ const io = new Server(httpServer, {
   cors: {
     origin: prod ? "https://lab-2-olive.vercel.app/" : "*",
     methods: ["GET", "POST"],
+    credentials: true,
   },
 });
 

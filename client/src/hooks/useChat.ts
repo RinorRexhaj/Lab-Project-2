@@ -7,7 +7,10 @@ import { Message } from "../types/Message";
 import useApi from "./useApi";
 import { useChatUsersStore } from "../store/useChatUsersStore";
 
-const SOCKET_SERVER_URL = environment.apiUrl;
+const SOCKET_SERVER_URL =
+  import.meta.env.VITE_PROD === "true"
+    ? environment.prodUrl
+    : environment.apiUrl;
 
 export const useChat = () => {
   const [socket, setSocket] = useState<Socket | null>(null);

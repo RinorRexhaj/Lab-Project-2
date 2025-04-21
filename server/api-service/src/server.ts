@@ -23,7 +23,7 @@ const httpServer = createServer(app);
 
 const io = new Server(httpServer, {
   cors: {
-    origin: "*",
+    origin: prod ? "https://lab-2-olive.vercel.app/" : "*",
     methods: ["GET", "POST"],
   },
 });

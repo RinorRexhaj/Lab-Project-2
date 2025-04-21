@@ -48,6 +48,7 @@ const ProfileSettingsPage: React.FC = () => {
   useEffect(() => {
     if (user) {
       setFullName(user.fullName);
+      isUpdatingPassword;
       setAddress(user.address || "");
       setAvatar(user.avatar || "user-avatar-1.png");
     }
@@ -102,7 +103,7 @@ const ProfileSettingsPage: React.FC = () => {
     if (newAvatar !== (user?.avatar || "user-avatar-1.png") && user) {
       try {
         // Immediately update avatar in backend
-        const updatedUser = await userService.updateAvatar(user.id, newAvatar);
+        await userService.updateAvatar(user.id, newAvatar);
 
         // Update local state
         updateAvatar(newAvatar);
@@ -191,11 +192,7 @@ const ProfileSettingsPage: React.FC = () => {
     try {
       setIsUpdatingPassword(true);
 
-      const result = await userService.updatePassword(
-        user.id,
-        currentPassword,
-        newPassword
-      );
+      await userService.updatePassword(user.id, currentPassword, newPassword);
 
       // Reset password fields
       setCurrentPassword("");

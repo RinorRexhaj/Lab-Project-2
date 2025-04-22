@@ -5,7 +5,7 @@ import { io } from "../server";
 export const requestRide = async (
   req: Request,
   res: Response
-): Promise<Response> => {
+): Promise<void> => {
   const { userId, pickupLocation, dropoffLocation } = req.body;
 
   try {
@@ -22,9 +22,9 @@ export const requestRide = async (
       userId: newRide.user.id,
     });
 
-    return res.status(201).json(newRide);
+    res.status(201).json(newRide);
   } catch (err) {
     console.error("Ride request error:", err);
-    return res.status(500).json({ message: "Failed to request ride" });
+    res.status(500).json({ message: "Failed to request ride" });
   }
 };

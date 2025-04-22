@@ -16,6 +16,8 @@ const useSession = () => {
       setUser(user);
       setRole(user.role);
       setAccessToken(token);
+      if (response.user.role === "Driver")
+        navigate("/driver", { replace: true });
       localStorage.setItem("refreshToken", refreshToken);
       localStorage.setItem("accessToken", token);
       // Also store user data in localStorage - for persistence across refreshes - Bug fix qe nuk u bojke update avatari menihere.

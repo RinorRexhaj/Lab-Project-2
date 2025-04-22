@@ -1,13 +1,11 @@
 import { ChangeEvent, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
-import { useNavigate } from "react-router-dom";
 import { validateEmail, validatePassword } from "../utils/validation";
 import useApi from "../hooks/useApi";
 import useSession from "../hooks/useSession";
 
 const LogIn = () => {
-  const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [fullname, setFullname] = useState("");
@@ -72,9 +70,6 @@ const LogIn = () => {
     if (!errors.email && !errors.password && email && password) {
       const response = await post("/auth/login", { email, password });
       setSession(response);
-      if (response?.data?.user?.role === "Driver") {
-        navigate("/driver");
-      }
     }
   };
 
@@ -95,9 +90,6 @@ const LogIn = () => {
         password,
       });
       setSession(response);
-      if (response?.data?.user?.role === "Driver") {
-        navigate("/driver");
-      }
     }
   };
 

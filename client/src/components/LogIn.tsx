@@ -72,7 +72,7 @@ const LogIn = () => {
     if (!errors.email && !errors.password && email && password) {
       const response = await post("/auth/login", { email, password });
       setSession(response);
-      if (response?.data?.user?.role === "driver") {
+      if (response?.data?.user?.role === "Driver") {
         navigate("/driver");
       }
     }
@@ -95,7 +95,7 @@ const LogIn = () => {
         password,
       });
       setSession(response);
-      if (response?.data?.user?.role === "driver") {
+      if (response?.data?.user?.role === "Driver") {
         navigate("/driver");
       }
     }

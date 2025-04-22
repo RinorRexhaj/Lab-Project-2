@@ -8,6 +8,7 @@ import {
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { FaLocationArrow, FaTimes } from "react-icons/fa";
+import { io } from "socket.io-client";
 
 type AutocompletePrediction = google.maps.places.AutocompletePrediction;
 
@@ -27,6 +28,9 @@ const Rides: React.FC = () => {
     useState<google.maps.LatLngLiteral | null>(null);
   const [dropoffCoords, setDropoffCoords] =
     useState<google.maps.LatLngLiteral | null>(null);
+  const [driverCoords, setDriverCoords] =
+    useState<google.maps.LatLngLiteral | null>(null);
+
   const [pickupSuggestions, setPickupSuggestions] = useState<
     AutocompletePrediction[]
   >([]);
@@ -54,6 +58,24 @@ const Rides: React.FC = () => {
     googleMapsApiKey: "AIzaSyDHotvjtYR_l_pRRJrg3yTg7boOx9LT_k0", // Replace with your key
     libraries,
   });
+
+  const socket = useRef(io("https://lab-project-2.onrender.com")).current;
+
+  useEffect(() => {
+    socket.on("driverLocation", ({ lat, lng }) => {
+      setDriverCoords({ lat, lng });
+    });
+
+    return () => {
+      socket.off("driverLocation");
+    };
+  }, []);
+
+  useEffect(() => {
+    if (driverCoords && mapRef.current) {
+      mapRef.current.panTo(driverCoords);
+    }
+  }, [driverCoords]);
 
   useEffect(() => {
     if (isLoaded && window.google && google.maps.places) {
@@ -261,7 +283,7 @@ const Rides: React.FC = () => {
         </div>
 
         <button className="bg-black text-white px-6 py-3 mt-4 rounded-md">
-          See prices
+          Book Ride
         </button>
 
         {/* Distance/ETA */}
@@ -288,6 +310,15 @@ const Rides: React.FC = () => {
         >
           {pickupCoords && <Marker position={pickupCoords} />}
           {dropoffCoords && <Marker position={dropoffCoords} />}
+          {driverCoords && (
+            <Marker
+              position={driverCoords}
+              icon={{
+                url: "https://cdn-icons-png.flaticon.com/512/296/296216.png",
+                scaledSize: new window.google.maps.Size(40, 40),
+              }}
+            />
+          )}
           {directions && <DirectionsRenderer directions={directions} />}
         </GoogleMap>
       </div>

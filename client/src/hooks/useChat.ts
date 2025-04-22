@@ -31,13 +31,12 @@ export const useChat = () => {
   const { get, post } = useApi();
 
   useEffect(() => {
-    initialize();
-  }, []);
-
-  const initialize = async () => {
     if (!user?.id) return;
 
-    const newSocket = io(SOCKET_SERVER_URL, { query: { userId: user.id } });
+    const newSocket = io(SOCKET_SERVER_URL, {
+      query: { userId: user.id },
+      transports: ["websocket"],
+    });
     setSocket(newSocket);
 
     newSocket.on("receiveMessage", (message: Message) => {
@@ -68,7 +67,7 @@ export const useChat = () => {
     return () => {
       newSocket.disconnect();
     };
-  };
+  }, [user?.id]);
 
   const getMessages = async (receiver: number) => {
     if (user && receiver) {

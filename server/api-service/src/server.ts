@@ -19,21 +19,25 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 const prod = process.env.PROD === "true";
+const origin = prod
+  ? "https://lab-2-olive.vercel.app/"
+  : "http://localhost:5173";
 
 const httpServer = createServer(app);
 
 const io = new Server(httpServer, {
   cors: {
-    origin: prod ? "https://lab-2-olive.vercel.app/" : "*",
+    origin: origin,
     methods: ["GET", "POST"],
-    credentials: true,
+    credentials: prod,
   },
+  transports: ["websocket"],
 });
 
 app.use(
   cors({
-    origin: prod ? "https://lab-2-olive.vercel.app/" : "*",
-    credentials: true,
+    origin: origin,
+    credentials: prod,
   })
 );
 

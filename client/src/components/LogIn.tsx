@@ -1,7 +1,6 @@
 import { ChangeEvent, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
-import { useNavigate } from "react-router-dom";
 import { validateEmail, validatePassword } from "../utils/validation";
 import useApi from "../hooks/useApi";
 import useSession from "../hooks/useSession";

@@ -1,8 +1,6 @@
 import { Router } from "express";
-import { RideController } from "../controllers/RideController";
+import { requestRide } from "../controllers/RideController";
 
 const router = Router();
-
-router.post("/rides", RideController.requestRide);
-
+// router.post("/rides", requestRide);
 export default router;

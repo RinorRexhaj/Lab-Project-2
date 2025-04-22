@@ -11,6 +11,7 @@ import chatRoutes from "./routes/ChatRoutes";
 import reactionRoutes from "./routes/ReactionRoutes";
 import restaurantRoutes from "./routes/RestaurantRoutes";
 import orderRoutes from "./routes/OrderRoutes";
+import rideRoutes from "./routes/RideRoutes";
 import { setupSocket } from "./chat/Chat";
 
 dotenv.config();
@@ -59,6 +60,7 @@ app.use("/chat", chatRoutes);
 app.use("/reaction", reactionRoutes);
 app.use("/restaurant", restaurantRoutes);
 app.use("/order", orderRoutes);
+app.use("/ride", rideRoutes);
 
 setupSocket(io);
 
@@ -74,6 +76,5 @@ async function startServer() {
     process.exit(1);
   }
 }
-export { io };
-export default httpServer;
+export { io, httpServer, app };
 startServer();

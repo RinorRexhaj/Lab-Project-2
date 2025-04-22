@@ -21,7 +21,7 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const prod = process.env.PROD === "true";
 const origin = prod
-  ? "https://lab-2-olive.vercel.app/"
+  ? "https://lab-2-olive.vercel.app"
   : "http://localhost:5173";
 
 const httpServer = createServer(app);

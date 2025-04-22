@@ -31,7 +31,7 @@ const io = new Server(httpServer, {
     methods: ["GET", "POST"],
     credentials: prod,
   },
-  transports: ["websocket"],
+  transports: [prod ? "polling" : "websocket", "websocket"],
 });
 
 app.use(

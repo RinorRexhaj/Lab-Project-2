@@ -36,6 +36,21 @@ app.use(
   })
 );
 
+io.on("connection", (socket) => {
+  console.log("a user connected:", socket.id);
+
+  socket.on("rideRequest", (rideDetails) => {
+    io.emit("newRideRequest", rideDetails);
+  });
+
+  socket.on("acceptRide", ({ rideId, driverUsername }) => {
+    io.emit("rideAccepted", { rideId, driverUsername });
+  });
+  socket.on("driverLocation", ({ rideId, lat, lng }) => {
+    io.emit("driverLocationUpdate", { rideId, lat, lng });
+  });
+});
+
 app.use(express.json());
 
 app.use("/auth", authRoutes);
@@ -59,5 +74,6 @@ async function startServer() {
     process.exit(1);
   }
 }
-
+export { io };
+export default httpServer;
 startServer();

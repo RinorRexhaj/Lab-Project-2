@@ -12,6 +12,7 @@ import EatPage from "../pages/EatPage";
 import useSession from "../hooks/useSession";
 import ProfileSettingsPage from "../pages/ProfileSettingsPage";
 import Rides from "../pages/Rides";
+import Driver from "../pages/Driver";
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -93,6 +94,14 @@ const AppRouter: React.FC = () => {
             <AdminRoute>
               <Users />
             </AdminRoute>
+          }
+        />
+        <Route
+          path="/driver"
+          element={
+            <ProtectedRoute>
+              <Driver />
+            </ProtectedRoute>
           }
         />
         <Route

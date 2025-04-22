@@ -58,8 +58,12 @@ const Rides: React.FC = () => {
     googleMapsApiKey: "AIzaSyDHotvjtYR_l_pRRJrg3yTg7boOx9LT_k0", // Replace with your key
     libraries,
   });
-
-  const socket = useRef(io("https://lab-project-2.onrender.com")).current;
+  const prod = import.meta.env.PROD === true;
+  const socket = io(
+    prod ? "https://lab-project-2.onrender.com" : "http://localhost:5000",
+    { transports: [prod ? "polling" : "websocket"] }
+  );
+  // const socket = useRef(io("https://lab-project-2.onrender.com")).current;
 
   useEffect(() => {
     socket.on("driverLocation", ({ lat, lng }) => {
@@ -177,6 +181,21 @@ const Rides: React.FC = () => {
     });
   };
 
+  const handleBookRide = () => {
+    if (!pickup || !dropoff || !pickupCoords || !dropoffCoords) {
+      alert("Please fill in both pickup and dropoff locations.");
+      return;
+    }
+
+    socket.emit("newRideRequest", {
+      pickupLocation: pickup,
+      dropoffLocation: dropoff,
+      pickupCoords,
+      dropoffCoords,
+      userSocketId: socket.id,
+    });
+  };
+
   if (!isLoaded) return <div>Loading...</div>;
 
   return (
@@ -282,7 +301,10 @@ const Rides: React.FC = () => {
           </select>
         </div>
 
-        <button className="bg-black text-white px-6 py-3 mt-4 rounded-md">
+        <button
+          className="bg-black text-white px-6 py-3 mt-4 rounded-md"
+          onClick={handleBookRide}
+        >
           Book Ride
         </button>
 

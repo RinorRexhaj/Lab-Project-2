@@ -1,7 +1,11 @@
 import { useState, useEffect } from "react";
 import io from "socket.io-client";
 import { useUserStore } from "../store/useUserStore";
-const socket = io("https://lab-project-2.onrender.com");
+const prod = import.meta.env.PROD === true;
+const socket = io(
+  prod ? "https://lab-project-2.onrender.com" : "http://localhost:5000",
+  { transports: [prod ? "polling" : "websocket"] }
+);
 
 interface RideRequest {
   userSocketId: string;
@@ -18,8 +22,10 @@ const Driver = () => {
   useEffect(() => {
     socket.emit("joinDriverRoom", driverId);
 
-    socket.on("newRideRequest", (rideDetails) => {
+    socket.on("receiveNewRideRequest", (rideDetails) => {
+      console.log("ok");
       setRideRequest(rideDetails);
+      console.log("new ride reuquest: ", rideDetails);
     });
 
     return () => {

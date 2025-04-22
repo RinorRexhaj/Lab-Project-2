@@ -13,6 +13,7 @@ import restaurantRoutes from "./routes/RestaurantRoutes";
 import orderRoutes from "./routes/OrderRoutes";
 import rideRoutes from "./routes/RideRoutes";
 import { setupSocket } from "./chat/Chat";
+import { registerSocketHandlers } from "./Ride/Ride";
 
 dotenv.config();
 
@@ -41,21 +42,6 @@ app.use(
   })
 );
 
-io.on("connection", (socket) => {
-  console.log("a user connected:", socket.id);
-
-  socket.on("rideRequest", (rideDetails) => {
-    io.emit("newRideRequest", rideDetails);
-  });
-
-  socket.on("acceptRide", ({ rideId, driverUsername }) => {
-    io.emit("rideAccepted", { rideId, driverUsername });
-  });
-  socket.on("driverLocation", ({ rideId, lat, lng }) => {
-    io.emit("driverLocationUpdate", { rideId, lat, lng });
-  });
-});
-
 app.use(express.json());
 
 app.use("/auth", authRoutes);
@@ -65,7 +51,7 @@ app.use("/reaction", reactionRoutes);
 app.use("/restaurant", restaurantRoutes);
 app.use("/order", orderRoutes);
 app.use("/ride", rideRoutes);
-
+registerSocketHandlers(io);
 setupSocket(io);
 
 async function startServer() {

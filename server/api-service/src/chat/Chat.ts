@@ -71,8 +71,8 @@ export const setupSocket = (io: Server) => {
       users.forEach((socketId, userId) => {
         if (socketId === socket.id) {
           let otherUser = chats.get(Number(userId));
-          users.delete(userId);
-          chats.delete(Number(userId));
+          // users.delete(userId);
+          // chats.delete(Number(userId));
           if (otherUser) {
             removeTyping(Number(userId), Number(otherUser));
           }

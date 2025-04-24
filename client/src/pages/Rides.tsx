@@ -70,6 +70,10 @@ const Rides: React.FC = () => {
       setDriverCoords({ lat, lng });
     });
 
+    socket.on("rideAccepted", ({ rideId, driverUsername }) => {
+      console.log(rideId, driverUsername);
+    });
+
     return () => {
       socket.off("driverLocation");
     };

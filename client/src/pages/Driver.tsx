@@ -36,6 +36,7 @@ const Driver = () => {
   const acceptRide = () => {
     // Check if rideRequest is not null before proceeding
     if (rideRequest) {
+      console.log(rideRequest);
       socket.emit("acceptRide", {
         userSocketId: rideRequest.userSocketId,
         driverName: user?.fullName,

@@ -206,9 +206,9 @@ const Rides: React.FC = () => {
   if (!isLoaded) return <div>Loading...</div>;
 
   return (
-    <div className="max-w-7xl p-3 w-11/12 flex justify-between gap-5">
+    <div className="p-3 w-11/12 tb:flex tb:flex-col flex justify-between gap-5">
       {/* Left Panel */}
-      <div className="w-1/2 flex flex-col gap-4 max-w-md mx-auto">
+      <div className="w-full flex flex-col gap-4 max-w-md mx-auto">
         <h1 className="text-4xl font-bold mb-6">Get a Ride</h1>
 
         {/* Pickup Input */}
@@ -249,10 +249,8 @@ const Rides: React.FC = () => {
               ))}
             </ul>
           )}
+          <div className="absolute top-[30px] left-[15px] z-20 border-l-[1.5px] border-black h-[50px]"></div>
         </div>
-
-        {/* Vertical Line */}
-        <div className="absolute top-[140px] left-[113px] z-20 border-l-[1.5px] border-black ml-[10px] h-[42px]"></div>
 
         {/* Dropoff Input */}
         <div className="relative">
@@ -323,9 +321,9 @@ const Rides: React.FC = () => {
           </div>
         )}
       </div>
-
+      <hr />
       {/* Map */}
-      <div className="w-1/2 z-10 h-[410px]">
+      <div className="z-10 h-[410px] w-full">
         <GoogleMap
           mapContainerStyle={containerStyle}
           center={pickupCoords || center}

@@ -59,23 +59,26 @@ const Rides: React.FC = () => {
     libraries,
   });
   const prod = import.meta.env.PROD === true;
-  const socket = io(
-    prod ? "https://lab-project-2.onrender.com" : "http://localhost:5000",
-    { transports: [prod ? "polling" : "websocket"] }
-  );
+  const socket = useRef(
+    io(prod ? "https://lab-project-2.onrender.com" : "http://localhost:5000", {
+      transports: [prod ? "polling" : "websocket"],
+    })
+  ).current;
   // const socket = useRef(io("https://lab-project-2.onrender.com")).current;
 
   useEffect(() => {
-    socket.on("driverLocation", ({ lat, lng }) => {
+    socket.on("driverLocationUpdate", ({ lat, lng }) => {
       setDriverCoords({ lat, lng });
+      console.log("driver location", lat, lng);
     });
 
     socket.on("rideAccepted", ({ rideId, driverUsername }) => {
-      console.log(rideId, driverUsername);
+      console.log("ride accepted:", rideId, driverUsername);
     });
 
     return () => {
-      socket.off("driverLocation");
+      socket.off("driverLocationUpdate");
+      socket.off("rideAccepted");
     };
   }, []);
 
@@ -340,7 +343,7 @@ const Rides: React.FC = () => {
             <Marker
               position={driverCoords}
               icon={{
-                url: "https://cdn-icons-png.flaticon.com/512/296/296216.png",
+                url: "assets/img/taxi.png",
                 scaledSize: new window.google.maps.Size(40, 40),
               }}
             />

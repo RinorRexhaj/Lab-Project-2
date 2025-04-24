@@ -1,11 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import io from "socket.io-client";
 import { useUserStore } from "../store/useUserStore";
 const prod = import.meta.env.PROD === true;
-const socket = io(
-  prod ? "https://lab-project-2.onrender.com" : "http://localhost:5000",
-  { transports: [prod ? "polling" : "websocket"] }
-);
 
 interface RideRequest {
   userSocketId: string;
@@ -18,6 +14,11 @@ const Driver = () => {
   const { user } = useUserStore();
   const driverId = user?.id;
   const [rideRequest, setRideRequest] = useState<RideRequest | null>(null);
+  const socket = useRef(
+    io(prod ? "https://lab-project-2.onrender.com" : "http://localhost:5000", {
+      transports: [prod ? "polling" : "websocket"],
+    })
+  ).current;
 
   useEffect(() => {
     socket.emit("joinDriverRoom", driverId);
@@ -64,7 +65,6 @@ const Driver = () => {
       },
       { enableHighAccuracy: true }
     );
-
     return () => navigator.geolocation.clearWatch(watchId);
   };
 
@@ -73,7 +73,14 @@ const Driver = () => {
       {rideRequest && (
         <div className="ride-popup">
           <p>New ride request</p>
-          <button onClick={acceptRide}>Accept</button>
+          <p>{rideRequest.pickupLocation}</p>
+          <p>{rideRequest.dropoffLocation}</p>
+          <button
+            className="text-white font-bold p-2 flex items-center justify-center bg-emerald-500 hover:bg-emerald-600 duration-150 rounded-lg"
+            onClick={acceptRide}
+          >
+            Accept
+          </button>
         </div>
       )}
     </div>

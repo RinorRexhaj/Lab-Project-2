@@ -13,8 +13,15 @@ export const registerSocketHandlers = (io: Server) => {
       io.emit("rideAccepted", { rideId, driverUsername });
     });
 
-    socket.on("driverLocation", ({ rideId, lat, lng }) => {
-      io.emit("driverLocationUpdate", { rideId, lat, lng });
+    socket.on("driverLocation", ({ rideId, lat, lng, userSocketId }) => {
+      console.log(
+        "Received driverLocation from driver:",
+        lat,
+        lng,
+        "to userSocketId:",
+        userSocketId
+      );
+      io.to(userSocketId).emit("driverLocationUpdate", { rideId, lat, lng });
     });
 
     socket.on("disconnect", () => {

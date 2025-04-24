@@ -1,5 +1,3 @@
-// src/services/RideService.ts
-
 import { AppDataSource } from "../data-source";
 import { Ride } from "../models/Ride";
 import { User } from "../models/User";

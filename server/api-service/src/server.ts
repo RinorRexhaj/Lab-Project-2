@@ -11,23 +11,37 @@ import chatRoutes from "./routes/ChatRoutes";
 import reactionRoutes from "./routes/ReactionRoutes";
 import restaurantRoutes from "./routes/RestaurantRoutes";
 import orderRoutes from "./routes/OrderRoutes";
+import rideRoutes from "./routes/RideRoutes";
 import { setupSocket } from "./chat/Chat";
+import { registerSocketHandlers } from "./Ride/Ride";
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+const prod = process.env.PROD === "true";
+const origin = prod
+  ? "https://lab-2-olive.vercel.app"
+  : "http://localhost:5173";
 
 const httpServer = createServer(app);
 
 const io = new Server(httpServer, {
   cors: {
-    origin: "*",
+    origin: origin,
     methods: ["GET", "POST"],
+    credentials: prod,
   },
+  transports: [prod ? "polling" : "websocket", "websocket"],
 });
 
-app.use(cors());
+app.use(
+  cors({
+    origin: origin,
+    credentials: prod,
+  })
+);
+
 app.use(express.json());
 
 app.use("/auth", authRoutes);
@@ -36,7 +50,8 @@ app.use("/chat", chatRoutes);
 app.use("/reaction", reactionRoutes);
 app.use("/restaurant", restaurantRoutes);
 app.use("/order", orderRoutes);
-
+app.use("/ride", rideRoutes);
+registerSocketHandlers(io);
 setupSocket(io);
 
 async function startServer() {
@@ -51,5 +66,5 @@ async function startServer() {
     process.exit(1);
   }
 }
-
+export { io, httpServer, app };
 startServer();

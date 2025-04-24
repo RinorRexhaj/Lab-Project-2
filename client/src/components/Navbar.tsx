@@ -2,12 +2,16 @@ import { faBars, faUser, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import ProfileModal from "./ProfileModal";
+import ProfileModal from "./Profile/ProfileModal";
 import Chat from "./Chat/Chat";
 
-const Navbar = () => {
+interface NavbarProps {
+  activeLink: number;
+  setActiveLink: (active: number) => void;
+}
+
+const Navbar: React.FC<NavbarProps> = ({ activeLink, setActiveLink }) => {
   const [hasShadow, setHasShadow] = useState(false);
-  const [activeLink, setActiveLink] = useState(0);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [profile, setProfile] = useState(false);
 
@@ -46,9 +50,14 @@ const Navbar = () => {
         }`}
       >
         <div className="max-w-7xl w-11/12 h-20 px-3 py-2 flex items-center justify-between">
-          <h1 className="text-emerald-500 text-3xl tb:text-2xl font-bold">
+          <Link
+            to={"/"}
+            key={"Home Title"}
+            className="text-emerald-500 text-3xl tb:text-2xl font-bold cursor-pointer"
+            onClick={() => setActiveLink(0)}
+          >
             Lab Project 2
-          </h1>
+          </Link>
           <div className="flex gap-6 items-center">
             <div className="flex md:hidden items-center gap-5 tb:gap-3">
               {links.map((link, index) => (

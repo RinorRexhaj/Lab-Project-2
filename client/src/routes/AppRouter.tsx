@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import Login from "../pages/Login";
 import Home from "../pages/Home";
 import Loading from "../pages/Loading";
@@ -11,6 +11,8 @@ import Users from "../pages/Users";
 import EatPage from "../pages/EatPage";
 import useSession from "../hooks/useSession";
 import ProfileSettingsPage from "../pages/ProfileSettingsPage";
+import Rides from "../pages/Rides";
+import Driver from "../pages/Driver";
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -34,7 +36,9 @@ const AppRouter: React.FC = () => {
   const { post } = useApi();
   const { accessToken } = useSessionStore();
   const { setSession } = useSession();
+  const location = useLocation();
   const [isRefreshing, setIsRefreshing] = useState(true);
+  const [activeLink, setActiveLink] = useState(0);
 
   useEffect(() => {
     const refresh = async () => {
@@ -52,6 +56,18 @@ const AppRouter: React.FC = () => {
     return () => clearInterval(interval);
   }, [accessToken]);
 
+  useEffect(() => {
+    const pathToIndex: Record<string, number> = {
+      "/": 0,
+      "/rides": 1,
+      "/eat": 2,
+      "/groceries": 3,
+      "/payment": 3,
+    };
+
+    setActiveLink(pathToIndex[location.pathname] ?? -1);
+  }, [location.pathname]);
+
   if (isRefreshing) return <Loading />;
 
   return (
@@ -60,7 +76,9 @@ const AppRouter: React.FC = () => {
         accessToken && "mt-20 "
       }`}
     >
-      {accessToken && <Navbar />}
+      {accessToken && (
+        <Navbar activeLink={activeLink} setActiveLink={setActiveLink} />
+      )}
       <Routes>
         <Route
           path="/"
@@ -76,6 +94,22 @@ const AppRouter: React.FC = () => {
             <AdminRoute>
               <Users />
             </AdminRoute>
+          }
+        />
+        <Route
+          path="/driver"
+          element={
+            <ProtectedRoute>
+              <Driver />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/rides"
+          element={
+            <ProtectedRoute>
+              <Rides />
+            </ProtectedRoute>
           }
         />
         <Route

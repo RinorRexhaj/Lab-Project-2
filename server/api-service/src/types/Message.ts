@@ -11,5 +11,7 @@ export interface Message {
     id: number;
     text: string;
     sender: number;
+    file?: string | false;
   };
+  file?: string | false;
 }

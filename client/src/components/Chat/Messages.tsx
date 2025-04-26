@@ -32,14 +32,14 @@ const Messages: React.FC<MessagesProps> = ({
   useEffect(() => {
     if (messages.length > prevMessageCount.current) {
       if (!scrollDown) {
-        scrollToBottom(false);
         setScrollDown(false);
+        scrollToBottom(false);
       } else {
         setHasNewMessage(true);
       }
     }
     prevMessageCount.current = messages.length;
-  }, [messages]);
+  }, [messages, scrollDown]);
 
   const scrollToBottom = (behavior: boolean) => {
     setHasNewMessage(false);
@@ -94,6 +94,7 @@ const Messages: React.FC<MessagesProps> = ({
             setReply={setReply}
             refMap={messageRefs}
             onReplyClick={scrollToMessage}
+            scrollToBottom={scrollToBottom}
           />
         );
       })}
@@ -116,7 +117,7 @@ const Messages: React.FC<MessagesProps> = ({
       {reply && (
         <Reply
           senderName={reply.sender === user?.id ? "You" : openUser.fullName}
-          text={reply.text}
+          text={reply.file ? "File" : reply.text}
           setReply={setReply}
         />
       )}

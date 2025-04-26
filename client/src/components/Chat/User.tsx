@@ -1,6 +1,11 @@
-import React, { useState } from "react";
+import React, { JSX, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUser } from "@fortawesome/free-solid-svg-icons";
+import {
+  faFile,
+  faFileImage,
+  faFileVideo,
+  faUser,
+} from "@fortawesome/free-solid-svg-icons";
 import { useChatStore } from "../../store/useChatStore";
 import { ChatUser } from "../../types/ChatUser";
 import { useChat } from "../../hooks/useChat";
@@ -19,15 +24,37 @@ const User: React.FC<UserProps> = ({ user }) => {
   const { openChat } = useChat();
   const { formatTime } = useTimeAgo();
 
-  const userMessage = (): string => {
+  const userMessage = (): string | JSX.Element => {
     if (!user.lastMessage) return "";
     if (typing.includes(user.id)) return "Typing...";
     else {
+      const lastSender = user.lastMessage.sender !== user.id;
+      if (user.lastMessage.file) {
+        let icon, text;
+        if (user.lastMessage.file === "image") {
+          icon = faFileImage;
+          text = "Image";
+        } else if (user.lastMessage.file === "video") {
+          icon = faFileVideo;
+          text = "Video";
+        } else {
+          icon = faFile;
+          text = "File Message";
+        }
+        return (
+          <div className="flex items-center">
+            <p>{lastSender && "You: "}</p>
+            <div className="flex items-center ml-2 gap-1">
+              <FontAwesomeIcon icon={icon} className="text-slate-800 w-4 h-4" />
+              <p className="text-slate-800">{text}</p>
+            </div>
+          </div>
+        );
+      }
       let text = user.lastMessage.text;
-      if (user.lastMessage.sender !== user.id) text = "You: " + text;
+      if (lastSender) text = "You: " + text;
       if (text.length > 25) {
-        if (user.lastMessage.sender === user.id)
-          text = text.slice(0, 20) + "...";
+        if (!lastSender) text = text.slice(0, 20) + "...";
         else text = text.slice(0, 15) + "...";
       }
       return text;

@@ -206,10 +206,10 @@ const Rides: React.FC = () => {
   if (!isLoaded) return <div>Loading...</div>;
 
   return (
-    <div className="p-3 w-11/12 tb:flex tb:flex-col flex justify-between gap-5">
+    <div className="p-3 w-11/12 max-w-7xl mt-10 tb:mt-0 tb:flex tb:flex-col flex justify-between gap-5">
       {/* Left Panel */}
       <div className="w-full flex flex-col gap-4 max-w-md mx-auto">
-        <h1 className="text-4xl font-bold mb-6">Get a Ride</h1>
+        <h1 className="text-4xl md:text-2xl font-bold mb-6">Get a Ride</h1>
 
         {/* Pickup Input */}
         <div className="relative">
@@ -307,7 +307,7 @@ const Rides: React.FC = () => {
         </div>
 
         <button
-          className="bg-black text-white px-6 py-3 mt-4 rounded-md"
+          className="bg-black text-white px-6 py-3 mt-4 rounded-md transition hover:bg-black/90"
           onClick={handleBookRide}
         >
           Book Ride

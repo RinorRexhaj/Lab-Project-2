@@ -12,8 +12,10 @@ import reactionRoutes from "./routes/ReactionRoutes";
 import restaurantRoutes from "./routes/RestaurantRoutes";
 import orderRoutes from "./routes/OrderRoutes";
 import rideRoutes from "./routes/RideRoutes";
+import fileRoutes from "./routes/FileRoutes";
 import { setupSocket } from "./chat/Chat";
 import { registerSocketHandlers } from "./Ride/Ride";
+import { connectMongo } from "./file-source";
 
 dotenv.config();
 
@@ -51,6 +53,8 @@ app.use("/reaction", reactionRoutes);
 app.use("/restaurant", restaurantRoutes);
 app.use("/order", orderRoutes);
 app.use("/ride", rideRoutes);
+app.use("/file", fileRoutes);
+
 registerSocketHandlers(io);
 setupSocket(io);
 
@@ -58,6 +62,7 @@ async function startServer() {
   try {
     await connectDB();
     await seedDatabase();
+    await connectMongo();
     httpServer.listen(PORT, () => {
       console.log(`🚀 Server running on http://localhost:${PORT}`);
     });

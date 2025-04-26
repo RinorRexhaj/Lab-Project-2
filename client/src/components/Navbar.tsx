@@ -53,10 +53,18 @@ const Navbar: React.FC<NavbarProps> = ({ activeLink, setActiveLink }) => {
           <Link
             to={"/"}
             key={"Home Title"}
-            className="text-emerald-500 text-3xl tb:text-2xl font-bold cursor-pointer"
+            className="text-emerald-500 text-3xl tb:hidden font-bold cursor-pointer"
             onClick={() => setActiveLink(0)}
           >
             Lab Project 2
+          </Link>
+          <Link
+            to={"/"}
+            key={"Home Title Mobile"}
+            className="text-emerald-500 hidden text-2xl tb:flex font-bold cursor-pointer"
+            onClick={() => setActiveLink(0)}
+          >
+            Lab 2
           </Link>
           <div className="flex gap-6 items-center">
             <div className="flex md:hidden items-center gap-5 tb:gap-3">

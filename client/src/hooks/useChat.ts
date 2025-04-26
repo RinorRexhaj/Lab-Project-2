@@ -96,7 +96,8 @@ export const useChat = () => {
   const sendMessage = async (
     receiver: number,
     text: string,
-    reply?: Message
+    reply?: Message,
+    file?: File
   ) => {
     if (socket && user) {
       const { active } = await get("/chat/active/" + receiver);
@@ -112,6 +113,13 @@ export const useChat = () => {
         seen: same ? new Date() : new Date("01/01/2000"),
         replyTo: reply,
       });
+      if (file) {
+        const formData = new FormData();
+        formData.append("file", file);
+        await post(`/file/upload/${message.id}`, formData);
+        const fileType = file.type.slice(0, file.type.indexOf("/"));
+        message.file = fileType;
+      }
       addMessage(message);
       socket.emit("sendMessage", message);
     }

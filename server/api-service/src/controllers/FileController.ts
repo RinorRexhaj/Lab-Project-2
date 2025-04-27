@@ -71,16 +71,20 @@ export const getFileDetails: RequestHandler = async (
     }
 
     const type = file.mimetype;
-    let image = null;
-    if (type.startsWith("image") || type.startsWith("video")) {
-      image = Buffer.from(file.data);
+    let fileData = null;
+    if (
+      type.startsWith("image") ||
+      type.startsWith("video") ||
+      type.startsWith("audio")
+    ) {
+      fileData = Buffer.from(file.data);
     }
 
     res.status(200).send({
       filename: file.filename,
       size: file.size,
       type,
-      file: image ?? undefined,
+      file: fileData ?? undefined,
     });
   } catch (error: any) {
     res.status(500).json({ error: error.message });

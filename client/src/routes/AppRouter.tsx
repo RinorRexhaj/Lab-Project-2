@@ -9,6 +9,7 @@ import Forbidden from "../pages/Forbidden";
 import Navbar from "../components/Navbar";
 import Users from "../pages/Users";
 import useSession from "../hooks/useSession";
+import Payment from "../pages/Payment";
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -65,6 +66,14 @@ const AppRouter: React.FC = () => {
           element={
             <ProtectedRoute>
               <Home />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/payment"
+          element={
+            <ProtectedRoute>
+              <Payment />
             </ProtectedRoute>
           }
         />

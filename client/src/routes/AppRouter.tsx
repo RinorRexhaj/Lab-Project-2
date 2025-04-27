@@ -13,6 +13,7 @@ import useSession from "../hooks/useSession";
 import ProfileSettingsPage from "../pages/ProfileSettingsPage";
 import Rides from "../pages/Rides";
 import Driver from "../pages/Driver";
+import Payment from "../pages/Payment";
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -85,6 +86,14 @@ const AppRouter: React.FC = () => {
           element={
             <ProtectedRoute>
               <Home />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/payment"
+          element={
+            <ProtectedRoute>
+              <Payment />
             </ProtectedRoute>
           }
         />

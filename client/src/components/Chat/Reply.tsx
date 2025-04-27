@@ -16,7 +16,9 @@ const Reply: React.FC<ReplyProps> = ({ senderName, text, setReply }) => {
         <span className="text-sm font-semibold text-emerald-700 truncate">
           {senderName}
         </span>
-        <span className="text-sm text-gray-700 truncate">{text}</span>
+        <span className="text-sm text-gray-700 truncate capitalize">
+          {text}
+        </span>
       </div>
       <button
         onClick={() => setReply(null)}

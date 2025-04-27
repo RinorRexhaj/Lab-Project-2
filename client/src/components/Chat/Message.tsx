@@ -7,7 +7,6 @@ import {
   faCheck,
   faCheckDouble,
   faFaceSmile,
-  faFileLines,
   faReply,
 } from "@fortawesome/free-solid-svg-icons";
 import Reactions from "./Reactions";
@@ -15,6 +14,7 @@ import useApi from "../../hooks/useApi";
 import { formatBytes } from "../../utils/byteCalculation";
 import { useChatStore } from "../../store/useChatStore";
 import ChatImage from "./ChatImage";
+import { FileDetails } from "../../types/FileDetails";
 
 interface MessageProps {
   current: MessageType;
@@ -39,17 +39,11 @@ const Message: React.FC<MessageProps> = ({
 }) => {
   const [hover, setHover] = useState(false);
   const [openReactions, setOpenReactions] = useState(false);
-  const [fileDetails, setFileDetails] = useState<{
-    filename: string;
-    size: string;
-    type: string;
-    contentType: string;
-    file?: { data: number[] };
-  } | null>(null);
+  const [fileDetails, setFileDetails] = useState<FileDetails | null>(null);
   const { user } = useUserStore();
   const { openUser } = useChatStore();
   const { formatTime, formatDate, formatSent, getDiff } = useTimeAgo();
-  const { get, download } = useApi();
+  const { get } = useApi();
   const messageRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -112,8 +106,13 @@ const Message: React.FC<MessageProps> = ({
 
   const replyText = () => {
     if (!current.replyTo?.file) return current.replyTo?.text;
-    if (current.replyTo.file !== "image") return "File";
-    return "Image";
+    if (
+      current.replyTo.file !== "image" &&
+      current.replyTo.file !== "video" &&
+      current.replyTo.file !== "audio"
+    )
+      return "File";
+    return current.replyTo.file;
   };
 
   const getFileDetails = async () => {
@@ -149,9 +148,17 @@ const Message: React.FC<MessageProps> = ({
             fileDetails?.type === "image" || fileDetails?.type === "video"
               ? "p-1 pb-2"
               : "py-2 px-3"
-          } rounded-lg ${getNonConsecutive()} font-medium flex flex-col gap-2 text-base max-w-[70%] w-fit transition delay-300 ${
-            current.file && "cursor-pointer"
-          } ${
+          } rounded-lg ${getNonConsecutive()} font-medium flex flex-col gap-2 text-base max-w-[70%] ${
+            fileDetails
+              ? fileDetails?.type === "audio"
+                ? "w-1/2"
+                : "w-fit"
+              : current.file === "audio"
+              ? "w-1/2"
+              : current.file === "image" || current.file === "video"
+              ? "w-full"
+              : "w-fit"
+          } transition delay-300 ${current.file && "cursor-pointer"} ${
             !userSent()
               ? "bg-gray-200 text-gray-800 self-start"
               : "bg-emerald-500 text-white self-end ml-auto"
@@ -183,7 +190,7 @@ const Message: React.FC<MessageProps> = ({
                 <p
                   className={`text-sm italic ${
                     userSent() ? "text-slate-200" : "text-gray-700"
-                  } truncate`}
+                  } truncate capitalize`}
                 >
                   {replyText()}
                 </p>
@@ -191,35 +198,15 @@ const Message: React.FC<MessageProps> = ({
             )}
 
             {/* Message Text */}
-            {!["image", "video"].includes(fileDetails?.type || "") ? (
-              current.file && fileDetails ? (
-                <div
-                  className="flex items-center gap-2"
-                  onClick={async () => {
-                    if (!["image", "video"].includes(fileDetails?.type || "")) {
-                      download(`/file/download/${current.id}`);
-                    }
-                  }}
-                >
-                  <FontAwesomeIcon icon={faFileLines} className="h-6" />
-                  <div className="flex flex-col">
-                    <p>{fileDetails.filename}</p>
-                    <p
-                      className={`text-xs ${
-                        userSent() ? "text-white/80" : "text-slate-700"
-                      }`}
-                    >
-                      {fileDetails.size}
-                    </p>
-                  </div>
-                </div>
-              ) : (
-                <p className="relative">{current.text}</p>
-              )
+            {!current.file ? (
+              <p className="relative">{current.text}</p>
             ) : (
               <ChatImage
-                image={fileDetails?.file}
-                contentType={fileDetails?.contentType}
+                key={"file-" + current.id}
+                fileDetails={fileDetails}
+                type={current.file}
+                messageId={current.id}
+                userSent={userSent()}
                 scrollToBottom={scrollToBottom}
               />
             )}

@@ -1,10 +1,11 @@
 import React, { JSX, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
+  faCirclePlay,
   faFile,
-  faFileImage,
-  faFileVideo,
+  faImage,
   faUser,
+  faVolumeHigh,
 } from "@fortawesome/free-solid-svg-icons";
 import { useChatStore } from "../../store/useChatStore";
 import { ChatUser } from "../../types/ChatUser";
@@ -32,21 +33,24 @@ const User: React.FC<UserProps> = ({ user }) => {
       if (user.lastMessage.file) {
         let icon, text;
         if (user.lastMessage.file === "image") {
-          icon = faFileImage;
+          icon = faImage;
           text = "Image";
         } else if (user.lastMessage.file === "video") {
-          icon = faFileVideo;
+          icon = faCirclePlay;
           text = "Video";
+        } else if (user.lastMessage.file === "audio") {
+          icon = faVolumeHigh;
+          text = "Audio";
         } else {
           icon = faFile;
           text = "File Message";
         }
         return (
-          <div className="flex items-center">
-            <p>{lastSender && "You: "}</p>
-            <div className="flex items-center ml-2 gap-1">
-              <FontAwesomeIcon icon={icon} className="text-slate-800 w-4 h-4" />
-              <p className="text-slate-800">{text}</p>
+          <div className="flex items-center mb-1">
+            {lastSender && <p>You: </p>}
+            <div className={`flex items-center ${lastSender && "ml-2"} gap-1`}>
+              <FontAwesomeIcon icon={icon} className="text-slate-700 w-4 h-4" />
+              <p className="text-slate-700">{text}</p>
             </div>
           </div>
         );
@@ -120,7 +124,7 @@ const User: React.FC<UserProps> = ({ user }) => {
       {/* User Info */}
       <div className="w-full flex flex-col justify-center ml-3">
         <p
-          className={`whitespace-nowrap text-base ${
+          className={`whitespace-nowrap text-base font-medium ${
             hasNewMessage() && "font-semibold"
           }`}
         >
@@ -129,13 +133,13 @@ const User: React.FC<UserProps> = ({ user }) => {
 
         {/* Message & Timestamp */}
         <div className="w-full flex items-center justify-between">
-          <p
+          <div
             className={`relative flex-1 text-sm truncate ${
               hasNewMessage() && "font-semibold"
             }`}
           >
             {userMessage()}
-          </p>
+          </div>
           <p
             className={`relative right-2 text-sm text-slate-500 text-right min-w-max pl-2 ${
               hasNewMessage() && "font-semibold"

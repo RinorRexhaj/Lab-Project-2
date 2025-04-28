@@ -11,6 +11,8 @@ import chatRoutes from "./routes/ChatRoutes";
 import reactionRoutes from "./routes/ReactionRoutes";
 import restaurantRoutes from "./routes/RestaurantRoutes";
 import orderRoutes from "./routes/OrderRoutes";
+import groceryRoutes from "./routes/GroceryRoutes";
+import groceryOrderRoutes from "./routes/GroceryOrderRoutes";
 import rideRoutes from "./routes/RideRoutes";
 import fileRoutes from "./routes/FileRoutes";
 import { setupSocket } from "./chat/Chat";
@@ -52,6 +54,9 @@ app.use("/chat", chatRoutes);
 app.use("/reaction", reactionRoutes);
 app.use("/restaurant", restaurantRoutes);
 app.use("/order", orderRoutes);
+app.use("/grocery", groceryRoutes);
+app.use("/grocery-order", groceryOrderRoutes);
+
 app.use("/ride", rideRoutes);
 app.use("/file", fileRoutes);
 

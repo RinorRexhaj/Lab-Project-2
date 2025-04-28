@@ -36,12 +36,17 @@ export default {
           },
           "50%": { transform: "translateY(0%)" },
         },
+        "color-pulse": {
+          "0%, 100%": { backgroundColor: "#10B981" }, // emerald-500
+          "50%": { backgroundColor: "#34D399" }, // emerald-400
+        },
       },
       animation: {
         fadeIn: "fadeIn 0.3s ease-in-out",
         fadeOut: "fadeOut 0.3s ease-in-out",
         slideIn: "slideIn 0.5s ease-in-out",
         typing: "type 1s infinite",
+        "color-pulse": "color-pulse 2s ease-in-out infinite",
       },
     },
   },

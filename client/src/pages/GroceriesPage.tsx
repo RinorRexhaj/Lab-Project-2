@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useRef } from "react";
-import { restaurantService } from "../api/RestaurantService";
-import { Restaurant } from "../types/restaurant/Restaurant";
-import RestaurantCard from "../components/Restaurant/RestaurantCard";
-import FoodOrderModal from "../components/Restaurant/FoodOrderModal";
+import { groceryService } from "../api/GroceryService";
+import { GroceryStore } from "../types/grocery/GroceryStore";
+import GroceryStoreCard from "../components/Grocery/GroceryStoreCard";
+import GroceryOrderModal from "../components/Grocery/GroceryOrderModal";
 import useApi from "../hooks/useApi";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -14,13 +14,13 @@ import {
   faMoneyBill,
   faFilter,
   faTimes,
+  faShoppingBasket,
 } from "@fortawesome/free-solid-svg-icons";
-import { isRestaurantOpen } from "../utils/restaurant/isRestaurantOpen";
+import { isGroceryStoreOpen } from "../utils/grocery/isGroceryStoreOpen";
 
-const EatPage: React.FC = () => {
-  const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
-  const [selectedRestaurant, setSelectedRestaurant] =
-    useState<Restaurant | null>(null);
+const GroceriesPage: React.FC = () => {
+  const [stores, setStores] = useState<GroceryStore[]>([]);
+  const [selectedStore, setSelectedStore] = useState<GroceryStore | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
@@ -34,7 +34,7 @@ const EatPage: React.FC = () => {
   const { loading, error } = useApi();
 
   useEffect(() => {
-    fetchRestaurants(selectedCategory);
+    fetchGroceryStores(selectedCategory);
   }, [selectedCategory]);
 
   // Close suggestions when clicking outside
@@ -53,46 +53,45 @@ const EatPage: React.FC = () => {
     };
   }, []);
 
-  const fetchRestaurants = async (category: string = "All") => {
+  const fetchGroceryStores = async (category: string = "All") => {
     try {
-      const data = await restaurantService.getAllRestaurants(category);
-      setRestaurants(data);
+      const data = await groceryService.getAllGroceryStores(category);
+      setStores(data);
     } catch (error) {
-      console.error("Failed to fetch restaurants:", error);
+      console.error("Failed to fetch grocery stores:", error);
     }
   };
 
-  const handleRestaurantClick = async (restaurant: Restaurant) => {
+  const handleStoreClick = async (store: GroceryStore) => {
     try {
-      // Fetch restaurant with menu details
-      const restaurantWithMenu = await restaurantService.getRestaurantWithMenu(
-        restaurant.id
-      );
-      setSelectedRestaurant(restaurantWithMenu);
+      // Fetch store with product details
+      const storeWithProducts =
+        await groceryService.getGroceryStoreWithProducts(store.id);
+      setSelectedStore(storeWithProducts);
       setModalOpen(true);
     } catch (error) {
-      console.error("Failed to fetch restaurant details:", error);
+      console.error("Failed to fetch store details:", error);
     }
   };
 
   const handleCloseModal = () => {
     setModalOpen(false);
-    setSelectedRestaurant(null);
+    setSelectedStore(null);
   };
 
   const handleSearch = (value: string) => {
     setSearchQuery(value);
 
     if (value.trim() !== "") {
-      // Generate suggestions based on restaurant names and categories
-      const suggestions = restaurants
+      // Generate suggestions based on store names and categories
+      const suggestions = stores
         .filter(
-          (r) =>
-            r.name.toLowerCase().includes(value.toLowerCase()) ||
-            (r.category &&
-              r.category.toLowerCase().includes(value.toLowerCase()))
+          (s) =>
+            s.name.toLowerCase().includes(value.toLowerCase()) ||
+            (s.category &&
+              s.category.toLowerCase().includes(value.toLowerCase()))
         )
-        .map((r) => r.name)
+        .map((s) => s.name)
         .slice(0, 5);
 
       setSearchSuggestions(suggestions);
@@ -112,12 +111,12 @@ const EatPage: React.FC = () => {
     }
   };
 
-  const applySorting = (restaurants: Restaurant[]): Restaurant[] => {
+  const applySorting = (stores: GroceryStore[]): GroceryStore[] => {
     switch (sortBy) {
       case "rating":
-        return [...restaurants].sort((a, b) => b.rating - a.rating);
+        return [...stores].sort((a, b) => b.rating - a.rating);
       case "delivery-time":
-        return [...restaurants].sort((a, b) => {
+        return [...stores].sort((a, b) => {
           // Extract the first number from the delivery time
           const getMinTime = (time: string) => {
             const match = time.match(/\d+/);
@@ -129,9 +128,9 @@ const EatPage: React.FC = () => {
           );
         });
       case "delivery-fee":
-        return [...restaurants].sort((a, b) => a.deliveryFee - b.deliveryFee);
+        return [...stores].sort((a, b) => a.deliveryFee - b.deliveryFee);
       default:
-        return restaurants;
+        return stores;
     }
   };
 
@@ -139,15 +138,15 @@ const EatPage: React.FC = () => {
     setMobileFiltersOpen(!mobileFiltersOpen);
   };
 
-  // First filter restaurants based on search, category, and availability
-  const filteredRestaurants = restaurants.filter((restaurant) => {
+  // First filter stores based on search, category, and availability
+  const filteredStores = stores.filter((store) => {
     // Filter by search query
     const matchesSearch =
-      restaurant.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      restaurant.description.toLowerCase().includes(searchQuery.toLowerCase());
+      store.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      store.description.toLowerCase().includes(searchQuery.toLowerCase());
 
     // Filter by availability
-    const isOpen = isRestaurantOpen(restaurant);
+    const isOpen = isGroceryStoreOpen(store);
     const matchesAvailability =
       availabilityFilter === "All" ||
       (availabilityFilter === "Open" && isOpen) ||
@@ -157,14 +156,14 @@ const EatPage: React.FC = () => {
   });
 
   // Apply sorting to the filtered results
-  const sortedAndFilteredRestaurants = applySorting(filteredRestaurants);
+  const sortedAndFilteredStores = applySorting(filteredStores);
 
   return (
     <div className="w-11/12 max-w-7xl mx-auto px-4 py-8 pb-16 bg-gray-50 min-h-screen">
       <section className="text-center py-14 px-3 mb-10 bg-gradient-to-r from-emerald-500 to-emerald-700 text-white rounded-2xl shadow-lg max-w-7xl w-full mx-auto">
-        <h1 className="text-3xl md:text-xl font-bold">Food Delivery</h1>
+        <h1 className="text-3xl md:text-xl font-bold">Grocery Delivery</h1>
         <p className="text-lg md:text-base mt-4">
-          Order delicious food from your favorite restaurants
+          Fresh groceries delivered to your doorstep
         </p>
       </section>
 
@@ -174,7 +173,7 @@ const EatPage: React.FC = () => {
           <FontAwesomeIcon icon={faSearch} className="ml-4 text-emerald-500" />
           <input
             type="text"
-            placeholder="Search restaurants or cuisines..."
+            placeholder="Search stores or grocery items..."
             className="w-full py-3 px-3 focus:outline-none"
             value={searchQuery}
             onChange={(e) => handleSearch(e.target.value)}
@@ -246,7 +245,13 @@ const EatPage: React.FC = () => {
 
       {/* Filter Toggle Button */}
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-semibold">Restaurants</h2>
+        <h2 className="text-xl font-semibold flex items-center">
+          <FontAwesomeIcon
+            icon={faShoppingBasket}
+            className="mr-3 text-emerald-500"
+          />
+          Grocery Stores
+        </h2>
         <button
           className="px-4 py-2 bg-emerald-100 text-emerald-700 rounded-full flex items-center shadow-sm hover:bg-emerald-200 transition-colors duration-300"
           onClick={toggleMobileFilters}
@@ -270,12 +275,12 @@ const EatPage: React.FC = () => {
             <div className="flex flex-wrap gap-2">
               {[
                 "All",
-                "Fast Food",
-                "Pizza",
-                "Asian",
-                "Mexican",
-                "Healthy",
-                "Desserts",
+                "Supermarket",
+                "Convenience",
+                "Organic",
+                "Specialty",
+                "International",
+                "Wholesale",
               ].map((category) => (
                 <div
                   key={category}
@@ -387,38 +392,35 @@ const EatPage: React.FC = () => {
 
       <div className="flex items-center justify-between mb-4">
         <div className="text-sm text-gray-500">
-          {sortedAndFilteredRestaurants.length} result
-          {sortedAndFilteredRestaurants.length !== 1 ? "s" : ""}
+          {sortedAndFilteredStores.length} store
+          {sortedAndFilteredStores.length !== 1 ? "s" : ""}
         </div>
       </div>
 
-      {/* Restaurant Grid */}
+      {/* Grocery Store Grid */}
       {loading ? (
         <div className="text-center py-12">
-          <p className="text-lg text-gray-600">Loading restaurants...</p>
+          <p className="text-lg text-gray-600">Loading grocery stores...</p>
         </div>
       ) : error ? (
         <div className="text-center py-12">
           <p className="text-lg text-red-600">
-            Error loading restaurants. Please try again.
+            Error loading grocery stores. Please try again.
           </p>
         </div>
-      ) : sortedAndFilteredRestaurants.length === 0 ? (
+      ) : sortedAndFilteredStores.length === 0 ? (
         <div className="text-center py-12">
           <p className="text-lg text-gray-600">
-            No restaurants found matching your search criteria.
+            No grocery stores found matching your search criteria.
           </p>
         </div>
       ) : (
         <div className="flex flex-wrap -mx-3">
-          {sortedAndFilteredRestaurants.map((restaurant) => (
-            <div
-              key={restaurant.id}
-              className="w-1/3 px-3 mb-6 tb:w-1/2 sm:w-full"
-            >
-              <RestaurantCard
-                restaurant={restaurant}
-                onClick={() => handleRestaurantClick(restaurant)}
+          {sortedAndFilteredStores.map((store) => (
+            <div key={store.id} className="w-1/3 px-3 mb-6 tb:w-1/2 sm:w-full">
+              <GroceryStoreCard
+                store={store}
+                onClick={() => handleStoreClick(store)}
               />
             </div>
           ))}
@@ -426,14 +428,11 @@ const EatPage: React.FC = () => {
       )}
 
       {/* Order Modal */}
-      {modalOpen && selectedRestaurant && (
-        <FoodOrderModal
-          restaurant={selectedRestaurant}
-          onClose={handleCloseModal}
-        />
+      {modalOpen && selectedStore && (
+        <GroceryOrderModal store={selectedStore} onClose={handleCloseModal} />
       )}
     </div>
   );
 };
 
-export default EatPage;
+export default GroceriesPage;

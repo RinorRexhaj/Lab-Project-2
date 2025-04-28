@@ -1,0 +1,287 @@
+{
+	"info": {
+		"_postman_id": "7e5c3f50-6b5a-4d6c-af9c-fd6a39e7c654",
+		"name": "Grocery Store API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "12345678"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Login as Admin",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const jsonData = pm.response.json();",
+									"if (jsonData && jsonData.accessToken) {",
+									"    pm.environment.set('accessToken', jsonData.accessToken);",
+									"    pm.environment.set('refreshToken', jsonData.refreshToken);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"admin@example.com\",\n    \"password\": \"admin123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Grocery Stores",
+			"item": [
+				{
+					"name": "Get All Grocery Stores",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/grocery",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"grocery"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Grocery Store with Products",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/grocery/1/products",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"grocery",
+								"1",
+								"products"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Grocery Store",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Fresh Market\",\n    \"imageUrl\": \"https://placehold.co/600x400/81c784/FFFFFF/png?text=Fresh+Market\",\n    \"description\": \"Premium grocery store with a wide selection of fresh produce, meats, and specialty items\",\n    \"deliveryFee\": 3.99,\n    \"estimatedDeliveryTime\": \"25-40 min\",\n    \"rating\": 4.8,\n    \"category\": \"Supermarket\",\n    \"openingTime\": \"08:00\",\n    \"closingTime\": \"22:00\",\n    \"isOpen24Hours\": false\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/grocery",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"grocery"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Product Category",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Fruits & Vegetables\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/grocery/1/categories",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"grocery",
+								"1",
+								"categories"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Product",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Organic Bananas\",\n    \"description\": \"Bunch of organic bananas, approximately 5-7 pieces\",\n    \"price\": 2.99,\n    \"imageUrl\": \"https://placehold.co/200x200/FFE135/FFFFFF/png?text=Bananas\",\n    \"unit\": \"bunch\",\n    \"inStock\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/grocery/categories/1/products",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"grocery",
+								"categories",
+								"1",
+								"products"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Grocery Orders",
+			"item": [
+				{
+					"name": "Create Grocery Order",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"storeId\": 1,\n    \"items\": [\n        {\n            \"productId\": 1,\n            \"quantity\": 2,\n            \"specialInstructions\": \"Ripe bananas please\",\n            \"price\": 2.99,\n            \"name\": \"Organic Bananas\",\n            \"unit\": \"bunch\"\n        },\n        {\n            \"productId\": 2,\n            \"quantity\": 1,\n            \"price\": 4.99,\n            \"name\": \"Fresh Strawberries\",\n            \"weight\": \"1 lb\"\n        }\n    ],\n    \"deliveryFee\": 3.99,\n    \"subtotal\": 10.97,\n    \"total\": 14.96\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/grocery-order",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"grocery-order"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get User Order History",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/grocery-order/history",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"grocery-order",
+								"history"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:5000",
+			"type": "string"
+		}
+	]
+}

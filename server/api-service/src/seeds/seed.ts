@@ -3,6 +3,8 @@ import { Restaurant } from "../models/Restaurant";
 import { FoodCategory } from "../models/FoodCategory";
 import { FoodItem } from "../models/FoodItem";
 import { User } from "../models/User";
+import { seedGroceryStores } from "./seedGroceryStores";
+import { GroceryStore } from "../models/GroceryStore";
 
 // Function to ensure avatar column exists for all users
 async function ensureUserAvatars() {
@@ -392,6 +394,9 @@ export async function seedDatabase() {
 
     // Ensure all users have an avatar
     await ensureUserAvatars();
+
+    // Seed Grocery Stores
+    await seedGroceryStores();
 
     console.log("🌱 Database seeding completed successfully!");
     return true;

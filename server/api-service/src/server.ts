@@ -11,6 +11,8 @@ import chatRoutes from "./routes/ChatRoutes";
 import reactionRoutes from "./routes/ReactionRoutes";
 import restaurantRoutes from "./routes/RestaurantRoutes";
 import orderRoutes from "./routes/OrderRoutes";
+import groceryRoutes from "./routes/GroceryRoutes";
+import groceryOrderRoutes from "./routes/GroceryOrderRoutes";
 import { setupSocket } from "./chat/Chat";
 
 dotenv.config();
@@ -36,6 +38,8 @@ app.use("/chat", chatRoutes);
 app.use("/reaction", reactionRoutes);
 app.use("/restaurant", restaurantRoutes);
 app.use("/order", orderRoutes);
+app.use("/grocery", groceryRoutes);
+app.use("/grocery-order", groceryOrderRoutes);
 
 setupSocket(io);
 

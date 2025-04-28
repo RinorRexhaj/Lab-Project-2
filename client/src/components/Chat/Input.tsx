@@ -1,13 +1,15 @@
 import {
   faFileImage,
-  faPaperPlane,
+  faMicrophoneLines,
   faPlus,
+  faTrash,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useRef, useState } from "react";
 import { useChat } from "../../hooks/useChat";
 import { useChatStore } from "../../store/useChatStore";
 import { Message } from "../../types/Message";
+import VoiceRecorder from "./VoiceRecorder";
 
 interface InputProps {
   reply: Message | null;
@@ -16,6 +18,7 @@ interface InputProps {
 
 const Input: React.FC<InputProps> = ({ reply, setReply }) => {
   const [userInput, setUserInput] = useState("");
+  const [recording, setRecording] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
@@ -37,19 +40,32 @@ const Input: React.FC<InputProps> = ({ reply, setReply }) => {
   return (
     <div className={`flex items-center mt-2`}>
       <div className="flex w-full gap-2 items-center">
+        {!recording && (
+          <>
+            <button
+              className={`w-6 h-6 flex items-center justify-center bg-emerald-500 text-white py-2 rounded-full hover:bg-emerald-600 transition`}
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <FontAwesomeIcon icon={faPlus} className="h-4 w-4" />
+            </button>
+            <button
+              className={`w-6 h-6 flex items-center justify-center`}
+              onClick={() => imageInputRef.current?.click()}
+            >
+              <FontAwesomeIcon
+                icon={faFileImage}
+                className="h-6 w-6 bg-white text-emerald-500 hover:text-emerald-600 transition"
+              />
+            </button>
+          </>
+        )}
         <button
-          className="w-6 h-6 flex items-center justify-center bg-emerald-500 text-white py-2 rounded-full hover:bg-emerald-600 transition"
-          onClick={() => fileInputRef.current?.click()}
-        >
-          <FontAwesomeIcon icon={faPlus} className="h-4 w-4" />
-        </button>
-        <button
-          className="w-6 h-6 flex items-center justify-center "
-          onClick={() => imageInputRef.current?.click()}
+          className="w-6 h-6 flex items-center justify-center"
+          onClick={() => setRecording(!recording)}
         >
           <FontAwesomeIcon
-            icon={faFileImage}
-            className="h-6 w-6 bg-white text-emerald-500 transition"
+            icon={!recording ? faMicrophoneLines : faTrash}
+            className="h-6 w-6 bg-white text-emerald-500 hover:text-emerald-600 transition"
           />
         </button>
         <input
@@ -78,27 +94,24 @@ const Input: React.FC<InputProps> = ({ reply, setReply }) => {
             }
           }}
         />
-        <input
-          ref={inputRef}
-          type="text"
-          maxLength={200}
-          className="flex-1 py-2 px-3 border border-slate-300 rounded-2xl text-base focus:outline-emerald-500"
-          placeholder={reply ? "Reply..." : `Type a message...`}
-          value={userInput}
-          onChange={(e) => {
-            setUserInput(e.target.value);
-            if (e.target.value) sendTyping();
-            else sendRemoveTyping(openUser?.id || 0);
-          }}
-          onKeyDown={(e) => e.key === "Enter" && send()}
-        />
+        {!recording && (
+          <input
+            ref={inputRef}
+            type="text"
+            maxLength={200}
+            className="flex-1 py-2 px-3 border border-slate-300 rounded-2xl text-base focus:outline-emerald-500 transition-all"
+            placeholder={reply ? "Reply..." : `Type a message...`}
+            value={userInput}
+            onChange={(e) => {
+              setUserInput(e.target.value);
+              if (e.target.value) sendTyping();
+              else sendRemoveTyping(openUser?.id || 0);
+            }}
+            onKeyDown={(e) => e.key === "Enter" && send()}
+          />
+        )}
+        {recording && <VoiceRecorder setRecording={setRecording} />}
       </div>
-      <button
-        className="ml-2 bg-emerald-500 text-white pl-3 pr-4 py-2 rounded-xl hover:bg-emerald-600 transition"
-        onClick={send}
-      >
-        <FontAwesomeIcon icon={faPaperPlane} className="h-4 w-4" />
-      </button>
     </div>
   );
 };

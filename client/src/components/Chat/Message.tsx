@@ -117,15 +117,17 @@ const Message: React.FC<MessageProps> = ({
 
   const getFileDetails = async () => {
     const { filename, size, type, file } = await get(`/file/${current.id}`);
-    let formattedSize = formatBytes(size);
-    setFileDetails({
-      filename,
-      size: formattedSize,
-      type: type.slice(0, type.indexOf("/")),
-      contentType: type,
-      file,
-    });
-    scrollToBottom(false);
+    if (filename) {
+      let formattedSize = formatBytes(size);
+      setFileDetails({
+        filename,
+        size: formattedSize,
+        type: type.slice(0, type.indexOf("/")),
+        contentType: type,
+        file,
+      });
+      scrollToBottom(false);
+    }
   };
 
   return (

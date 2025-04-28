@@ -9,6 +9,7 @@ import Forbidden from "../pages/Forbidden";
 import Navbar from "../components/Navbar";
 import Users from "../pages/Users";
 import EatPage from "../pages/EatPage";
+import GroceriesPage from "../pages/GroceriesPage";
 import useSession from "../hooks/useSession";
 import ProfileSettingsPage from "../pages/ProfileSettingsPage";
 import Rides from "../pages/Rides";
@@ -134,6 +135,14 @@ const AppRouter: React.FC = () => {
           element={
             <ProtectedRoute>
               <ProfileSettingsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/groceries"
+          element={
+            <ProtectedRoute>
+              <GroceriesPage />
             </ProtectedRoute>
           }
         />

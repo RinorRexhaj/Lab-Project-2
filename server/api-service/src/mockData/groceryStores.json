@@ -1,0 +1,274 @@
+{
+  "stores": [
+    {
+      "id": 1,
+      "name": "Fresh Market",
+      "imageUrl": "/assets/img/grocery/24-7-market.jpg",
+      "description": "Premium grocery store with a wide selection of fresh produce, meats, and specialty items",
+      "deliveryFee": 3.99,
+      "estimatedDeliveryTime": "25-40 min",
+      "rating": 4.8,
+      "category": "Supermarket",
+      "openingTime": "08:00",
+      "closingTime": "22:00",
+      "isOpen24Hours": false,
+      "products": [
+        {
+          "id": 1,
+          "name": "Fruits & Vegetables",
+          "items": [
+            {
+              "id": 101,
+              "name": "Organic Bananas",
+              "description": "Bunch of organic bananas, approximately 5-7 pieces",
+              "price": 2.99,
+              "imageUrl": "/assets/img/grocery/banana.jpg",
+              "categoryId": 1,
+              "unit": "bunch",
+              "inStock": true
+            },
+            {
+              "id": 102,
+              "name": "Fresh Strawberries",
+              "description": "Sweet and juicy strawberries, perfect for snacking or desserts",
+              "price": 4.99,
+              "imageUrl": "/assets/img/grocery/strawberry.jpg",
+              "categoryId": 1,
+              "weight": "1 lb",
+              "inStock": true
+            },
+            {
+              "id": 103,
+              "name": "Avocados",
+              "description": "Ripe Hass avocados, ready to eat",
+              "price": 2.49,
+              "imageUrl": "/assets/img/grocery/avocado.jpg",
+              "categoryId": 1,
+              "unit": "each",
+              "inStock": true
+            },
+            {
+              "id": 104,
+              "name": "Organic Baby Spinach",
+              "description": "Fresh organic baby spinach, pre-washed and ready to eat",
+              "price": 3.99,
+              "imageUrl": "/assets/img/grocery/spinach.jpg",
+              "categoryId": 1,
+              "weight": "5 oz",
+              "inStock": true
+            },
+            {
+              "id": 105,
+              "name": "Red Bell Peppers",
+              "description": "Sweet red bell peppers, great for salads or cooking",
+              "price": 1.79,
+              "imageUrl": "/assets/img/grocery/red-bell.jpg",
+              "categoryId": 1,
+              "unit": "each",
+              "inStock": false
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "name": "Dairy & Eggs",
+          "items": [
+            {
+              "id": 201,
+              "name": "Organic Whole Milk",
+              "description": "Grade A organic whole milk from grass-fed cows",
+              "price": 4.49,
+              "imageUrl": "/assets/img/grocery/milk.jpg",
+              "categoryId": 2,
+              "weight": "1 gallon",
+              "inStock": true
+            },
+            {
+              "id": 202,
+              "name": "Large Brown Eggs",
+              "description": "Farm-fresh large brown eggs from free-range chickens",
+              "price": 5.99,
+              "imageUrl": "/assets/img/grocery/eggs.jpg",
+              "categoryId": 2,
+              "unit": "dozen",
+              "inStock": true
+            },
+            {
+              "id": 203,
+              "name": "Greek Yogurt",
+              "description": "Plain Greek yogurt, high in protein and perfect for breakfast",
+              "price": 3.49,
+              "imageUrl": "/assets/img/grocery/yogurt.jpg",
+              "categoryId": 2,
+              "weight": "32 oz",
+              "inStock": true
+            },
+            {
+              "id": 204,
+              "name": "Cheddar Cheese Block",
+              "description": "Sharp cheddar cheese, aged for 12 months",
+              "price": 6.99,
+              "imageUrl": "/assets/img/grocery/cheddar.jpg",
+              "categoryId": 2,
+              "weight": "8 oz",
+              "inStock": false
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "name": "Bakery",
+          "items": [
+            {
+              "id": 301,
+              "name": "Artisan Sourdough Bread",
+              "description": "Freshly baked sourdough bread with a crispy crust",
+              "price": 4.99,
+              "imageUrl": "/assets/img/grocery/bread.jpg",
+              "categoryId": 3,
+              "unit": "loaf",
+              "inStock": true
+            },
+            {
+              "id": 302,
+              "name": "Blueberry Muffins",
+              "description": "Freshly baked blueberry muffins made with real blueberries",
+              "price": 5.99,
+              "imageUrl": "/assets/img/grocery/muffin.jpg",
+              "categoryId": 3,
+              "unit": "pack of 4",
+              "inStock": true
+            },
+            {
+              "id": 303,
+              "name": "Chocolate Chip Cookies",
+              "description": "Soft and chewy chocolate chip cookies, baked fresh daily",
+              "price": 3.99,
+              "imageUrl": "/assets/img/grocery/cookies.jpg",
+              "categoryId": 3,
+              "unit": "pack of 6",
+              "inStock": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "City Market",
+      "imageUrl": "/assets/img/grocery/city-market.jpg",
+      "description": "Your neighborhood grocery store with affordable prices and friendly service",
+      "deliveryFee": 2.99,
+      "estimatedDeliveryTime": "30-45 min",
+      "rating": 4.3,
+      "category": "Supermarket",
+      "openingTime": "07:00",
+      "closingTime": "23:00",
+      "isOpen24Hours": false,
+      "products": [
+        {
+          "id": 4,
+          "name": "Fruits & Vegetables",
+          "items": [
+            {
+              "id": 401,
+              "name": "Apples",
+              "description": "Fresh Gala apples, sweet and crisp",
+              "price": 1.99,
+              "imageUrl": "/assets/img/grocery/apples.jpg",
+              "categoryId": 4,
+              "unit": "lb",
+              "inStock": true
+            },
+            {
+              "id": 402,
+              "name": "Carrots",
+              "description": "Fresh organic carrots, perfect for snacking or cooking",
+              "price": 2.49,
+              "imageUrl": "/assets/img/grocery/carrots.jpg",
+              "categoryId": 4,
+              "weight": "2 lb",
+              "inStock": true
+            }
+          ]
+        },
+        {
+          "id": 5,
+          "name": "Meat & Seafood",
+          "items": [
+            {
+              "id": 501,
+              "name": "Ground Beef",
+              "description": "80/20 ground beef, perfect for burgers or meatballs",
+              "price": 5.99,
+              "imageUrl": "/assets/img/grocery/beef.jpg",
+              "categoryId": 5,
+              "weight": "1 lb",
+              "inStock": true
+            },
+            {
+              "id": 502,
+              "name": "Chicken Breast",
+              "description": "Boneless, skinless chicken breast",
+              "price": 6.99,
+              "imageUrl": "/assets/img/grocery/chicken.jpg",
+              "categoryId": 5,
+              "weight": "1 lb",
+              "inStock": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Organic Harvest",
+      "imageUrl": "/assets/img/grocery/organic-harvest.jpg",
+      "description": "Specializing in organic and locally sourced produce and products",
+      "deliveryFee": 4.99,
+      "estimatedDeliveryTime": "35-50 min",
+      "rating": 4.7,
+      "category": "Organic",
+      "openingTime": "09:00",
+      "closingTime": "20:00",
+      "isOpen24Hours": false
+    },
+    {
+      "id": 4,
+      "name": "QuickMart",
+      "imageUrl": "/assets/img/grocery/quickmart.png",
+      "description": "Convenience store with all the essentials, open late for your last-minute needs",
+      "deliveryFee": 1.99,
+      "estimatedDeliveryTime": "15-25 min",
+      "rating": 4.1,
+      "category": "Convenience",
+      "openingTime": "06:00",
+      "closingTime": "01:00",
+      "isOpen24Hours": false
+    },
+    {
+      "id": 5,
+      "name": "Global Foods",
+      "imageUrl": "/assets/img/grocery/global-food.jpg",
+      "description": "International grocery store featuring products from around the world",
+      "deliveryFee": 3.49,
+      "estimatedDeliveryTime": "40-55 min",
+      "rating": 4.5,
+      "category": "International",
+      "openingTime": "08:30",
+      "closingTime": "21:30",
+      "isOpen24Hours": false
+    },
+    {
+      "id": 6,
+      "name": "24/7 Grocery",
+      "imageUrl": "/assets/img/grocery/24-7-market.jpg",
+      "description": "Always open, always stocked with everything you need day or night",
+      "deliveryFee": 3.99,
+      "estimatedDeliveryTime": "20-35 min",
+      "rating": 4.2,
+      "category": "Convenience",
+      "isOpen24Hours": true
+    }
+  ]
+}

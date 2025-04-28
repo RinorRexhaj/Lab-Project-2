@@ -28,6 +28,7 @@ export const uploadFile: RequestHandler = async (req, res): Promise<void> => {
     const messageFile = new MessageFile();
     messageFile.message = message;
     messageFile.type = file.mimetype.slice(0, file.mimetype.indexOf("/"));
+    if (file.originalname === "voice-message.webm") messageFile.type = "voice";
 
     // Save MessageFile first to ensure the relationship is stored
     await AppDataSource.getRepository(MessageFile).save(messageFile);

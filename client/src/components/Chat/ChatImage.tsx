@@ -3,6 +3,7 @@ import {
   faFile,
   faFileLines,
   faImage,
+  faMicrophoneLines,
   faPlayCircle,
   faVolumeHigh,
 } from "@fortawesome/free-solid-svg-icons";
@@ -42,7 +43,10 @@ const ChatImage: React.FC<ChatImageProps> = ({
     scrollToBottom(false);
   }, [fileDetails?.file, fileDetails?.contentType]);
 
-  if (!fileDetails || !fileSrc) {
+  if (
+    !fileDetails ||
+    (fileSrc && !["image", "video", "audio", "voice"].includes(type))
+  ) {
     let icon;
     if (type === "image") {
       icon = faImage;
@@ -50,6 +54,8 @@ const ChatImage: React.FC<ChatImageProps> = ({
       icon = faCirclePlay;
     } else if (type === "audio") {
       icon = faVolumeHigh;
+    } else if (type === "voice") {
+      icon = faMicrophoneLines;
     } else {
       icon = faFile;
     }
@@ -69,7 +75,7 @@ const ChatImage: React.FC<ChatImageProps> = ({
     );
   }
 
-  if (type && !fileSrc) {
+  if (!fileSrc) {
     return (
       <div
         className="flex items-center gap-2"
@@ -81,13 +87,13 @@ const ChatImage: React.FC<ChatImageProps> = ({
       >
         <FontAwesomeIcon icon={faFileLines} className="h-6" />
         <div className="flex flex-col">
-          <p>{fileDetails.filename}</p>
+          <p>{fileDetails?.filename}</p>
           <p
             className={`text-xs ${
               userSent ? "text-white/80" : "text-slate-700"
             }`}
           >
-            {fileDetails.size}
+            {fileDetails?.size}
           </p>
         </div>
       </div>
@@ -96,7 +102,7 @@ const ChatImage: React.FC<ChatImageProps> = ({
 
   return (
     <div className="block w-full">
-      {fileDetails.contentType?.startsWith("video") ? (
+      {fileDetails?.contentType?.startsWith("video") ? (
         <div className="relative">
           <video
             src={fileSrc}
@@ -110,7 +116,7 @@ const ChatImage: React.FC<ChatImageProps> = ({
             className="w-6 h-6 p-2 absolute top-1/2 -translate-x-1/2 left-1/2 -translate-y-1/2"
           />
         </div>
-      ) : fileDetails.contentType.startsWith("image") ? (
+      ) : fileDetails?.contentType.startsWith("image") ? (
         <a
           href={fileSrc}
           target="_blank"
@@ -123,7 +129,7 @@ const ChatImage: React.FC<ChatImageProps> = ({
             className="rounded-md w-full h-auto max-h-[300px] object-cover hover:opacity-90 cursor-zoom-in"
           />
         </a>
-      ) : fileDetails.contentType.startsWith("audio") ? (
+      ) : fileDetails?.contentType.startsWith("audio") ? (
         <ChatAudio fileSrc={fileSrc || ""} userSent={userSent} />
       ) : (
         <a
@@ -134,13 +140,13 @@ const ChatImage: React.FC<ChatImageProps> = ({
         >
           <FontAwesomeIcon icon={faFileLines} className="h-6" />
           <div className="flex flex-col">
-            <p>{fileDetails.filename}</p>
+            <p>{fileDetails?.filename}</p>
             <p
               className={`text-xs ${
                 userSent ? "text-white/80" : "text-slate-700"
               }`}
             >
-              {fileDetails.size}
+              {fileDetails?.size}
             </p>
           </div>
         </a>

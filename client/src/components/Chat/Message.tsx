@@ -109,7 +109,8 @@ const Message: React.FC<MessageProps> = ({
     if (
       current.replyTo.file !== "image" &&
       current.replyTo.file !== "video" &&
-      current.replyTo.file !== "audio"
+      current.replyTo.file !== "audio" &&
+      current.replyTo.file !== "voice"
     )
       return "File";
     return current.replyTo.file;

@@ -4,6 +4,7 @@ import {
   faCirclePlay,
   faFile,
   faImage,
+  faMicrophoneLines,
   faUser,
   faVolumeHigh,
 } from "@fortawesome/free-solid-svg-icons";
@@ -41,6 +42,9 @@ const User: React.FC<UserProps> = ({ user }) => {
         } else if (user.lastMessage.file === "audio") {
           icon = faVolumeHigh;
           text = "Audio";
+        } else if (user.lastMessage.file === "voice") {
+          icon = faMicrophoneLines;
+          text = "Voice Message";
         } else {
           icon = faFile;
           text = "File Message";

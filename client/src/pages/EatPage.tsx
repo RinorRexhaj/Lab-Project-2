@@ -160,7 +160,7 @@ const EatPage: React.FC = () => {
   const sortedAndFilteredRestaurants = applySorting(filteredRestaurants);
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 py-8 pb-16 bg-gray-50 min-h-screen">
+    <div className="w-11/12 max-w-7xl mx-auto px-4 py-8 pb-16 bg-gray-50 min-h-screen">
       <section className="text-center py-14 px-3 mb-10 bg-gradient-to-r from-emerald-500 to-emerald-700 text-white rounded-2xl shadow-lg max-w-7xl w-full mx-auto">
         <h1 className="text-3xl md:text-xl font-bold">Food Delivery</h1>
         <p className="text-lg md:text-base mt-4">

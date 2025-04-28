@@ -64,7 +64,7 @@ const AppRouter: React.FC = () => {
       "/rides": 1,
       "/eat": 2,
       "/groceries": 3,
-      "/payment": 3,
+      "/payment": 4,
     };
 
     setActiveLink(pathToIndex[location.pathname] ?? -1);

@@ -99,13 +99,11 @@ export const useChat = () => {
     reply?: Message,
     file?: File
   ) => {
-    if ((file?.type.startsWith("audio") || socket) && user) {
+    if (socket && user) {
       const { active } = await get("/chat/active/" + receiver);
       let same = null;
-      if (active) {
-        const { sameChat } = await get(`/chat/same/${user.id}/${receiver}`);
-        same = sameChat;
-      }
+      const { sameChat } = await get(`/chat/same/${user.id}/${receiver}`);
+      same = sameChat;
       const message: Message = await post("/chat/", {
         sender: user.id,
         receiver,
@@ -123,7 +121,7 @@ export const useChat = () => {
         message.file = fileType;
       }
       addMessage(message);
-      socket?.emit("sendMessage", message);
+      socket.emit("sendMessage", message);
     }
   };
 

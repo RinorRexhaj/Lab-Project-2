@@ -4,7 +4,6 @@ import { OrderItem, Order } from "../../types/restaurant/Order";
 import FoodItem from "./FoodItem";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark } from "@fortawesome/free-solid-svg-icons";
-import { useSessionStore } from "../../store/useSessionStore";
 import { orderService } from "../../api/OrderService";
 import { useNavigate } from "react-router-dom";
 
@@ -13,12 +12,17 @@ interface FoodOrderModalProps {
   onClose: () => void;
 }
 
-const FoodOrderModal: React.FC<FoodOrderModalProps> = ({ restaurant, onClose }) => {
+const FoodOrderModal: React.FC<FoodOrderModalProps> = ({
+  restaurant,
+  onClose,
+}) => {
   const [activeCategory, setActiveCategory] = useState<string>("");
   const [orderItems, setOrderItems] = useState<Record<number, OrderItem>>({});
-  const [specialInstructions, setSpecialInstructions] = useState<Record<number, string>>({});
+  const [specialInstructions, setSpecialInstructions] = useState<
+    Record<number, string>
+  >({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { accessToken } = useSessionStore();
+  // const { accessToken } = useSessionStore();
   const navigate = useNavigate();
 
   // Initialize the active category with the first category.
@@ -30,7 +34,9 @@ const FoodOrderModal: React.FC<FoodOrderModalProps> = ({ restaurant, onClose }) 
 
   const handleQuantityChange = (itemId: number, newQuantity: number) => {
     if (newQuantity < 0) return;
-    const item = restaurant.menu?.flatMap((category) => category.items).find((item) => item.id === itemId);
+    const item = restaurant.menu
+      ?.flatMap((category) => category.items)
+      .find((item) => item.id === itemId);
     if (!item) return;
     if (newQuantity === 0) {
       const { [itemId]: removed, ...rest } = orderItems;
@@ -63,7 +69,10 @@ const FoodOrderModal: React.FC<FoodOrderModalProps> = ({ restaurant, onClose }) 
   };
 
   const calculateSubtotal = () =>
-    Object.values(orderItems).reduce((sum, item) => sum + item.price * item.quantity, 0);
+    Object.values(orderItems).reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0
+    );
   const calculateTotal = () => calculateSubtotal() + restaurant.deliveryFee;
 
   const handleSubmitOrder = async () => {
@@ -87,8 +96,10 @@ const FoodOrderModal: React.FC<FoodOrderModalProps> = ({ restaurant, onClose }) 
     }
   };
 
-  const getQuantityForItem = (itemId: number) => orderItems[itemId]?.quantity || 0;
-  const getSpecialInstructionsForItem = (itemId: number) => specialInstructions[itemId] || "";
+  const getQuantityForItem = (itemId: number) =>
+    orderItems[itemId]?.quantity || 0;
+  const getSpecialInstructionsForItem = (itemId: number) =>
+    specialInstructions[itemId] || "";
   const handleOutsideClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) {
       onClose();
@@ -175,16 +186,22 @@ const FoodOrderModal: React.FC<FoodOrderModalProps> = ({ restaurant, onClose }) 
                 {Object.values(orderItems).length > 0 ? (
                   <ul className="space-y-3">
                     {Object.values(orderItems).map((item) => (
-                      <li key={item.foodItemId} className="text-sm bg-white p-3 rounded-md shadow-sm">
+                      <li
+                        key={item.foodItemId}
+                        className="text-sm bg-white p-3 rounded-md shadow-sm"
+                      >
                         <div className="flex justify-between font-medium">
                           <span>
                             {item.quantity}× {item.name}
                           </span>
-                          <span>${(item.price * item.quantity).toFixed(2)}</span>
+                          <span>
+                            ${(item.price * item.quantity).toFixed(2)}
+                          </span>
                         </div>
                         {item.specialInstructions && (
                           <div className="text-xs text-gray-500 mt-1 border-t border-gray-100 pt-1">
-                            <span className="font-medium">Note:</span> {item.specialInstructions}
+                            <span className="font-medium">Note:</span>{" "}
+                            {item.specialInstructions}
                           </div>
                         )}
                       </li>
@@ -193,7 +210,9 @@ const FoodOrderModal: React.FC<FoodOrderModalProps> = ({ restaurant, onClose }) 
                 ) : (
                   <div className="flex flex-col items-center justify-center h-full text-gray-500">
                     <p className="text-center mb-2">Your cart is empty</p>
-                    <p className="text-sm text-center">Add items from the menu to get started</p>
+                    <p className="text-sm text-center">
+                      Add items from the menu to get started
+                    </p>
                   </div>
                 )}
               </div>
@@ -214,7 +233,9 @@ const FoodOrderModal: React.FC<FoodOrderModalProps> = ({ restaurant, onClose }) 
                 </div>
                 <button
                   onClick={handleSubmitOrder}
-                  disabled={Object.keys(orderItems).length === 0 || isSubmitting}
+                  disabled={
+                    Object.keys(orderItems).length === 0 || isSubmitting
+                  }
                   className={`mt-4 w-full py-3 rounded-md font-semibold ${
                     Object.keys(orderItems).length === 0 || isSubmitting
                       ? "bg-gray-300 text-gray-500 cursor-not-allowed"

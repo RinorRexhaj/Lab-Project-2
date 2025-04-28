@@ -10,6 +10,7 @@ import {
   faReply,
 } from "@fortawesome/free-solid-svg-icons";
 import Reactions from "./Reactions";
+// import { extractLinksAndEmails } from "../../utils/validation";
 
 interface MessageProps {
   current: MessageType;
@@ -32,6 +33,9 @@ const Message: React.FC<MessageProps> = ({
 }) => {
   const [hover, setHover] = useState(false);
   const [openReactions, setOpenReactions] = useState(false);
+  // const [linkParts, setLinkParts] = useState<
+  //   { text: string; isLink: boolean; isEmail: boolean }[]
+  // >([]);
   const { user } = useUserStore();
   const { formatTime, formatDate, formatSent, getDiff } = useTimeAgo();
   const messageRef = useRef<HTMLDivElement>(null);
@@ -145,6 +149,8 @@ const Message: React.FC<MessageProps> = ({
                 </p>
               </div>
             )}
+
+            {/* Message Text */}
             <p className="relative">{current.text}</p>
           </div>
 

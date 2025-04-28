@@ -78,8 +78,8 @@ export class MessageRepo {
       ] as FindOptionsWhere<Message>[],
       order: { id: "ASC" },
       relations: ["sender", "receiver"],
-      take: pageSize + 1,
-      skip: (page - 1) * pageSize,
+      // take: pageSize + 1,
+      // skip: (page - 1) * pageSize,
     });
 
     const messageIds = messages.map((m) => m.id);

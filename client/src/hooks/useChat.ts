@@ -7,7 +7,8 @@ import { Message } from "../types/Message";
 import useApi from "./useApi";
 import { useChatUsersStore } from "../store/useChatUsersStore";
 
-const SOCKET_SERVER_URL = environment.apiUrl;
+const prod = import.meta.env.VITE_PROD === "true";
+const SOCKET_SERVER_URL = prod ? environment.prodUrl : environment.apiUrl;
 
 export const useChat = () => {
   const [socket, setSocket] = useState<Socket | null>(null);
@@ -28,13 +29,12 @@ export const useChat = () => {
   const { get, post } = useApi();
 
   useEffect(() => {
-    initialize();
-  }, []);
-
-  const initialize = async () => {
     if (!user?.id) return;
 
-    const newSocket = io(SOCKET_SERVER_URL, { query: { userId: user.id } });
+    const newSocket = io(SOCKET_SERVER_URL, {
+      query: { userId: user.id },
+      transports: [prod ? "polling" : "websocket", "websocket"],
+    });
     setSocket(newSocket);
 
     newSocket.on("receiveMessage", (message: Message) => {
@@ -65,7 +65,7 @@ export const useChat = () => {
     return () => {
       newSocket.disconnect();
     };
-  };
+  }, [user?.id]);
 
   const getMessages = async (receiver: number) => {
     if (user && receiver) {
@@ -101,10 +101,8 @@ export const useChat = () => {
     if (socket && user) {
       const { active } = await get("/chat/active/" + receiver);
       let same = null;
-      if (active) {
-        const { sameChat } = await get(`/chat/same/${user.id}/${receiver}`);
-        same = sameChat;
-      }
+      const { sameChat } = await get(`/chat/same/${user.id}/${receiver}`);
+      same = sameChat;
       const message: Message = await post("/chat/", {
         sender: user.id,
         receiver,

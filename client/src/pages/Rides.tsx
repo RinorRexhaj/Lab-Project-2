@@ -62,7 +62,7 @@ const Rides: React.FC = () => {
   const mapRef = useRef<google.maps.Map | null>(null);
 
   const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: "AIzaSyDHotvjtYR_l_pRRJrg3yTg7boOx9LT_k0", // Replace with your key
+    googleMapsApiKey: "AIzaSyDHotvjtYR_l_pRRJrg3yTg7boOx9LT_k0",
     libraries,
   });
   const prod = import.meta.env.PROD === true;
@@ -74,7 +74,7 @@ const Rides: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [waitingForDriver, setWaitingForDriver] = useState(false);
   const [buttonText, setButtonText] = useState("Book Ride");
-
+  const [rideBooked, setRideBooked] = useState(false);
   // const loading = useApi();
   // const socket = useRef(io("https://lab-project-2.onrender.com")).current;
 
@@ -115,7 +115,7 @@ const Rides: React.FC = () => {
       pickupService.current.getPlacePredictions(
         {
           input: pickup,
-          componentRestrictions: { country: "xk" }, // Kosovo
+          componentRestrictions: { country: "xk" }, // Kosova
         },
         (predictions) => {
           setPickupSuggestions(predictions || []);
@@ -156,11 +156,11 @@ const Rides: React.FC = () => {
         if (isPickup) {
           setPickup(place.formatted_address || "");
           setPickupCoords(loc);
-          setPickupSuggestions([]); // Clear suggestions
+          setPickupSuggestions([]);
         } else {
           setDropoff(place.formatted_address || "");
           setDropoffCoords(loc);
-          setDropoffSuggestions([]); // Clear suggestions
+          setDropoffSuggestions([]);
         }
       }
     });
@@ -218,9 +218,21 @@ const Rides: React.FC = () => {
     });
     setTimeout(() => {
       setShowModal(true);
+    }, 1000);
+    setTimeout(() => {
       setWaitingForDriver(true);
       setButtonText("Waiting For a Driver to Accept your Ride ");
-    }, 1000);
+      setRideBooked(true);
+    }, 3000);
+  };
+
+  const handleCancelRide = () => {
+    socket.emit("cancelRideRequest", { userSocketId: socket.id });
+    setRideBooked(false);
+    setWaitingForDriver(false);
+    setShowModal(false);
+    setButtonText("Book Ride");
+    toast.error("Ride request has been cancelled.");
   };
 
   useEffect(() => {
@@ -294,12 +306,17 @@ const Rides: React.FC = () => {
             value={pickup}
             onChange={(e) => setPickup(e.target.value)}
             placeholder="Pickup location"
-            className="pl-8 pr-10 py-3 w-full bg-gray-100 rounded-md focus:outline-none"
+            className={`pl-8 pr-10 py-3 w-full bg-gray-100 rounded-md focus:outline-none ${
+              (waitingForDriver || buttonText == "Driver on your way") &&
+              "cursor-not-allowed"
+            }`}
+            disabled={waitingForDriver || buttonText == "Driver on your way"}
           />
           {pickup ? (
             <button
               className="absolute right-3 top-1/2 -translate-y-1/2"
               onClick={() => setPickup("")}
+              disabled={waitingForDriver || buttonText == "Driver on your way"}
             >
               <FaTimes />
             </button>
@@ -307,6 +324,7 @@ const Rides: React.FC = () => {
             <button
               className="absolute right-3 top-1/2 -translate-y-1/2"
               onClick={getCurrentLocation}
+              disabled={waitingForDriver || buttonText == "Driver on your way"}
             >
               <FaLocationArrow />
             </button>
@@ -335,12 +353,17 @@ const Rides: React.FC = () => {
             value={dropoff}
             onChange={(e) => setDropoff(e.target.value)}
             placeholder="Dropoff location"
-            className="pl-8 pr-10 py-3 w-full bg-gray-100 rounded-md focus:outline-none"
+            className={`pl-8 pr-10 py-3 w-full bg-gray-100 rounded-md focus:outline-none ${
+              (waitingForDriver || buttonText == "Driver on your way") &&
+              "cursor-not-allowed"
+            }`}
+            disabled={waitingForDriver || buttonText == "Driver on your way"}
           />
           {dropoff && (
             <button
               className="absolute right-3 top-1/2 -translate-y-1/2"
               onClick={() => setDropoff("")}
+              disabled={waitingForDriver || buttonText == "Driver on your way"}
             >
               <FaTimes />
             </button>
@@ -367,13 +390,21 @@ const Rides: React.FC = () => {
             onChange={(date) => date && setSelectedDate(date)}
             minDate={new Date()}
             maxDate={new Date(new Date().setDate(new Date().getDate() + 30))}
-            className="py-3 px-4 bg-gray-100 rounded-md w-full"
+            className={`py-3 px-4 bg-gray-100 rounded-md w-full ${
+              (waitingForDriver || buttonText == "Driver on your way") &&
+              "cursor-not-allowed"
+            }`}
+            disabled={waitingForDriver || buttonText == "Driver on your way"}
           />
 
           <select
-            className=" py-3 px-4 bg-gray-100 rounded-md w-full"
+            className={`py-3 px-4 bg-gray-100 rounded-md w-full ${
+              (waitingForDriver || buttonText == "Driver on your way") &&
+              "cursor-not-allowed"
+            }`}
             value={selectedTime}
             onChange={(e) => setSelectedTime(e.target.value)}
+            disabled={waitingForDriver || buttonText == "Driver on your way"}
           >
             {timeOptions.map((time) => (
               <option key={time} value={time}>
@@ -397,7 +428,14 @@ const Rides: React.FC = () => {
           {buttonText}
           {waitingForDriver && <FontAwesomeIcon icon={faSpinner} spin />}
         </button>
-
+        {rideBooked && waitingForDriver && (
+          <button
+            className="bg-red-600 text-white px-6 py-3 mt-2 rounded-md"
+            onClick={handleCancelRide}
+          >
+            Cancel Ride
+          </button>
+        )}
         {/* Distance/ETA */}
         {distance && eta && (
           <div className="mt-4 text-gray-700">

@@ -7,13 +7,14 @@ interface RideRequest {
   userSocketId: string;
   pickupLocation: string;
   dropoffLocation: string;
-  // etc.
+  rideId: string;
 }
 
 const Driver = () => {
   const { user } = useUserStore();
   const driverId = user?.id;
   const [rideRequest, setRideRequest] = useState<RideRequest | null>(null);
+  const [rideAccepted, setRideAccepted] = useState(false);
   const socket = useRef(
     io(prod ? "https://lab-project-2.onrender.com" : "http://localhost:5000", {
       transports: [prod ? "polling" : "websocket"],
@@ -24,31 +25,54 @@ const Driver = () => {
     socket.emit("joinDriverRoom", driverId);
 
     socket.on("receiveNewRideRequest", (rideDetails) => {
-      console.log("ok");
-      setRideRequest(rideDetails);
-      console.log("new ride reuquest: ", rideDetails);
+      setTimeout(() => {
+        setRideRequest(rideDetails);
+        console.log("Now showing ride request:", rideDetails);
+      }, 5000);
+    });
+    socket.on("rideNoLongerAvailable", ({ rideId }) => {
+      if (rideRequest?.rideId === rideId) {
+        setRideRequest(null);
+      }
+    });
+    socket.on("rideAlreadyAccepted", () => {
+      alert("This ride has already been accepted by another driver.");
+      setRideRequest(null);
+      setRideAccepted(false);
     });
 
     return () => {
       socket.off("newRideRequest");
+      socket.off("receiveNewRideRequest");
+      socket.off("rideNoLongerAvailable");
+      socket.off("rideAlreadyAccepted");
     };
   }, []);
 
-  const acceptRide = () => {
-    // Check if rideRequest is not null before proceeding
-    if (rideRequest) {
-      console.log(rideRequest);
-      socket.emit("acceptRide", {
-        userSocketId: rideRequest.userSocketId,
-        driverName: user?.fullName,
-      });
+  useEffect(() => {
+    socket.on("rideRequestCancelled", ({ userSocketId }) => {
+      if (rideRequest?.userSocketId === userSocketId) {
+        console.log("User cancelled the ride. Removing request.");
+        setRideRequest(null);
+        setRideAccepted(false);
+      }
+    });
 
-      // Optionally start sending location
-      startLocationTracking(rideRequest.userSocketId);
-    } else {
-      // Handle the case where rideRequest is null
-      console.error("No ride request available");
-    }
+    return () => {
+      socket.off("rideRequestCancelled");
+    };
+  }, [rideRequest]);
+
+  const acceptRide = () => {
+    if (rideAccepted || !rideRequest) return;
+
+    setRideAccepted(true);
+    socket.emit("acceptRide", {
+      rideId: rideRequest.rideId,
+      driverName: user?.fullName,
+      userSocketId: rideRequest.userSocketId,
+    });
+    startLocationTracking(rideRequest.userSocketId);
   };
 
   const startLocationTracking = (userSocketId: unknown) => {
@@ -78,8 +102,9 @@ const Driver = () => {
           <button
             className="text-white font-bold p-2 flex items-center justify-center bg-emerald-500 hover:bg-emerald-600 duration-150 rounded-lg"
             onClick={acceptRide}
+            disabled={rideAccepted}
           >
-            Accept
+            {rideAccepted ? "Ride Accepted" : "Accept"}
           </button>
         </div>
       )}

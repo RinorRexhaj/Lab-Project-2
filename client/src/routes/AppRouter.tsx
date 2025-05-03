@@ -15,6 +15,7 @@ import ProfileSettingsPage from "../pages/ProfileSettingsPage";
 import Rides from "../pages/Rides";
 import Driver from "../pages/Driver";
 import Payment from "../pages/Payment";
+import AdminDashboard from "../pages/admin/AdminDashboard";
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -65,6 +66,7 @@ const AppRouter: React.FC = () => {
       "/eat": 2,
       "/groceries": 3,
       "/payment": 4,
+      "/admin-dashboard": -1,
     };
 
     setActiveLink(pathToIndex[location.pathname] ?? -1);
@@ -103,6 +105,14 @@ const AppRouter: React.FC = () => {
           element={
             <AdminRoute>
               <Users />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin-dashboard"
+          element={
+            <AdminRoute>
+              <AdminDashboard />
             </AdminRoute>
           }
         />

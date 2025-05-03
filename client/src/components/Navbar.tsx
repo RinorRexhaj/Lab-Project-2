@@ -1,4 +1,4 @@
-import { faBars, faUser, faXmark, faUserShield } from "@fortawesome/free-solid-svg-icons";
+import { faBars, faUser, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState, useEffect } from "react";
 import { useSessionStore } from "../store/useSessionStore";
@@ -86,15 +86,6 @@ const Navbar: React.FC<NavbarProps> = ({ activeLink, setActiveLink }) => {
             </div>
             <div className="flex gap-5 items-center md:absolute md:right-24 md:gap-3">
               <Chat />
-              {isAdmin && (
-                <Link to="/admin-dashboard">
-                  <button
-                    className="w-10 h-10 flex items-center justify-center bg-emerald-500 hover:bg-emerald-600 duration-150 rounded-lg"
-                  >
-                    <FontAwesomeIcon icon={faUserShield} className="w-5 h-5 text-white" />
-                  </button>
-                </Link>
-              )}
               <button
                 id="profile-btn"
                 className="w-10 h-10 flex items-center justify-center bg-emerald-500 hover:bg-emerald-600 duration-150 rounded-full"

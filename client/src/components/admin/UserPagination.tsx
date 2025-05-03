@@ -105,6 +105,8 @@ const UserPagination: React.FC<UserPaginationProps> = ({
               value={itemsPerPage}
               onChange={(e) => onItemsPerPageChange(Number(e.target.value))}
               className="h-8 border-gray-300 rounded-md text-sm focus:outline-none focus:ring-emerald-500 focus:border-emerald-500"
+              title="Items per page"
+              aria-label="Select number of items per page"
             >
               {pageOptions.map((option) => (
                 <option key={option} value={option}>

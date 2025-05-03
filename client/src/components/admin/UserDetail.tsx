@@ -121,6 +121,8 @@ const UserDetail: React.FC<UserDetailProps> = ({
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-gray-500 focus:outline-none"
+            aria-label="Close modal"
+            title="Close"
           >
             <FontAwesomeIcon icon={faXmark} className="h-5 w-5" />
           </button>

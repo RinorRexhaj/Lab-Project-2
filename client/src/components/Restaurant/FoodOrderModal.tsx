@@ -30,6 +30,19 @@ const FoodOrderModal: React.FC<FoodOrderModalProps> = ({
     if (restaurant.menu && restaurant.menu.length > 0) {
       setActiveCategory(restaurant.menu[0].name);
     }
+    
+    // Debug menu items for image URLs
+    if (restaurant.menu) {
+      restaurant.menu.forEach(category => {
+        if (category.items) {
+          category.items.forEach(item => {
+            if (!item.imageUrl) {
+              console.log(`Food item missing image: ${item.name}`);
+            }
+          });
+        }
+      });
+    }
   }, [restaurant]);
 
   const handleQuantityChange = (itemId: number, newQuantity: number) => {

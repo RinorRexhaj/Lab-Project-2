@@ -49,6 +49,8 @@ const UserFilters: React.FC<UserFiltersProps> = ({
               className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm"
               value={filter.role}
               onChange={(e) => onFilterChange({ role: e.target.value })}
+              title="Filter by role"
+              aria-label="Filter users by role"
             >
               <option value="">All Roles</option>
               {roleOptions.slice(1).map((role) => (
@@ -70,6 +72,8 @@ const UserFilters: React.FC<UserFiltersProps> = ({
               className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm"
               value={filter.status}
               onChange={(e) => onFilterChange({ status: e.target.value })}
+              title="Filter by status"
+              aria-label="Filter users by status"
             >
               <option value="">All Statuses</option>
               {statusOptions.slice(1).map((status) => (

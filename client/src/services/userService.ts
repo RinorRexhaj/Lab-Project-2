@@ -1,11 +1,32 @@
-import useApi from '../hooks/useApi';
+// Define interface for backend user structure
+interface BackendUser {
+  id: string | number;
+  fullName: string;
+  email: string;
+  role: string;
+  status?: string;
+  dateJoined?: string;
+  lastLogin?: string;
+  address?: string;
+  avatar?: string;
+  [key: string]: any; // For any other properties that might exist
+}
+
+// Define interface for API response
+interface UserApiResponse {
+  users?: BackendUser[];
+  user?: BackendUser;
+  success?: boolean;
+  deleted?: boolean;
+  [key: string]: any; // For any other properties that might exist
+}import useApi from '../hooks/useApi';
 import { SuspendUserData, UpdateUserData, User, UserFilter } from '../types/User';
 
 export const useUserService = () => {
-  const { get, post, put, patch, remove } = useApi();
+  const { get, post, patch, remove } = useApi();
   
-  const transformUser = (backendUser: any): User => {
-    if (!backendUser) return null as any;
+  const transformUser = (backendUser: BackendUser | null): User | null => {
+    if (!backendUser) return null;
     
     // Transform backend user format to frontend format
     return {
@@ -24,7 +45,7 @@ export const useUserService = () => {
   const getUsers = async (page: number, limit: number, filter: UserFilter) => {
     try {
       // Get all users from the backend
-      const response = await get('/user');
+      const response = await get('/user') as UserApiResponse;
       let users = response?.users || [];
       
       if (!response || !Array.isArray(users)) {
@@ -36,18 +57,18 @@ export const useUserService = () => {
       if (filter.search) {
         const searchTerm = filter.search.toLowerCase();
         users = users.filter(
-          (user: any) =>
+          (user: BackendUser) =>
             user.fullName.toLowerCase().includes(searchTerm) ||
             user.email.toLowerCase().includes(searchTerm)
         );
       }
       
       if (filter.role) {
-        users = users.filter((user: any) => user.role === filter.role);
+        users = users.filter((user: BackendUser) => user.role === filter.role);
       }
       
       if (filter.status) {
-        users = users.filter((user: any) => user.status === filter.status);
+        users = users.filter((user: BackendUser) => user.status === filter.status);
       }
       
       // Apply pagination
@@ -71,7 +92,7 @@ export const useUserService = () => {
 
   const getUserById = async (userId: string) => {
     try {
-      const response = await get(`/user/${userId}`);
+      const response = await get(`/user/${userId}`) as UserApiResponse;
       const user = response?.user;
       
       if (!user) {
@@ -104,7 +125,7 @@ export const useUserService = () => {
       });
       
       console.log('Updating user with data:', backendUpdateData);
-      const response = await patch(`/user/${userId}`, backendUpdateData);
+      const response = await patch(`/user/${userId}`, backendUpdateData) as UserApiResponse;
       return transformUser(response?.user);
     } catch (error) {
       console.error('Error updating user:', error);
@@ -117,12 +138,12 @@ export const useUserService = () => {
       let response;
       
       if (status === 'active') {
-        response = await post(`/user/${userId}/activate`, {});
+        response = await post(`/user/${userId}/activate`, {}) as UserApiResponse;
       } else if (status === 'suspended') {
         response = await post(`/user/${userId}/suspend`, { 
           reason: 'Suspended by administrator',
           expiryDate: null
-        });
+        }) as UserApiResponse;
       }
       
       return transformUser(response?.user);
@@ -134,7 +155,7 @@ export const useUserService = () => {
 
   const suspendUser = async (userId: string, suspendData: SuspendUserData) => {
     try {
-      const response = await post(`/user/${userId}/suspend`, suspendData);
+      const response = await post(`/user/${userId}/suspend`, suspendData) as UserApiResponse;
       return transformUser(response?.user);
     } catch (error) {
       console.error('Error suspending user:', error);
@@ -147,7 +168,7 @@ export const useUserService = () => {
       // Use the admin password reset endpoint
       const response = await patch(`/user/${userId}/password`, {
         newPassword
-      });
+      }) as UserApiResponse;
       
       return { success: response?.success || true };
     } catch (error) {
@@ -156,24 +177,11 @@ export const useUserService = () => {
     }
   };
 
-  const getUserActivity = async (userId: string, page: number = 1, limit: number = 10) => {
-    try {
-      // Our backend doesn't have a user activity endpoint
-      // For now, we'll just return empty activity data -- Also will be removed on next commit. [rinor agaj]
-      return {
-        data: [],
-        totalPages: 0,
-        currentPage: page
-      };
-    } catch (error) {
-      console.error('Error fetching user activity:', error);
-      throw error;
-    }
-  };
+  //Bug Fix Here - By Rinor Agaj
   
   const deleteUser = async (userId: string) => {
     try {
-      const response = await remove(`/user/${userId}`);
+      const response = await remove(`/user/${userId}`) as UserApiResponse;
       return response.deleted;
     } catch (error) {
       console.error('Error deleting user:', error);
@@ -188,7 +196,7 @@ export const useUserService = () => {
     changeUserStatus,
     suspendUser,
     resetPassword,
-    getUserActivity,
+
     deleteUser
   };
 };

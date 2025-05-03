@@ -139,9 +139,7 @@ const UsersTab = () => {
     }
   };
 
-  const handleViewActivity = (userId: string) => {
-    // This is now a no-op since we removed activity functionality - will delete on next commit.
-  };
+  //Bug Fix Here - By Rinor Agaj
 
   const handleDeleteUser = async (userId: string) => {
     if (confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
@@ -182,7 +180,6 @@ const UsersTab = () => {
         users={users}
         loading={loading}
         onViewUser={handleViewUser}
-        onStatusChange={handleChangeStatus}
       />
 
       {/* Pagination */}

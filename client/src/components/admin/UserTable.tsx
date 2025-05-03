@@ -1,20 +1,18 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faUnlock, faBan, faCheck, faLock } from '@fortawesome/free-solid-svg-icons';
+import { faEdit } from '@fortawesome/free-solid-svg-icons';
 import { User } from '../../types/User';
 
 interface UserTableProps {
   users: User[];
   loading: boolean;
   onViewUser: (user: User) => void;
-  onStatusChange: (userId: string, status: string) => void;
 }
 
 const UserTable: React.FC<UserTableProps> = ({ 
   users, 
   loading, 
-  onViewUser, 
-  onStatusChange 
+  onViewUser
 }) => {
   const formatDate = (dateString: string) => {
     if (!dateString) return 'N/A';

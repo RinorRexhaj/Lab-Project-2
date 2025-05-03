@@ -1,4 +1,4 @@
-import { faBars, faUser, faXmark, faGaugeHigh } from "@fortawesome/free-solid-svg-icons";
+import { faBars, faUser, faXmark, faUserShield } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState, useEffect } from "react";
 import { useSessionStore } from "../store/useSessionStore";
@@ -91,7 +91,7 @@ const Navbar: React.FC<NavbarProps> = ({ activeLink, setActiveLink }) => {
                   <button
                     className="w-10 h-10 flex items-center justify-center bg-emerald-500 hover:bg-emerald-600 duration-150 rounded-lg"
                   >
-                    <FontAwesomeIcon icon={faGaugeHigh} className="w-5 h-5 text-white" />
+                    <FontAwesomeIcon icon={faUserShield} className="w-5 h-5 text-white" />
                   </button>
                 </Link>
               )}

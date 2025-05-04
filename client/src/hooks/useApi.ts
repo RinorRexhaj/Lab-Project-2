@@ -50,9 +50,7 @@ const useApi = () => {
           config.headers = { "Content-Type": undefined };
         }
 
-        console.log(`API Request: ${method} ${url}`, { data, params });
         const response = await api(config);
-        console.log(`API Response: ${method} ${url}`, response.data);
         return response.data;
       } catch (err: any) {
         console.error(`API Error: ${method} ${url}`, err);

@@ -1,7 +1,6 @@
 import { faBars, faUser, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState, useEffect } from "react";
-import { useSessionStore } from "../store/useSessionStore";
 import { Link } from "react-router-dom";
 import ProfileModal from "./Profile/ProfileModal";
 import Chat from "./Chat/Chat";
@@ -12,8 +11,6 @@ interface NavbarProps {
 }
 
 const Navbar: React.FC<NavbarProps> = ({ activeLink, setActiveLink }) => {
-  const { role } = useSessionStore();
-  const isAdmin = role === "Admin";
   const [hasShadow, setHasShadow] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [profile, setProfile] = useState(false);

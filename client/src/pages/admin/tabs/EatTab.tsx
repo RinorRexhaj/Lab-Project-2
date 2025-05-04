@@ -11,9 +11,9 @@ import {
   faSortUp,
   faSortDown,
 } from "@fortawesome/free-solid-svg-icons";
-import AddRestaurantWizard from "../../../components/Admin/AddRestaurantWizard";
-import EditRestaurantWizard from "../../../components/Admin/EditRestaurantWizard";
-import DeleteConfirmationModal from "../../../components/Admin/DeleteConfirmationModal";
+import AddRestaurantWizard from "../../../components/admin/AddRestaurantWizard";
+import EditRestaurantWizard from "../../../components/admin/EditRestaurantWizard";
+import DeleteConfirmationModal from "../../../components/admin/DeleteConfirmationModal";
 
 const EatTab: React.FC = () => {
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
@@ -24,7 +24,8 @@ const EatTab: React.FC = () => {
   const [showAddWizard, setShowAddWizard] = useState(false);
   const [showEditWizard, setShowEditWizard] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [selectedRestaurant, setSelectedRestaurant] = useState<Restaurant | null>(null);
+  const [selectedRestaurant, setSelectedRestaurant] =
+    useState<Restaurant | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -77,7 +78,7 @@ const EatTab: React.FC = () => {
 
   const handleDeleteRestaurant = async () => {
     if (!selectedRestaurant) return;
-    
+
     try {
       await restaurantService.deleteRestaurant(selectedRestaurant.id);
       setShowDeleteModal(false);
@@ -108,23 +109,28 @@ const EatTab: React.FC = () => {
   const filteredRestaurants = restaurants.filter((restaurant) => {
     return (
       restaurant.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (restaurant.category && restaurant.category.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (restaurant.category &&
+        restaurant.category
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase())) ||
       restaurant.description.toLowerCase().includes(searchQuery.toLowerCase())
     );
   });
 
   const sortedRestaurants = [...filteredRestaurants].sort((a, b) => {
     if (!sortField) return 0;
-    
+
     let valA = a[sortField];
     let valB = b[sortField];
-    
+
     // Handle string values
-    if (typeof valA === 'string' && typeof valB === 'string') {
+    if (typeof valA === "string" && typeof valB === "string") {
       valA = valA.toLowerCase();
       valB = valB.toLowerCase();
     }
-    
+
+    if (!valA || !valB) return 0;
+
     if (valA < valB) return sortDirection === "asc" ? -1 : 1;
     if (valA > valB) return sortDirection === "asc" ? 1 : -1;
     return 0;
@@ -132,15 +138,19 @@ const EatTab: React.FC = () => {
 
   const getSortIcon = (field: keyof Restaurant) => {
     if (sortField !== field) return <FontAwesomeIcon icon={faSort} />;
-    return sortDirection === "asc" ? 
-      <FontAwesomeIcon icon={faSortUp} /> : 
-      <FontAwesomeIcon icon={faSortDown} />;
+    return sortDirection === "asc" ? (
+      <FontAwesomeIcon icon={faSortUp} />
+    ) : (
+      <FontAwesomeIcon icon={faSortDown} />
+    );
   };
 
   return (
     <div className="p-4 bg-gray-50 rounded-lg">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-semibold text-gray-700">Restaurant Management</h2>
+        <h2 className="text-xl font-semibold text-gray-700">
+          Restaurant Management
+        </h2>
         <button
           onClick={handleOpenAddWizard}
           className="px-4 py-2 bg-emerald-500 text-white rounded-lg flex items-center space-x-2 hover:bg-emerald-600 transition duration-200"
@@ -183,7 +193,7 @@ const EatTab: React.FC = () => {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th 
+                <th
                   className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                   onClick={() => handleSort("name")}
                 >
@@ -192,7 +202,7 @@ const EatTab: React.FC = () => {
                     {getSortIcon("name")}
                   </div>
                 </th>
-                <th 
+                <th
                   className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                   onClick={() => handleSort("category")}
                 >
@@ -201,7 +211,7 @@ const EatTab: React.FC = () => {
                     {getSortIcon("category")}
                   </div>
                 </th>
-                <th 
+                <th
                   className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                   onClick={() => handleSort("rating")}
                 >
@@ -210,7 +220,7 @@ const EatTab: React.FC = () => {
                     {getSortIcon("rating")}
                   </div>
                 </th>
-                <th 
+                <th
                   className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                   onClick={() => handleSort("deliveryFee")}
                 >
@@ -237,7 +247,9 @@ const EatTab: React.FC = () => {
                         />
                       </div>
                       <div className="ml-4">
-                        <div className="text-sm font-medium text-gray-900">{restaurant.name}</div>
+                        <div className="text-sm font-medium text-gray-900">
+                          {restaurant.name}
+                        </div>
                       </div>
                     </div>
                   </td>
@@ -245,10 +257,14 @@ const EatTab: React.FC = () => {
                     {restaurant.category || "Uncategorized"}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">{restaurant.rating}</div>
+                    <div className="text-sm text-gray-900">
+                      {restaurant.rating}
+                    </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">${restaurant.deliveryFee.toFixed(2)}</div>
+                    <div className="text-sm text-gray-900">
+                      ${restaurant.deliveryFee.toFixed(2)}
+                    </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <button
@@ -271,20 +287,20 @@ const EatTab: React.FC = () => {
         </div>
       ) : (
         <div className="bg-white p-6 rounded-lg shadow text-center">
-          <p className="text-gray-500">No restaurants found matching your search.</p>
+          <p className="text-gray-500">
+            No restaurants found matching your search.
+          </p>
         </div>
       )}
 
       {/* Add Restaurant Wizard Modal */}
-      {showAddWizard && (
-        <AddRestaurantWizard onClose={handleCloseAddWizard} />
-      )}
+      {showAddWizard && <AddRestaurantWizard onClose={handleCloseAddWizard} />}
 
       {/* Edit Restaurant Wizard Modal */}
       {showEditWizard && selectedRestaurant && (
-        <EditRestaurantWizard 
-          restaurant={selectedRestaurant} 
-          onClose={handleCloseEditWizard} 
+        <EditRestaurantWizard
+          restaurant={selectedRestaurant}
+          onClose={handleCloseEditWizard}
         />
       )}
 

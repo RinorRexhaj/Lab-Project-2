@@ -1,13 +1,18 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { 
-  faXmark, 
-  faSave, 
-  faLock, 
-  faUnlock, 
-  faKey 
-} from '@fortawesome/free-solid-svg-icons';
-import { SuspendUserData, UpdateUserData, User, UserRole } from '../../types/User';
+import React, { useState, useRef, useEffect } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faXmark,
+  faSave,
+  faLock,
+  faUnlock,
+  faKey,
+} from "@fortawesome/free-solid-svg-icons";
+import {
+  SuspendUserData,
+  UpdateUserData,
+  User,
+  UserRole,
+} from "../../types/User";
 
 interface UserDetailProps {
   user: User | null;
@@ -28,41 +33,52 @@ const UserDetail: React.FC<UserDetailProps> = ({
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState<UpdateUserData>({});
-  const [suspendData, setSuspendData] = useState<SuspendUserData>({ reason: '' });
+  const [suspendData, setSuspendData] = useState<SuspendUserData>({
+    reason: "",
+  });
   const [reasonCharCount, setReasonCharCount] = useState(0);
   const [showPasswordReset, setShowPasswordReset] = useState(false);
   const [showSuspendForm, setShowSuspendForm] = useState(false);
-  const [newPassword, setNewPassword] = useState('');
+  const [newPassword, setNewPassword] = useState("");
   const modalRef = useRef<HTMLDivElement>(null);
 
   // Close modal when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
+      if (
+        modalRef.current &&
+        !modalRef.current.contains(event.target as Node)
+      ) {
         onClose();
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [onClose]);
 
-  const roleOptions: UserRole[] = ['User', 'Admin', 'Driver', 'Vendor'];
+  const roleOptions: UserRole[] = ["User", "Admin", "Driver", "Vendor"];
 
   if (!user) return null;
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
+  ) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleSuspendInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleSuspendInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
-    
+
     // Handle character limit for reason field
-    if (name === 'reason') {
+    if (name === "reason") {
       // Limit to 20 characters
       const limitedValue = value.slice(0, 20);
       setSuspendData({ ...suspendData, [name]: limitedValue });
@@ -73,23 +89,23 @@ const UserDetail: React.FC<UserDetailProps> = ({
   };
 
   const handleSave = () => {
-    onSave(user.id, formData);
+    onSave(String(user.id), formData);
     setIsEditing(false);
     setFormData({});
   };
 
   const handleResetPassword = () => {
     if (newPassword) {
-      onResetPassword(user.id, newPassword);
-      setNewPassword('');
+      onResetPassword(String(user.id), newPassword);
+      setNewPassword("");
       setShowPasswordReset(false);
     }
   };
 
   const handleSuspend = () => {
     if (suspendData.reason) {
-      onSuspend(user.id, suspendData);
-      setSuspendData({ reason: '' });
+      onSuspend(String(user.id), suspendData);
+      setSuspendData({ reason: "" });
       setReasonCharCount(0);
       setShowSuspendForm(false);
     }
@@ -98,25 +114,28 @@ const UserDetail: React.FC<UserDetailProps> = ({
   const formatDate = (dateString: string) => {
     try {
       const date = new Date(dateString);
-      return new Intl.DateTimeFormat('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
+      return new Intl.DateTimeFormat("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
       }).format(date);
     } catch {
-      return 'Invalid date';
+      return "Invalid date";
     }
   };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center p-4">
-      <div ref={modalRef} className="bg-white rounded-lg shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+      <div
+        ref={modalRef}
+        className="bg-white rounded-lg shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto"
+      >
         {/* Header */}
         <div className="flex justify-between items-center p-6 border-b border-gray-200">
           <h2 className="text-xl font-semibold text-gray-800">
-            {isEditing ? 'Edit User Profile' : 'User Profile'}
+            {isEditing ? "Edit User Profile" : "User Profile"}
           </h2>
           <button
             onClick={onClose}
@@ -137,35 +156,48 @@ const UserDetail: React.FC<UserDetailProps> = ({
                 {user.avatar ? (
                   <img
                     className="h-full w-full rounded-full object-cover border-2 border-emerald-200 shadow-md"
-                    src={`${user.avatar.startsWith('http') ? user.avatar : `/images/${user.avatar}`}`}
+                    src={`${
+                      user.avatar.startsWith("http")
+                        ? user.avatar
+                        : `/images/${user.avatar}`
+                    }`}
                     alt={user.fullName}
                     onError={(e) => {
                       // If image fails to load, show initials instead
-                      e.currentTarget.style.display = 'none';
-                      const initials = document.getElementById(`user-initials-${user.id}`);
-                      if (initials) initials.style.display = 'flex';
+                      e.currentTarget.style.display = "none";
+                      const initials = document.getElementById(
+                        `user-initials-${user.id}`
+                      );
+                      if (initials) initials.style.display = "flex";
                     }}
                   />
                 ) : null}
-                <div 
-                  id={`user-initials-${user.id}`} 
-                  className={`h-full w-full rounded-full bg-emerald-100 flex items-center justify-center ${user.avatar ? 'hidden' : ''}`}
+                <div
+                  id={`user-initials-${user.id}`}
+                  className={`h-full w-full rounded-full bg-emerald-100 flex items-center justify-center ${
+                    user.avatar ? "hidden" : ""
+                  }`}
                 >
                   <span className="text-emerald-800 text-2xl font-medium">
-                    {user.fullName.split(' ').map(n => n[0]).join('').toUpperCase()}
+                    {user.fullName
+                      .split(" ")
+                      .map((n) => n[0])
+                      .join("")
+                      .toUpperCase()}
                   </span>
                 </div>
               </div>
               <div className="text-center">
                 <div className="flex items-center justify-center gap-2 mt-2">
                   <span
-                  className={`px-3 py-1 rounded-full text-xs font-medium ${
-                  user.status === 'active' || !user.status
-                  ? 'bg-green-100 text-green-800'
-                  : 'bg-yellow-100 text-yellow-800'
-                  }`}
+                    className={`px-3 py-1 rounded-full text-xs font-medium ${
+                      user.status === "active" || !user.status
+                        ? "bg-green-100 text-green-800"
+                        : "bg-yellow-100 text-yellow-800"
+                    }`}
                   >
-                    {(user.status || 'active').charAt(0).toUpperCase() + (user.status || 'active').slice(1)}
+                    {(user.status || "active").charAt(0).toUpperCase() +
+                      (user.status || "active").slice(1)}
                   </span>
                   <span className="px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                     {user.role}
@@ -179,7 +211,10 @@ const UserDetail: React.FC<UserDetailProps> = ({
               {isEditing ? (
                 <form className="space-y-4">
                   <div>
-                    <label htmlFor="fullName" className="block text-sm font-medium text-gray-700">
+                    <label
+                      htmlFor="fullName"
+                      className="block text-sm font-medium text-gray-700"
+                    >
                       Full Name
                     </label>
                     <input
@@ -192,7 +227,10 @@ const UserDetail: React.FC<UserDetailProps> = ({
                     />
                   </div>
                   <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                    <label
+                      htmlFor="email"
+                      className="block text-sm font-medium text-gray-700"
+                    >
                       Email
                     </label>
                     <input
@@ -205,7 +243,10 @@ const UserDetail: React.FC<UserDetailProps> = ({
                     />
                   </div>
                   <div>
-                    <label htmlFor="role" className="block text-sm font-medium text-gray-700">
+                    <label
+                      htmlFor="role"
+                      className="block text-sm font-medium text-gray-700"
+                    >
                       Role
                     </label>
                     <select
@@ -223,14 +264,17 @@ const UserDetail: React.FC<UserDetailProps> = ({
                     </select>
                   </div>
                   <div>
-                    <label htmlFor="address" className="block text-sm font-medium text-gray-700">
+                    <label
+                      htmlFor="address"
+                      className="block text-sm font-medium text-gray-700"
+                    >
                       Address
                     </label>
                     <input
                       type="text"
                       name="address"
                       id="address"
-                      defaultValue={user.address || ''}
+                      defaultValue={user.address || ""}
                       onChange={handleInputChange}
                       className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm"
                     />
@@ -239,22 +283,34 @@ const UserDetail: React.FC<UserDetailProps> = ({
               ) : (
                 <div className="space-y-3">
                   <div>
-                    <h3 className="text-lg font-bold text-gray-900">{user.fullName}</h3>
+                    <h3 className="text-lg font-bold text-gray-900">
+                      {user.fullName}
+                    </h3>
                     <p className="text-sm text-gray-500">{user.email}</p>
                     {user.address && (
-                      <p className="text-sm text-gray-500 mt-1">{user.address}</p>
+                      <p className="text-sm text-gray-500 mt-1">
+                        {user.address}
+                      </p>
                     )}
                   </div>
                   <div className="mt-4">
-                    <h4 className="text-sm font-medium text-gray-700">Account Information</h4>
+                    <h4 className="text-sm font-medium text-gray-700">
+                      Account Information
+                    </h4>
                     <div className="mt-2 grid grid-cols-1 md:grid-cols-2 gap-3">
                       <div>
                         <p className="text-xs text-gray-500">Date Joined</p>
-                        <p className="text-sm">{user.dateJoined ? formatDate(user.dateJoined) : 'N/A'}</p>
+                        <p className="text-sm">
+                          {user.dateJoined
+                            ? formatDate(user.dateJoined)
+                            : "N/A"}
+                        </p>
                       </div>
                       <div>
                         <p className="text-xs text-gray-500">Last Login</p>
-                        <p className="text-sm">{user.lastLogin ? formatDate(user.lastLogin) : 'N/A'}</p>
+                        <p className="text-sm">
+                          {user.lastLogin ? formatDate(user.lastLogin) : "N/A"}
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -305,7 +361,7 @@ const UserDetail: React.FC<UserDetailProps> = ({
                     <FontAwesomeIcon icon={faKey} className="mr-2 h-4 w-4" />
                     Reset Password
                   </button>
-                  {user.status === 'active' || !user.status ? (
+                  {user.status === "active" || !user.status ? (
                     <button
                       type="button"
                       onClick={() => {
@@ -320,10 +376,13 @@ const UserDetail: React.FC<UserDetailProps> = ({
                   ) : (
                     <button
                       type="button"
-                      onClick={() => onChangeStatus(user.id, 'active')}
+                      onClick={() => onChangeStatus(String(user.id), "active")}
                       className="inline-flex items-center px-4 py-2 border border-green-300 rounded-md shadow-sm text-sm font-medium text-green-700 bg-green-50 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
                     >
-                      <FontAwesomeIcon icon={faUnlock} className="mr-2 h-4 w-4" />
+                      <FontAwesomeIcon
+                        icon={faUnlock}
+                        className="mr-2 h-4 w-4"
+                      />
                       Activate User
                     </button>
                   )}
@@ -335,9 +394,14 @@ const UserDetail: React.FC<UserDetailProps> = ({
           {/* Password Reset Form */}
           {showPasswordReset && (
             <div className="mt-6 pt-4 border-t border-gray-200">
-              <h3 className="text-lg font-medium text-gray-900">Reset Password</h3>
+              <h3 className="text-lg font-medium text-gray-900">
+                Reset Password
+              </h3>
               <div className="mt-2">
-                <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="newPassword"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   New Password
                 </label>
                 <input
@@ -362,7 +426,7 @@ const UserDetail: React.FC<UserDetailProps> = ({
                   type="button"
                   onClick={() => {
                     setShowPasswordReset(false);
-                    setNewPassword('');
+                    setNewPassword("");
                   }}
                   className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500"
                 >
@@ -375,9 +439,14 @@ const UserDetail: React.FC<UserDetailProps> = ({
           {/* Suspend Form */}
           {showSuspendForm && (
             <div className="mt-6 pt-4 border-t border-gray-200">
-              <h3 className="text-lg font-medium text-gray-900">Suspend User</h3>
+              <h3 className="text-lg font-medium text-gray-900">
+                Suspend User
+              </h3>
               <div className="mt-2">
-                <label htmlFor="reason" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="reason"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Reason for Suspension
                 </label>
                 <textarea
@@ -395,14 +464,17 @@ const UserDetail: React.FC<UserDetailProps> = ({
                 </div>
               </div>
               <div className="mt-2">
-                <label htmlFor="expiryDate" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="expiryDate"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Expiry Date (Optional)
                 </label>
                 <input
                   type="date"
                   name="expiryDate"
                   id="expiryDate"
-                  value={suspendData.expiryDate || ''}
+                  value={suspendData.expiryDate || ""}
                   onChange={handleSuspendInputChange}
                   className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm"
                 />
@@ -419,7 +491,7 @@ const UserDetail: React.FC<UserDetailProps> = ({
                   type="button"
                   onClick={() => {
                     setShowSuspendForm(false);
-                    setSuspendData({ reason: '' });
+                    setSuspendData({ reason: "" });
                     setReasonCharCount(0);
                   }}
                   className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500"

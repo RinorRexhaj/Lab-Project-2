@@ -41,31 +41,32 @@ export const login: RequestHandler = async (
     res.status(401).json({ error: "Invalid credentials" });
     return;
   }
-  
+
   // Only check for suspension when all other validations pass
-  if (user.status === 'suspended') {
+  if (user.status === "suspended") {
     let message = "";
-    
+
     // Check if there's an expiry date
-    const hasExpiry = user.suspendExpiryDate && new Date(user.suspendExpiryDate) > new Date();
-    
+    const hasExpiry =
+      user.suspendExpiryDate && new Date(user.suspendExpiryDate) > new Date();
+
     // Check if expiry date is still in the future
     if (hasExpiry) {
-      const expiryDate = new Intl.DateTimeFormat('en-US', { 
-        dateStyle: 'full',
-        timeStyle: 'short'
+      const expiryDate = new Intl.DateTimeFormat("en-US", {
+        dateStyle: "full",
+        timeStyle: "short",
       }).format(new Date(user.suspendExpiryDate as Date));
-      
+
       message = `You have been suspended until ${expiryDate}.`;
     } else {
       message = "You have been suspended indefinitely.";
     }
-    
+
     // Add reason if one was provided
     if (user.suspendReason) {
       message += ` Reason: ${user.suspendReason.substring(0, 20)}`;
     }
-    
+
     res.status(403).json({ error: message, suspended: true });
     return;
   }
@@ -199,10 +200,7 @@ const generateTokens = async (user: User, refresh?: string) => {
     refreshToken = jwt.sign(
       {
         id: user.id,
-        fullName: user.fullName,
-        email: user.email,
         role: user.role,
-        avatar: user.avatar,
       },
       JWT_REFRESH,
       { expiresIn: "7d" }

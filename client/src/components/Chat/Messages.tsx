@@ -117,7 +117,13 @@ const Messages: React.FC<MessagesProps> = ({
       {reply && (
         <Reply
           senderName={reply.sender === user?.id ? "You" : openUser.fullName}
-          text={reply.file || reply.text}
+          text={
+            !reply.file
+              ? reply.text
+              : ["image", "video", "audio", "voice"].includes(reply.file)
+              ? reply.file
+              : "file"
+          }
           setReply={setReply}
         />
       )}

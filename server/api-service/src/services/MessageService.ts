@@ -3,6 +3,8 @@ import { Message } from "../models/Message";
 import { Message as MessageType } from "../types/Message";
 import { SearchUsers } from "../types/SearchUsers";
 import { GetUsers } from "../types/GetUsers";
+import { BlobOptions } from "buffer";
+import { deleteFile } from "../controllers/FileController";
 
 export const createMessage = async (
   data: Partial<Message> & { replyTo?: { id: number } }
@@ -24,6 +26,17 @@ export const getMessages = async (
   }
   if (!page) page = 1;
   return await MessageRepo.getMessages(senderId, receiverId, page);
+};
+
+export const deleteMessage = async (
+  messageId: number,
+  userId: number
+): Promise<boolean> => {
+  if (!messageId || !userId) {
+    throw new Error("Message Id is null.");
+  }
+  await deleteFile(messageId);
+  return await MessageRepo.deleteMessage(messageId, userId);
 };
 
 export const getUsersWithConversations = async (

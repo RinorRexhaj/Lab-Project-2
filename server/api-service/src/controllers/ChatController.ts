@@ -2,6 +2,7 @@ import { RequestHandler } from "express";
 import {
   createMessage,
   getMessages as getMessagesUsers,
+  deleteMessage as deleteMsg,
   getUsersWithConversations,
   searchChatUsers,
   updateMessagesToDelivered,
@@ -43,6 +44,32 @@ export const getUsers: RequestHandler = async (req, res): Promise<void> => {
     res.json(users);
   } catch (error: any) {
     res.status(400).json({ error: error.message });
+  }
+};
+
+export const deleteMessage: RequestHandler = async (
+  req,
+  res
+): Promise<void> => {
+  const { id, user } = req.params;
+
+  if (isNaN(Number(id))) {
+    res.status(400).json({ success: false, error: "Invalid messageId" });
+    return;
+  }
+
+  try {
+    const wasDeleted = await deleteMsg(Number(id), Number(user));
+
+    if (wasDeleted) {
+      res.status(200).json({ success: true, deleted: true });
+    } else {
+      res
+        .status(404)
+        .json({ success: false, deleted: false, error: "Message not found" });
+    }
+  } catch (err) {
+    res.status(500).json({ success: false, error: "Internal Server Error" });
   }
 };
 

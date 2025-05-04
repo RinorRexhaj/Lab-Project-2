@@ -1,16 +1,16 @@
 export interface User {
-  id: string;
+  id: number;
   fullName: string;
   email: string;
   role: string; // "User", "Admin", "Driver", "Vendor"
-  status: 'active' | 'suspended' | 'banned';
+  status: "active" | "suspended" | "banned";
   dateJoined: string;
   lastLogin: string;
   address?: string;
   avatar?: string;
 }
 
-export type UserRole = 'User' | 'Admin' | 'Driver' | 'Vendor';
+export type UserRole = "User" | "Admin" | "Driver" | "Vendor";
 
 export interface UserFilter {
   search: string;

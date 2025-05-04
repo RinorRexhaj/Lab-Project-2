@@ -5,7 +5,7 @@ import {
   faXmark,
   faUser,
   faPenToSquare,
-  faUserShield
+  faUserShield,
 } from "@fortawesome/free-solid-svg-icons";
 import React from "react";
 import LogOutButton from "../../shared/LogOutButton";

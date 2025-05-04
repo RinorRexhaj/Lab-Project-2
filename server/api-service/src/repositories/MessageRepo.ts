@@ -156,6 +156,28 @@ export class MessageRepo {
     });
   }
 
+  static async deleteMessage(
+    messageId: number,
+    userId: number
+  ): Promise<boolean> {
+    let messageExists = false;
+
+    await AppDataSource.transaction(async (manager) => {
+      const message = await manager.findOne(Message, {
+        where: { id: messageId },
+        relations: ["sender"],
+      });
+      if (!message || message.sender.id !== userId) return;
+      messageExists = true;
+      await manager.delete(Reaction, { message: { id: messageId } });
+      await manager.delete(Reply, { replyTo: { id: messageId } });
+      await manager.delete(Reply, { message: { id: messageId } });
+      await manager.delete(MessageFile, { message: { id: messageId } });
+      await manager.delete(Message, { id: messageId });
+    });
+    return messageExists;
+  }
+
   static async getUsersWithConversations(userId: number): Promise<GetUsers> {
     const messages = await MessageRepo.messageRepo.find({
       where: [{ sender: { id: userId } }, { receiver: { id: userId } }],
@@ -276,39 +298,53 @@ export class MessageRepo {
       order: { id: "DESC" },
     });
 
-    const usersWithMessages: ChatUser[] = users.map((user) => {
-      const conversationMessages = messages.filter(
-        (message) =>
-          (message.sender.id === user.id || message.receiver.id === user.id) &&
-          (message.sender.id === id || message.receiver.id === id)
-      );
+    const usersWithMessages: ChatUser[] = await Promise.all(
+      users.map(async (user) => {
+        const conversationMessages = messages.filter(
+          (message) =>
+            (message.sender.id === user.id ||
+              message.receiver.id === user.id) &&
+            (message.sender.id === id || message.receiver.id === id)
+        );
 
-      const lastMessage = conversationMessages[0] || null;
+        const lastMessage = conversationMessages[0] || null;
 
-      const unseenMessagesCount = conversationMessages.filter(
-        (message) =>
-          message.receiver.id === id && message.seen.getFullYear() === 2000
-      ).length;
+        let isFileMessage = null;
+        if (lastMessage) {
+          const file = await this.fileRepo.findOne({
+            where: { message: { id: lastMessage.id } },
+            relations: ["message"],
+          });
 
-      return {
-        id: user.id,
-        fullName: user.fullName,
-        lastMessage: lastMessage
-          ? {
-              id: lastMessage.id,
-              sender: lastMessage.sender.id,
-              receiver: lastMessage.receiver.id,
-              text:
-                unseenMessagesCount > 1 && lastMessage.sender.id !== id
-                  ? `${unseenMessagesCount} new messages`
-                  : lastMessage.text,
-              sent: lastMessage.sent,
-              delivered: lastMessage.delivered,
-              seen: lastMessage.seen,
-            }
-          : null,
-      };
-    });
+          isFileMessage = file?.type || "";
+        }
+
+        const unseenMessagesCount = conversationMessages.filter(
+          (message) =>
+            message.receiver.id === id && message.seen.getFullYear() === 2000
+        ).length;
+
+        return {
+          id: user.id,
+          fullName: user.fullName,
+          lastMessage: lastMessage
+            ? {
+                id: lastMessage.id,
+                sender: lastMessage.sender.id,
+                receiver: lastMessage.receiver.id,
+                text:
+                  unseenMessagesCount > 1 && lastMessage.sender.id !== id
+                    ? `${unseenMessagesCount} new messages`
+                    : lastMessage.text,
+                sent: lastMessage.sent,
+                delivered: lastMessage.delivered,
+                seen: lastMessage.seen,
+                file: isFileMessage ?? undefined,
+              }
+            : null,
+        };
+      })
+    );
 
     const sortedUsers = usersWithMessages.sort((a, b) => {
       if (!a.lastMessage) return 1;

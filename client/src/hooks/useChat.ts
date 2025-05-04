@@ -23,6 +23,7 @@ export const useChat = () => {
     openUser,
     addTyping,
     addMessage,
+    deleteMessage: delMessage,
     reactMessage,
     setMessages,
     setMessagesSeen,
@@ -52,6 +53,16 @@ export const useChat = () => {
 
     newSocket.on("receiveMessage", (message: Message) => {
       receiveMessage(message);
+    });
+
+    newSocket.on("receiveDeletedMessage", (message: Message) => {
+      if (user && message) {
+        if (openUser?.id === message.sender) {
+          delMessage(message.id);
+        } else if (!openUser) {
+          getUsers();
+        }
+      }
     });
 
     newSocket.on("seenMessage", (receiver: number) => {
@@ -159,6 +170,13 @@ export const useChat = () => {
     }
   };
 
+  const deleteMessage = (message: Message) => {
+    if (socket && user && message) {
+      delMessage(message.id);
+      socket.emit("deleteMessage", message);
+    }
+  };
+
   const sendTyping = () => {
     if (socket && user && openUser) {
       socket.emit("sendTyping", user.id, openUser.id);
@@ -194,6 +212,7 @@ export const useChat = () => {
     openChat,
     closeChat,
     sendMessage,
+    deleteMessage,
     sendTyping,
     receiveTyping,
     sendRemoveTyping,

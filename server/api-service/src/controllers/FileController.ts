@@ -114,3 +114,14 @@ export const downloadFile: RequestHandler = async (req, res): Promise<void> => {
     res.status(500).json({ error: error.message });
   }
 };
+
+export const deleteFile = async (messageId: number) => {
+  const file = await FileModel.findOne({ messageId });
+
+  if (!file) {
+    return false;
+  }
+
+  await file.deleteOne();
+  return true;
+};

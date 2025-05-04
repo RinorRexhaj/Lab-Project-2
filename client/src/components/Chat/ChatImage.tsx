@@ -88,7 +88,7 @@ const ChatImage: React.FC<ChatImageProps> = ({
       >
         <FontAwesomeIcon icon={faFileLines} className="h-6" />
         <div className="flex flex-col">
-          <p>{fileDetails?.filename}</p>
+          <p className="w-full max-w-40 truncate">{fileDetails?.filename}</p>
           <p
             className={`text-xs ${
               userSent ? "text-white/80" : "text-slate-700"

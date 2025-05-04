@@ -156,6 +156,28 @@ export class MessageRepo {
     });
   }
 
+  static async deleteMessage(
+    messageId: number,
+    userId: number
+  ): Promise<boolean> {
+    let messageExists = false;
+
+    await AppDataSource.transaction(async (manager) => {
+      const message = await manager.findOne(Message, {
+        where: { id: messageId },
+        relations: ["sender"],
+      });
+      if (!message || message.sender.id !== userId) return;
+      messageExists = true;
+      await manager.delete(Reaction, { message: { id: messageId } });
+      await manager.delete(Reply, { replyTo: { id: messageId } });
+      await manager.delete(Reply, { message: { id: messageId } });
+      await manager.delete(MessageFile, { message: { id: messageId } });
+      await manager.delete(Message, { id: messageId });
+    });
+    return messageExists;
+  }
+
   static async getUsersWithConversations(userId: number): Promise<GetUsers> {
     const messages = await MessageRepo.messageRepo.find({
       where: [{ sender: { id: userId } }, { receiver: { id: userId } }],

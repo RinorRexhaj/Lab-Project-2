@@ -38,9 +38,12 @@ const useApi = () => {
         const config: any = {
           method,
           url,
-          data,
           params,
         };
+
+        if (data !== undefined) {
+          config.data = data;
+        }
 
         if (data instanceof FormData) {
           delete api.defaults.headers["Content-Type"];
@@ -122,7 +125,7 @@ const useApi = () => {
     [request]
   );
   const del = useCallback(
-    (url: string, params?: any) => request("DELETE", url, null, params),
+    (url: string, params?: any) => request("DELETE", url, undefined, params),
     [request]
   );
 

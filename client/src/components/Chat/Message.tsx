@@ -8,6 +8,7 @@ import {
   faCheckDouble,
   faFaceSmile,
   faReply,
+  faTrash,
 } from "@fortawesome/free-solid-svg-icons";
 import Reactions from "./Reactions";
 import useApi from "../../hooks/useApi";
@@ -15,6 +16,7 @@ import { formatBytes } from "../../utils/byteCalculation";
 import { useChatStore } from "../../store/useChatStore";
 import ChatImage from "./ChatImage";
 import { FileDetails } from "../../types/FileDetails";
+import { useChat } from "../../hooks/useChat";
 
 interface MessageProps {
   current: MessageType;
@@ -42,8 +44,9 @@ const Message: React.FC<MessageProps> = ({
   const [fileDetails, setFileDetails] = useState<FileDetails | null>(null);
   const { user } = useUserStore();
   const { openUser } = useChatStore();
+  const { deleteMessage: delMessage } = useChat();
   const { formatTime, formatDate, formatSent, getDiff } = useTimeAgo();
-  const { get } = useApi();
+  const { get, del } = useApi();
   const messageRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -131,6 +134,13 @@ const Message: React.FC<MessageProps> = ({
     }
   };
 
+  const deleteMessage = async () => {
+    const { deleted } = await del(`/chat/${current.id}/${current.sender}`);
+    if (deleted) {
+      delMessage(current);
+    }
+  };
+
   return (
     <>
       {/* Message Time Separator */}
@@ -171,9 +181,9 @@ const Message: React.FC<MessageProps> = ({
                 ? "mb-5"
                 : "mb-3"
               : current.reaction && "mb-2"
-          } ${
-            current.created && "animate-fadeIn [animation-fill-mode:backwards]"
-          }`}
+          } ${current.created && "animate-fadeIn"} ${
+            current.deleted && "animate-fadeOut"
+          } [animation-fill-mode:backwards]`}
         >
           <div className="w-full flex flex-col mb-3 mr-12">
             {current.replyTo && (
@@ -258,7 +268,7 @@ const Message: React.FC<MessageProps> = ({
               !hover && "opacity-0 -z-50"
             } cursor-pointer ${
               userSent()
-                ? "-left-6 text-emerald-500"
+                ? "-left-12 text-emerald-500"
                 : "-right-12 text-gray-300"
             }`}
           >
@@ -269,15 +279,17 @@ const Message: React.FC<MessageProps> = ({
                 setReply(current);
               }}
             />
-            {!userSent() && (
-              <FontAwesomeIcon
-                icon={faFaceSmile}
-                onClick={() => {
-                  setHover(false);
+            <FontAwesomeIcon
+              icon={userSent() ? faTrash : faFaceSmile}
+              onClick={() => {
+                setHover(false);
+                if (!userSent()) {
                   setOpenReactions(true);
-                }}
-              />
-            )}
+                } else {
+                  deleteMessage();
+                }
+              }}
+            />
           </div>
         </div>
       </div>

@@ -27,7 +27,7 @@ const useApi = () => {
 
   const request = useCallback(
     async (
-      method: "GET" | "POST" | "PATCH" | "DELETE",
+    method: "GET" | "POST" | "PATCH" | "PUT" | "DELETE",
       url: string,
       data?: any,
       params?: any
@@ -47,11 +47,19 @@ const useApi = () => {
           config.headers = { "Content-Type": undefined };
         }
 
+        console.log(`API Request: ${method} ${url}`, { data, params });
         const response = await api(config);
+        console.log(`API Response: ${method} ${url}`, response.data);
         return response.data;
       } catch (err: any) {
-        setError(err.response?.data.error);
-        return null;
+        console.error(`API Error: ${method} ${url}`, err);
+        console.error('Error details:', err.response?.data || err.message);
+        
+        // Set error for all cases, including suspension
+        setError(err.response?.data?.error || err.message);
+        
+        // Re-throw the error with the response data
+        throw err;
       } finally {
         setLoading(false);
       }
@@ -121,7 +129,12 @@ const useApi = () => {
       request("PATCH", url, data, params),
     [request]
   );
-  const del = useCallback(
+  const put = useCallback(
+    (url: string, data?: any, params?: any) =>
+      request("PUT", url, data, params),
+    [request]
+  );
+  const remove = useCallback(
     (url: string, params?: any) => request("DELETE", url, null, params),
     [request]
   );
@@ -130,7 +143,8 @@ const useApi = () => {
     get,
     post,
     patch,
-    del,
+    put,
+    remove,
     download,
     loading,
     setLoading,

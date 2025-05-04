@@ -1,9 +1,11 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useUserStore } from "../../store/useUserStore";
+import { useSessionStore } from "../../store/useSessionStore";
 import {
   faXmark,
   faUser,
   faPenToSquare,
+  faUserShield
 } from "@fortawesome/free-solid-svg-icons";
 import React from "react";
 import LogOutButton from "../../shared/LogOutButton";
@@ -15,6 +17,8 @@ interface ProfileModalProps {
 
 const ProfileModal: React.FC<ProfileModalProps> = ({ setProfile }) => {
   const { user } = useUserStore();
+  const { role } = useSessionStore();
+  const isAdmin = role === "Admin";
 
   // Default avatar if user doesn't have one set yet
   const avatarSrc = user?.avatar
@@ -57,6 +61,16 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ setProfile }) => {
 
         {/* Action Buttons */}
         <div className="flex flex-col gap-2 mt-1">
+          {isAdmin && (
+            <Link
+              to="/admin-dashboard"
+              className="px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 duration-200 text-white font-semibold flex items-center justify-center gap-2 text-sm"
+              onClick={() => setProfile(false)}
+            >
+              <FontAwesomeIcon icon={faUserShield} className="w-4 h-4" />
+              Admin Dashboard
+            </Link>
+          )}
           <Link
             to="/profile"
             className="px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 duration-200 text-white font-semibold flex items-center justify-center gap-2 text-sm"

@@ -19,11 +19,26 @@ export class User {
   @Column({ length: 10, default: "User" })
   role!: string;
 
+  @Column({ length: 10, default: "active" })
+  status!: string; // 'active' or 'suspended'
+  
+  @Column({ length: 255, nullable: true })
+  suspendReason?: string;
+  
+  @Column({ type: "datetime", nullable: true })
+  suspendExpiryDate?: Date;
+
   @Column({ length: 100, nullable: true })
   address?: string;
   
   @Column({ length: 50, default: "user-avatar-1.png" })
   avatar!: string;
+
+  @Column({ type: "datetime", default: () => "CURRENT_TIMESTAMP" })
+  dateJoined!: Date;
+
+  @Column({ type: "datetime", nullable: true })
+  lastLogin?: Date;
 
   @OneToMany(() => RefreshToken, (refreshToken) => refreshToken.user, {
     cascade: true,

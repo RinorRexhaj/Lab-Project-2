@@ -21,9 +21,21 @@ const FoodItem: React.FC<FoodItemProps> = ({
   return (
     <div className="py-4 hover:bg-gray-50 transition-colors duration-150 rounded-md -mx-2 px-2">
       <div className="flex gap-3">
-        {item.imageUrl && (
+        {item.imageUrl ? (
           <div className="w-20 h-20 rounded-md overflow-hidden flex-shrink-0">
-            <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
+            <img 
+              src={item.imageUrl} 
+              alt={item.name} 
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                // Set a fallback image
+                e.currentTarget.src = "/assets/img/placeholder-image.jpg";
+              }}
+            />
+          </div>
+        ) : (
+          <div className="w-20 h-20 rounded-md overflow-hidden flex-shrink-0 bg-gray-200 flex items-center justify-center">
+            <span className="text-xs text-gray-500">No image</span>
           </div>
         )}
         

@@ -2,6 +2,7 @@ import { RequestHandler } from "express";
 import { AppDataSource } from "../data-source";
 import { Order } from "../models/Order";
 import { OrderItem } from "../models/OrderItem";
+import bcrypt from "bcryptjs";
 import {
   deleteUserId,
   getAllUsers,
@@ -10,6 +11,8 @@ import {
   updateUserData,
   updateUserAvatar,
   updateUserPassword,
+  updateUserStatus,
+  adminResetPassword
 } from "../services/UserService";
 import { isValidEmail } from "./AuthController";
 import { extractUserRole } from "../services/TokenService";
@@ -50,23 +53,51 @@ export const getUserByEmail: RequestHandler = async (req, res) => {
 export const updateUser: RequestHandler = async (req, res) => {
   try {
     const { id } = req.params;
-    const { fullname, role, address, avatar } = req.body;
-    if (!fullname || !role) {
-      res.status(404).json({ error: "User not found" });
+    const { fullname, email, role, address, avatar, status } = req.body;
+    
+    if (!id) {
+      res.status(404).json({ error: "User ID is required" });
       return;
     }
+    
     const authHeader = req.headers.authorization;
     const token = authHeader && authHeader.split(" ")[1];
     const requestRole = extractUserRole(token || "");
+    
+    // Check if email is being changed
+    if (email) {
+      // Validate email format
+      if (!isValidEmail(email)) {
+        res.status(400).json({ error: "Invalid email format" });
+        return;
+      }
+      
+      // Check if email is already in use by another user
+      const existingUser = await getUserEmail(email);
+      if (existingUser && existingUser.id !== parseInt(id)) {
+        res.status(400).json({ error: "Email already in use" });
+        return;
+      }
+    }
+    
     const newUser = await updateUserData(
       parseInt(id),
       fullname,
       requestRole === "Admin" ? role : "User",
       address,
-      avatar
+      avatar,
+      status,
+      email
     );
-    res.json({ user: newUser });
+    
+    if (!newUser) {
+      res.status(404).json({ error: "User not found" });
+      return;
+    }
+    
+    res.json({ user: newUser, success: true });
   } catch (error) {
+    console.error("Error updating user:", error);
     res.status(400).json({ error: "Bad Request" });
   }
 };
@@ -99,8 +130,8 @@ export const updatePassword: RequestHandler = async (req, res) => {
     const { id } = req.params;
     const { currentPassword, newPassword } = req.body;
     
-    if (!currentPassword || !newPassword) {
-      res.status(400).json({ error: "Current and new passwords are required" });
+    if (!newPassword) {
+      res.status(400).json({ error: "New password is required" });
       return;
     }
     
@@ -111,6 +142,29 @@ export const updatePassword: RequestHandler = async (req, res) => {
     }
     
     try {
+      // Check if we have admin override
+      const authHeader = req.headers.authorization;
+      const token = authHeader && authHeader.split(" ")[1];
+      const requestRole = extractUserRole(token || "");
+      
+      // If admin is resetting password, no need for current password verification
+      if (requestRole === "Admin" && !currentPassword) {
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        const user = await adminResetPassword(parseInt(id), hashedPassword);
+        if (!user) {
+          res.status(404).json({ error: "User not found" });
+          return;
+        }
+        res.json({ success: true, message: "Password updated successfully" });
+        return;
+      }
+      
+      // Otherwise, require current password
+      if (!currentPassword) {
+        res.status(400).json({ error: "Current password is required" });
+        return;
+      }
+      
       const user = await updateUserPassword(parseInt(id), currentPassword, newPassword);
       res.json({ success: true, message: "Password updated successfully" });
     } catch (err) {
@@ -122,6 +176,66 @@ export const updatePassword: RequestHandler = async (req, res) => {
     }
   } catch (error) {
     res.status(400).json({ error: "Bad Request" });
+  }
+};
+
+export const suspendUser: RequestHandler = async (req, res) => {
+  try {
+    const { id } = req.params;
+    let { reason, expiryDate } = req.body;
+    
+    if (!id) {
+      res.status(400).json({ error: "User ID is required" });
+      return;
+    }
+    
+    // Limit suspension reason to 20 characters
+    if (reason && reason.length > 20) {
+      reason = reason.substring(0, 20);
+    }
+    
+    const user = await updateUserStatus(
+      parseInt(id),
+      'suspended',
+      reason || 'Suspended by admin',
+      expiryDate ? new Date(expiryDate) : undefined
+    );
+    
+    if (!user) {
+      res.status(404).json({ error: "User not found" });
+      return;
+    }
+    
+    res.json({ user, success: true, message: "User suspended successfully" });
+  } catch (error) {
+    console.error("Error suspending user:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+export const activateUser: RequestHandler = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    if (!id) {
+      res.status(400).json({ error: "User ID is required" });
+      return;
+    }
+    
+    const user = await updateUserStatus(
+      parseInt(id),
+      'active'
+    );
+    
+    if (!user) {
+      res.status(404).json({ error: "User not found" });
+      return;
+    }
+    
+    res.json({ user, success: true, message: "User activated successfully" });
+  } catch (error) {
+    console.error("Error activating user:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 

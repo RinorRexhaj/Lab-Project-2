@@ -4,12 +4,12 @@ interface BackendUser {
   fullName: string;
   email: string;
   role: string;
-  status?: string;
+  status?: 'active' | 'suspended' | 'banned';
   dateJoined?: string;
   lastLogin?: string;
   address?: string;
   avatar?: string;
-  [key: string]: any; // For any other properties that might exist
+  [key: string]: unknown; // For any other properties that might exist
 }
 
 // Define interface for API response
@@ -18,7 +18,7 @@ interface UserApiResponse {
   user?: BackendUser;
   success?: boolean;
   deleted?: boolean;
-  [key: string]: any; // For any other properties that might exist
+  [key: string]: unknown; // For any other properties that might exist
 }import useApi from '../hooks/useApi';
 import { SuspendUserData, UpdateUserData, User, UserFilter } from '../types/User';
 
@@ -126,7 +126,7 @@ export const useUserService = () => {
       
       console.log('Updating user with data:', backendUpdateData);
       const response = await patch(`/user/${userId}`, backendUpdateData) as UserApiResponse;
-      return transformUser(response?.user);
+      return transformUser(response?.user || null);
     } catch (error) {
       console.error('Error updating user:', error);
       throw error;
@@ -146,7 +146,7 @@ export const useUserService = () => {
         }) as UserApiResponse;
       }
       
-      return transformUser(response?.user);
+      return transformUser(response?.user || null);
     } catch (error) {
       console.error('Error changing user status:', error);
       throw error;
@@ -156,7 +156,7 @@ export const useUserService = () => {
   const suspendUser = async (userId: string, suspendData: SuspendUserData) => {
     try {
       const response = await post(`/user/${userId}/suspend`, suspendData) as UserApiResponse;
-      return transformUser(response?.user);
+      return transformUser(response?.user || null);
     } catch (error) {
       console.error('Error suspending user:', error);
       throw error;

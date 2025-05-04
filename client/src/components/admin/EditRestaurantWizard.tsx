@@ -28,7 +28,7 @@ const EditRestaurantWizard: React.FC<EditRestaurantWizardProps> = ({ restaurant:
   const [showImageModal, setShowImageModal] = useState(false);
   const [imageType, setImageType] = useState<"restaurant" | "foodItem">("restaurant");
   const [currentCategory, setCurrentCategory] = useState<number | null>(null);
-  const [currentFoodItem, setCurrentFoodItem] = useState<number | null>(null);
+  // const [currentFoodItem, setCurrentFoodItem] = useState<number | null>(null); // Temporarily comment out unused state
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -154,10 +154,9 @@ const EditRestaurantWizard: React.FC<EditRestaurantWizardProps> = ({ restaurant:
     setShowImageModal(true);
   };
 
-  const openFoodItemImageModal = (categoryId: number, itemIndex: number | null = null) => {
+  const openFoodItemImageModal = (categoryId: number) => {
     setImageType("foodItem");
     setCurrentCategory(categoryId);
-    setCurrentFoodItem(itemIndex);
     setShowImageModal(true);
   };
 
@@ -167,7 +166,7 @@ const EditRestaurantWizard: React.FC<EditRestaurantWizardProps> = ({ restaurant:
   };
 
   const addCategory = async () => {
-    if (!tempCategory.name.trim()) {
+    if (!tempCategory.name || !tempCategory.name.trim()) {
       setError("Category name is required");
       return;
     }
@@ -794,7 +793,7 @@ const EditRestaurantWizard: React.FC<EditRestaurantWizardProps> = ({ restaurant:
                 {/* Categories List */}
                 {categories.length > 0 ? (
                   <div className="space-y-6">
-                    {categories.map((category, categoryIndex) => (
+                    {categories.map((category) => (
                       <div key={category.id} className="border border-gray-200 rounded-lg overflow-hidden">
                         <div className="bg-gray-100 px-4 py-3 flex justify-between items-center">
                           <h5 className="font-semibold text-gray-700">{category.name}</h5>

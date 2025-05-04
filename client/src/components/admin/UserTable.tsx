@@ -37,7 +37,7 @@ const UserTable: React.FC<UserTableProps> = ({
           <span className="text-xs text-gray-500">{formattedTime}</span>
         </div>
       );
-    } catch (error) {
+    } catch {
       return 'Invalid date';
     }
   };

@@ -21,7 +21,7 @@ export const registerSocketHandlers = (io: Server) => {
       const ride = activeRides.get(rideId);
 
       if (!ride || ride.accepted) {
-        socket.emit("rideAlreadyAccepted");
+        socket.emit("rideAlreadyAccepted", { rideId });
         return;
       }
 
@@ -37,6 +37,12 @@ export const registerSocketHandlers = (io: Server) => {
     socket.on("cancelRideRequest", ({ userSocketId }) => {
       console.log("Ride request cancelled by user:", userSocketId);
       io.emit("rideRequestCancelled", { userSocketId });
+    });
+
+    socket.on("completeRide", ({ rideId }) => {
+      console.log(`Ride ${rideId} marked as completed.`);
+      activeRides.delete(rideId);
+      io.emit("rideCompleted", { rideId });
     });
 
     socket.on("driverLocation", ({ rideId, lat, lng, userSocketId }) => {

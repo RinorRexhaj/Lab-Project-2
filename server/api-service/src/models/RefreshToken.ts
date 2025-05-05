@@ -12,7 +12,7 @@ export class RefreshToken {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Column({ type: "nvarchar", length: "MAX" })
+  @Column({ type: "nvarchar", length: "MAX", nullable: true })
   token!: string;
 
   @CreateDateColumn({ type: "datetime" })

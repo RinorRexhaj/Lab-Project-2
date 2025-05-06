@@ -61,7 +61,7 @@ const Rides: React.FC = () => {
   const mapRef = useRef<google.maps.Map | null>(null);
 
   const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: "AIzaSyDHotvjtYR_l_pRRJrg3yTg7boOx9LT_k0",
+    googleMapsApiKey: import.meta.env.VITE_GOOGLE_API_KEY,
     libraries,
   });
   const { post } = useApi();
@@ -86,11 +86,15 @@ const Rides: React.FC = () => {
       console.log("driver location", lat, lng);
     });
 
-    socket.on("rideAccepted", ({ rideId, driverUsername }) => {
-      console.log("ride accepted:", rideId, driverUsername);
+    socket.on("rideAccepted", ({ driverUsername }) => {
       toast.success(`${driverUsername} accepted your ride!`);
       setWaitingForDriver(false);
       setButtonText("Driver on your way");
+    });
+
+    socket.on("rideCompleted", () => {
+      setButtonText("Ride has ended.");
+      setWaitingForDriver(false);
     });
 
     return () => {
@@ -216,7 +220,6 @@ const Rides: React.FC = () => {
       dropoffLocation: dropoff,
       userId: user?.id,
     });
-    console.log(response);
     try {
       socket.emit("newRideRequest", {
         response,
@@ -514,7 +517,7 @@ const Rides: React.FC = () => {
         )}
       </div>
 
-      <RideHistory />
+      <RideHistory buttonText={buttonText} />
     </>
   );
 };

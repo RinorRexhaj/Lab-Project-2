@@ -6,6 +6,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark } from "@fortawesome/free-solid-svg-icons";
 import { orderService } from "../../api/OrderService";
 import { useNavigate } from "react-router-dom";
+import { usePaymentStore } from "../../store/usePaymentStore";
 
 interface FoodOrderModalProps {
   restaurant: Restaurant;
@@ -22,7 +23,7 @@ const FoodOrderModal: React.FC<FoodOrderModalProps> = ({
     Record<number, string>
   >({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  // const { accessToken } = useSessionStore();
+  const { setItems, setDeliveryFee } = usePaymentStore();
   const navigate = useNavigate();
 
   // Initialize the active category with the first category.
@@ -101,6 +102,8 @@ const FoodOrderModal: React.FC<FoodOrderModalProps> = ({
         subtotal: calculateSubtotal(),
         total: calculateTotal(),
       };
+      setItems(order.items);
+      setDeliveryFee(order.deliveryFee);
       await orderService.createOrder(order);
       navigate("/payment");
     } catch (error) {

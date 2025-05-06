@@ -41,7 +41,6 @@ export const registerSocketHandlers = (io: Server) => {
       activeRides.set(rideId, { ...ride, accepted: true });
 
       io.to(ride.userSocketId).emit("rideAccepted", {
-        rideId,
         driverUsername: driverName,
       });
       io.emit("rideNoLongerAvailable", { rideId });

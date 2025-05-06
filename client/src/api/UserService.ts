@@ -100,8 +100,8 @@ export const userService = {
     try {
       const response = await api.delete(`/${id}`);
       return response.data;
-    } catch (error: any) {
-      console.error("Error deleting account:", error.response?.data || error);
+    } catch (error: unknown) {
+      console.error("Error deleting account");
       throw error;
     }
   },

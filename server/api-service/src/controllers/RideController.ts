@@ -72,9 +72,12 @@ export const getUserRides = async (req: Request, res: Response) => {
 };
 
 export const completeRide = async (req: Request, res: Response) => {
-  const { rideId } = req.body;
+  const { rideId, driverId } = req.body;
   const rideRepo = AppDataSource.getRepository(Ride);
-  await rideRepo.update(rideId, { status: "completed" });
+  await rideRepo.update(rideId, {
+    status: "completed",
+    driver: { id: driverId },
+  });
   res.send({ message: "Ride marked as completed" });
 };
 

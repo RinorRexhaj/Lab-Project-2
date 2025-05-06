@@ -17,6 +17,9 @@ export class Ride {
   @Column()
   dropoffLocation!: string;
 
-  @Column({ default: "pending" }) // pending, accepted, rejected
-  status!: "pending" | "accepted" | "rejected";
+  @Column({ default: "pending" })
+  status!: "pending" | "accepted" | "rejected" | "completed";
+
+  @Column({ type: "datetime", default: () => "GETDATE()" })
+  completedAt!: Date;
 }

@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosRequestConfig } from "axios";
 import { useState, useCallback } from "react";
 import { environment } from "../environment/environment";
 import { useSessionStore } from "../store/useSessionStore";
@@ -35,7 +35,7 @@ const useApi = () => {
       setLoading(true);
       setError(null);
       try {
-        const config: any = {
+        const config: AxiosRequestConfig = {
           method,
           url,
           params,

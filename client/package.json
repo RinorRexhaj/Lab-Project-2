@@ -19,6 +19,8 @@
     "@fortawesome/react-fontawesome": "^0.2.2",
     "@react-google-maps/api": "^2.20.6",
     "@react-leaflet/core": "^3.0.0",
+    "@stripe/react-stripe-js": "^3.7.0",
+    "@stripe/stripe-js": "^7.3.0",
     "axios": "^1.8.3",
     "javascript-time-ago": "^2.5.11",
     "leaflet": "^1.9.4",

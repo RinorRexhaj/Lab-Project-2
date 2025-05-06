@@ -1,3 +1,60 @@
 {
-  "orders": []
+  "orders": [
+    {
+      "userId": 0,
+      "storeId": 2,
+      "items": [
+        {
+          "productId": 401,
+          "quantity": 2,
+          "specialInstructions": "",
+          "price": 1.99,
+          "name": "Apples",
+          "unit": "lb"
+        },
+        {
+          "productId": 402,
+          "quantity": 3,
+          "specialInstructions": "",
+          "price": 2.49,
+          "name": "Carrots",
+          "weight": "2 lb"
+        }
+      ],
+      "deliveryFee": 2.99,
+      "subtotal": 11.450000000000001,
+      "total": 14.440000000000001,
+      "id": 2938,
+      "status": "Pending",
+      "createdAt": "2025-05-06T09:12:05.113Z"
+    },
+    {
+      "userId": 0,
+      "storeId": 1,
+      "items": [
+        {
+          "productId": 101,
+          "quantity": 1,
+          "specialInstructions": "",
+          "price": 2.99,
+          "name": "Organic Bananas",
+          "unit": "bunch"
+        },
+        {
+          "productId": 102,
+          "quantity": 2,
+          "specialInstructions": "",
+          "price": 4.99,
+          "name": "Fresh Strawberries",
+          "weight": "1 lb"
+        }
+      ],
+      "deliveryFee": 3.99,
+      "subtotal": 12.97,
+      "total": 16.96,
+      "id": 1342,
+      "status": "Pending",
+      "createdAt": "2025-05-06T09:12:57.251Z"
+    }
+  ]
 }

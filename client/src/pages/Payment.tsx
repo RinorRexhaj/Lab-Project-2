@@ -1,89 +1,56 @@
-// const Payment = () => {
-//     return <h1>Payment</h1>
-//     // src/pages/Payment.tsx
+import { Elements } from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
+import Checkout from "../components/Checkout";
+import { usePaymentStore } from "../store/usePaymentStore";
 
-import React, { useState } from "react";
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_KEY);
 
-const Payment: React.FC = () => {
-  const [cardNumber, setCardNumber] = useState("");
-  const [expiryDate, setExpiryDate] = useState("");
-  const [cvv, setCvv] = useState("");
-  const [name, setName] = useState("");
+const Payment = () => {
+  const { items, deliveryFee } = usePaymentStore();
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // këtu do bëhet logjika për pagesën
-    console.log({ name, cardNumber, expiryDate, cvv });
-    alert("Payment submitted successfully!");
-  };
+  const total = items.reduce(
+    (acc, item) => acc + item.price * item.quantity,
+    deliveryFee
+  );
 
   return (
-    <div className="h-full mt-10 flex justify-center items-center bg-gray-100 p-4">
-      <div className="bg-white p-8 rounded-2xl shadow-md w-full max-w-md">
-        <h2 className="text-2xl font-bold mb-6 text-center">
-          Payment Information
-        </h2>
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Name on Card
-            </label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-400"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Card Number
-            </label>
-            <input
-              type="text"
-              value={cardNumber}
-              onChange={(e) => setCardNumber(e.target.value)}
-              required
-              maxLength={16}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-400"
-            />
-          </div>
-          <div className="flex gap-4">
-            <div className="flex-1">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Expiry Date
-              </label>
-              <input
-                type="text"
-                placeholder="MM/YY"
-                value={expiryDate}
-                onChange={(e) => setExpiryDate(e.target.value)}
-                required
-                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-400"
-              />
+    <div className="w-11/12 px-3 max-w-7xl mt-20 h-full mx-auto ">
+      <div className="flex gap-8 py-4 md:flex-col shadow-lg border-2 border-emerald-500 rounded-xl">
+        {/* Left: Item Summary */}
+        <aside className="w-1/2 bg-white p-6 rounded-xl md:w-full">
+          <h2 className="text-lg font-semibold mb-4">Order Summary</h2>
+          <ul className="space-y-4">
+            {items.map((item, idx) => (
+              <li key={idx} className="flex justify-between items-center">
+                <div>
+                  <p className="font-medium">{item.name}</p>
+                  <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
+                </div>
+                <p className="font-semibold">
+                  ${(item.price * item.quantity).toFixed(2)}
+                </p>
+              </li>
+            ))}
+          </ul>
+
+          <div className="mt-6 border-t pt-4 text-sm">
+            <div className="flex justify-between">
+              <span>Delivery Fee</span>
+              <span>${deliveryFee.toFixed(2)}</span>
             </div>
-            <div className="flex-1">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                CVV
-              </label>
-              <input
-                type="password"
-                value={cvv}
-                onChange={(e) => setCvv(e.target.value)}
-                required
-                maxLength={4}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-400"
-              />
+            <div className="flex justify-between font-semibold mt-2 text-base">
+              <span>Total</span>
+              <span>${total.toFixed(2)}</span>
             </div>
           </div>
-          <button
-            type="submit"
-            className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-semibold py-3 rounded-lg transition duration-300"
-          >
-            Pay Now
-          </button>
-        </form>
+        </aside>
+        <span className="min-h-full w-[1px] bg-emerald-400"></span>
+        {/* Right: Stripe Checkout Form */}
+        <section className="w-1/2 md:w-full">
+          <Elements stripe={stripePromise}>
+            <Checkout total={total} />
+          </Elements>
+        </section>
       </div>
     </div>
   );

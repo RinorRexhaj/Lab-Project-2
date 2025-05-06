@@ -13,7 +13,11 @@ type Ride = {
   };
 };
 
-const RideHistory: React.FC = () => {
+interface RideHistoryProps {
+  buttonText: string;
+}
+
+const RideHistory: React.FC<RideHistoryProps> = ({ buttonText }) => {
   const { user } = useUserStore();
   const { get } = useApi();
   const [rides, setRides] = useState<Ride[]>([]);
@@ -30,7 +34,7 @@ const RideHistory: React.FC = () => {
     };
 
     fetchRides();
-  }, [user]);
+  }, [user, buttonText]);
 
   return (
     rides.length > 0 && (

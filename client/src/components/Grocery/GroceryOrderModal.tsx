@@ -9,6 +9,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark, faShoppingBasket } from "@fortawesome/free-solid-svg-icons";
 import { groceryOrderService } from "../../api/GroceryOrderService";
 import { useNavigate } from "react-router-dom";
+import { usePaymentStore } from "../../store/usePaymentStore";
 
 interface GroceryOrderModalProps {
   store: GroceryStore;
@@ -27,6 +28,7 @@ const GroceryOrderModal: React.FC<GroceryOrderModalProps> = ({
     Record<number, string>
   >({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { setItems, setDeliveryFee } = usePaymentStore();
   const navigate = useNavigate();
 
   // Initialize the active category with the first category.
@@ -95,6 +97,8 @@ const GroceryOrderModal: React.FC<GroceryOrderModalProps> = ({
         total: calculateTotal(),
       };
       await groceryOrderService.createOrder(order);
+      setItems(order.items);
+      setDeliveryFee(order.deliveryFee);
       navigate("/payment");
     } catch (error) {
       console.error("Failed to place order:", error);

@@ -13,11 +13,14 @@ import {
   deleteFoodCategoryById,
   createFoodItem,
   updateFoodItemById,
-  deleteFoodItemById
+  deleteFoodItemById,
 } from "../services/RestaurantService";
 
 // Get all restaurants
-export const getRestaurants: RequestHandler = async (req, res): Promise<void> => {
+export const getRestaurants: RequestHandler = async (
+  req,
+  res
+): Promise<void> => {
   try {
     const { category } = req.query;
     const restaurants = await getAllRestaurants(category as string);
@@ -36,13 +39,13 @@ export const getRestaurant: RequestHandler = async (req, res) => {
       res.status(400).json({ error: "Invalid Restaurant ID" });
       return;
     }
-    
+
     const restaurant = await getRestaurantById(parseInt(id));
     if (!restaurant) {
       res.status(404).json({ error: "Restaurant not found" });
       return;
     }
-    
+
     res.json({ restaurant });
   } catch (error) {
     console.error("Error fetching restaurant:", error);
@@ -58,23 +61,17 @@ export const getRestaurantMenu: RequestHandler = async (req, res) => {
       res.status(400).json({ error: "Invalid Restaurant ID" });
       return;
     }
-    
-    console.log(`Fetching restaurant menu for ID: ${id}`);
+
     const restaurant = await getRestaurantWithMenu(parseInt(id));
-    
+
     if (!restaurant) {
       res.status(404).json({ error: "Restaurant not found" });
       return;
     }
-    
-    console.log(`Restaurant found: ${restaurant.name}`);
-    console.log(`Menu categories: ${restaurant.menu ? restaurant.menu.length : 0}`);
+
     if (restaurant.menu) {
-      restaurant.menu.forEach((category: any) => {
-        console.log(`Category: ${category.name}, Items: ${category.items ? category.items.length : 0}`);
-      });
     }
-    
+
     res.json({ restaurant });
   } catch (error) {
     console.error("Error fetching restaurant menu:", error);
@@ -95,11 +92,13 @@ export const createRestaurant: RequestHandler = async (req, res) => {
       imageUrl,
       isOpen24Hours,
       openingTime,
-      closingTime
+      closingTime,
     } = req.body;
 
     if (!name || !description || !category || !imageUrl) {
-      res.status(400).json({ error: "Missing required restaurant information" });
+      res
+        .status(400)
+        .json({ error: "Missing required restaurant information" });
       return;
     }
 
@@ -113,7 +112,7 @@ export const createRestaurant: RequestHandler = async (req, res) => {
       imageUrl,
       isOpen24Hours,
       openingTime,
-      closingTime
+      closingTime,
     });
 
     res.status(201).json({ restaurant });
@@ -142,7 +141,7 @@ export const updateRestaurant: RequestHandler = async (req, res) => {
       imageUrl,
       isOpen24Hours,
       openingTime,
-      closingTime
+      closingTime,
     } = req.body;
 
     const restaurant = await updateRestaurantInfo(parseInt(id), {
@@ -155,7 +154,7 @@ export const updateRestaurant: RequestHandler = async (req, res) => {
       imageUrl,
       isOpen24Hours,
       openingTime,
-      closingTime
+      closingTime,
     });
 
     if (!restaurant) {
@@ -227,7 +226,11 @@ export const updateFoodCategory: RequestHandler = async (req, res) => {
       return;
     }
 
-    const category = await updateFoodCategoryById(parseInt(id), parseInt(categoryId), { name });
+    const category = await updateFoodCategoryById(
+      parseInt(id),
+      parseInt(categoryId),
+      { name }
+    );
     if (!category) {
       res.status(404).json({ error: "Category or restaurant not found" });
       return;
@@ -250,7 +253,10 @@ export const deleteFoodCategory: RequestHandler = async (req, res) => {
       return;
     }
 
-    const result = await deleteFoodCategoryById(parseInt(id), parseInt(categoryId));
+    const result = await deleteFoodCategoryById(
+      parseInt(id),
+      parseInt(categoryId)
+    );
     if (!result) {
       res.status(404).json({ error: "Category or restaurant not found" });
       return;
@@ -279,7 +285,7 @@ export const addFoodItem: RequestHandler = async (req, res) => {
       description: description || "",
       price,
       imageUrl: imageUrl || "",
-      categoryId: parseInt(categoryId)
+      categoryId: parseInt(categoryId),
     });
 
     if (!foodItem) {
@@ -313,12 +319,14 @@ export const updateFoodItem: RequestHandler = async (req, res) => {
         name,
         description: description || "",
         price,
-        imageUrl: imageUrl || ""
+        imageUrl: imageUrl || "",
       }
     );
 
     if (!foodItem) {
-      res.status(404).json({ error: "Food item, category, or restaurant not found" });
+      res
+        .status(404)
+        .json({ error: "Food item, category, or restaurant not found" });
       return;
     }
 
@@ -346,7 +354,9 @@ export const deleteFoodItem: RequestHandler = async (req, res) => {
     );
 
     if (!result) {
-      res.status(404).json({ error: "Food item, category, or restaurant not found" });
+      res
+        .status(404)
+        .json({ error: "Food item, category, or restaurant not found" });
       return;
     }
 
@@ -360,20 +370,37 @@ export const deleteFoodItem: RequestHandler = async (req, res) => {
 // Get restaurant images
 export const getRestaurantImages: RequestHandler = async (req, res) => {
   try {
-    const imagesDir = path.join(process.cwd(), '..', '..', 'client', 'public', 'assets', 'img', 'restaurants');
-    
+    const imagesDir = path.join(
+      process.cwd(),
+      "..",
+      "..",
+      "client",
+      "public",
+      "assets",
+      "img",
+      "restaurants"
+    );
+
     fs.readdir(imagesDir, (err, files) => {
       if (err) {
         console.error("Error reading restaurant images directory:", err);
-        return res.status(500).json({ error: "Failed to get restaurant images" });
+        return res
+          .status(500)
+          .json({ error: "Failed to get restaurant images" });
       }
-      
-      const imageFiles = files.filter(file => 
-        file.endsWith('.jpg') || file.endsWith('.jpeg') || file.endsWith('.png') || file.endsWith('.webp')
+
+      const imageFiles = files.filter(
+        (file) =>
+          file.endsWith(".jpg") ||
+          file.endsWith(".jpeg") ||
+          file.endsWith(".png") ||
+          file.endsWith(".webp")
       );
-      
-      const imageUrls = imageFiles.map(file => `/assets/img/restaurants/${file}`);
-      
+
+      const imageUrls = imageFiles.map(
+        (file) => `/assets/img/restaurants/${file}`
+      );
+
       res.json({ images: imageUrls });
     });
   } catch (error) {
@@ -385,20 +412,37 @@ export const getRestaurantImages: RequestHandler = async (req, res) => {
 // Get food item images
 export const getFoodItemImages: RequestHandler = async (req, res) => {
   try {
-    const imagesDir = path.join(process.cwd(), '..', '..', 'client', 'public', 'assets', 'img', 'food_items');
-    
+    const imagesDir = path.join(
+      process.cwd(),
+      "..",
+      "..",
+      "client",
+      "public",
+      "assets",
+      "img",
+      "food_items"
+    );
+
     fs.readdir(imagesDir, (err, files) => {
       if (err) {
         console.error("Error reading food item images directory:", err);
-        return res.status(500).json({ error: "Failed to get food item images" });
+        return res
+          .status(500)
+          .json({ error: "Failed to get food item images" });
       }
-      
-      const imageFiles = files.filter(file => 
-        file.endsWith('.jpg') || file.endsWith('.jpeg') || file.endsWith('.png') || file.endsWith('.webp')
+
+      const imageFiles = files.filter(
+        (file) =>
+          file.endsWith(".jpg") ||
+          file.endsWith(".jpeg") ||
+          file.endsWith(".png") ||
+          file.endsWith(".webp")
       );
-      
-      const imageUrls = imageFiles.map(file => `/assets/img/food_items/${file}`);
-      
+
+      const imageUrls = imageFiles.map(
+        (file) => `/assets/img/food_items/${file}`
+      );
+
       res.json({ images: imageUrls });
     });
   } catch (error) {

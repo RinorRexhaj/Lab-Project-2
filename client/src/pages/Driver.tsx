@@ -2,13 +2,14 @@ import { useState, useEffect, useRef } from "react";
 import io from "socket.io-client";
 import { useUserStore } from "../store/useUserStore";
 import { MapPin, Flag, CheckCircle, Inbox } from "lucide-react";
+import useApi from "../hooks/useApi";
 const prod = import.meta.env.PROD === true;
 
 interface RideRequest {
-  userSocketId: string;
+  userId: number;
   pickupLocation: string;
   dropoffLocation: string;
-  rideId: string;
+  rideId: number;
 }
 
 const Driver = () => {
@@ -17,6 +18,8 @@ const Driver = () => {
   const [rideRequest, setRideRequest] = useState<RideRequest[]>([]);
   const [rideAccepted, setRideAccepted] = useState(false);
   const [acceptedRide, setAcceptedRide] = useState<RideRequest | null>(null); //To keep the ride request when accepted
+  const { post } = useApi();
+
   const socket = useRef(
     io(prod ? "https://lab-project-2.onrender.com" : "http://localhost:5000", {
       transports: [prod ? "polling" : "websocket"],
@@ -29,8 +32,7 @@ const Driver = () => {
     socket.on("receiveNewRideRequest", (rideDetails) => {
       setTimeout(() => {
         if (!rideAccepted) {
-          setRideRequest((prev) => [...prev, rideDetails]);
-          console.log("Received ride request:", rideDetails);
+          setRideRequest((prev) => [...prev, rideDetails.response]);
         }
       }, 5000);
     });
@@ -54,9 +56,8 @@ const Driver = () => {
   useEffect(() => {
     socket.on("rideRequestCancelled", ({ userSocketId }) => {
       setRideRequest((prev) =>
-        prev.filter((ride) => ride.userSocketId !== userSocketId)
+        prev.filter((ride) => ride.userId !== userSocketId)
       );
-      console.log("User cancelled the ride. Removing request.");
       setRideAccepted(false);
     });
 
@@ -65,7 +66,7 @@ const Driver = () => {
     };
   }, [rideRequest]);
 
-  const acceptRide = (rideId: string) => {
+  const acceptRide = (rideId: number) => {
     if (rideAccepted) return;
     const selectedRide = rideRequest.find((r) => r.rideId === rideId);
     if (!selectedRide) return;
@@ -77,17 +78,31 @@ const Driver = () => {
     socket.emit("acceptRide", {
       rideId: selectedRide.rideId,
       driverName: user?.fullName,
-      userSocketId: selectedRide.userSocketId,
+      userSocketId: socket.id,
     });
-    startLocationTracking(selectedRide.userSocketId);
+    startLocationTracking(selectedRide.userId);
   };
 
-  const completeRide = () => {
+  const completeRide = async () => {
     if (!acceptedRide) return;
 
-    socket.emit("completeRide", { rideId: acceptedRide.rideId });
-    setAcceptedRide(null);
-    setRideAccepted(false);
+    const { rideId, pickupLocation, dropoffLocation, userId } = acceptedRide;
+
+    socket.emit("booked", { rideId });
+    try {
+      await post("/ride/booked", {
+        userId,
+        driverId,
+        pickupLocation,
+        dropoffLocation,
+        rideId,
+      });
+
+      setAcceptedRide(null);
+      setRideAccepted(false);
+    } catch (err) {
+      console.error("Error completing the ride:", err);
+    }
   };
 
   const startLocationTracking = (userSocketId: unknown) => {
@@ -110,7 +125,7 @@ const Driver = () => {
   return (
     <>
       {acceptedRide ? (
-        <div className="flex flex-col gap-4 p-4 items-center justify-center min-h-screen bg-gray-100 px-4">
+        <div className="w-11/12 mx-auto p-4 items-center px-4">
           <div className="w-full max-w-md bg-white border border-gray-200 rounded-2xl shadow-lg p-6 space-y-4 transition-all duration-300">
             <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
               <CheckCircle className="text-emerald-500" /> Accepted Ride
@@ -140,16 +155,16 @@ const Driver = () => {
 
             <div className="pt-4">
               <button
-                className="w-full py-2 px-4 text-white font-semibold rounded-lg bg-blue-500 hover:bg-blue-600 transition duration-150"
+                className="w-full py-2 px-4 text-white font-semibold rounded-lg bg-emerald-500 hover:bg-emerald-600 transition duration-150"
                 onClick={completeRide}
               >
-                Ride Completed
+                Finish Ride
               </button>
             </div>
           </div>
         </div>
       ) : rideRequest.length > 0 ? (
-        <div className="flex flex-wrap gap-4 p-4 items-center justify-center min-h-screen bg-gray-100 px-4">
+        <div className="w-11/12 flex flex-wrap gap-4 p-4 items-center px-4 mx-auto">
           {rideRequest.map((request) => (
             <div
               key={request.rideId}

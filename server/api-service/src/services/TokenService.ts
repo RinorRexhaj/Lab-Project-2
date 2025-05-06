@@ -24,6 +24,30 @@ export const authenticateToken = (
   });
 };
 
+// Check if user is admin
+export const isAdmin = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): void => {
+  const authHeader = req.headers.authorization;
+  const token = authHeader && authHeader.split(" ")[1];
+
+  if (!token) {
+    res.status(401).json({ error: "Access denied" });
+    return;
+  }
+
+  const role = extractUserRole(token);
+  
+  if (role !== "Admin") {
+    res.status(403).json({ error: "Forbidden: Admin access required" });
+    return;
+  }
+
+  next();
+};
+
 export const authenticateAdminToken = (
   req: Request,
   res: Response,

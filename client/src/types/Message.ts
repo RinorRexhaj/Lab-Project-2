@@ -8,6 +8,7 @@ export interface Message {
   seen: Date;
   reaction?: string;
   replyTo?: Message;
+  file?: string;
   created?: boolean;
   deleted?: boolean;
 }

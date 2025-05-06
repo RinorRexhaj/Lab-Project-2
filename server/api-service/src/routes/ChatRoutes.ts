@@ -4,6 +4,7 @@ import {
   authenticateUserToken,
 } from "../services/TokenService";
 import {
+  deleteMessage,
   getMessages,
   getUsers,
   isOnSameChat,
@@ -20,6 +21,7 @@ router.get("/users/:id", authenticateUserToken, getUsers);
 router.get("/active/:id", authenticateToken, isUserActive);
 router.get("/same/:sender/:receiver", authenticateToken, isOnSameChat);
 router.get("/:sender/:receiver", authenticateToken, getMessages);
+router.delete("/:id/:user", authenticateToken, deleteMessage);
 router.get("/users/", authenticateToken, searchUsers);
 router.post("/", authenticateToken, sendMessage);
 router.patch("/delivered", authenticateToken, makeMessagesDelivered);

@@ -32,14 +32,14 @@ const Messages: React.FC<MessagesProps> = ({
   useEffect(() => {
     if (messages.length > prevMessageCount.current) {
       if (!scrollDown) {
-        scrollToBottom(false);
         setScrollDown(false);
+        scrollToBottom(false);
       } else {
         setHasNewMessage(true);
       }
     }
     prevMessageCount.current = messages.length;
-  }, [messages]);
+  }, [messages, scrollDown]);
 
   const scrollToBottom = (behavior: boolean) => {
     setHasNewMessage(false);
@@ -54,9 +54,9 @@ const Messages: React.FC<MessagesProps> = ({
     if (target) {
       target.scrollIntoView({ behavior: "smooth", block: "center" });
       const classList = target.classList;
-      if (classList.contains("bg-emerald-500"))
+      if (classList.contains("bg-emerald-500")) {
         classList.replace("bg-emerald-500", "bg-emerald-700");
-      else if (classList.contains("bg-gray-200"))
+      } else if (classList.contains("bg-gray-200"))
         classList.replace("bg-gray-200", "bg-gray-400");
       setTimeout(() => {
         if (classList.contains("bg-emerald-700"))
@@ -94,6 +94,7 @@ const Messages: React.FC<MessagesProps> = ({
             setReply={setReply}
             refMap={messageRefs}
             onReplyClick={scrollToMessage}
+            scrollToBottom={scrollToBottom}
           />
         );
       })}
@@ -116,7 +117,13 @@ const Messages: React.FC<MessagesProps> = ({
       {reply && (
         <Reply
           senderName={reply.sender === user?.id ? "You" : openUser.fullName}
-          text={reply.text}
+          text={
+            !reply.file
+              ? reply.text
+              : ["image", "video", "audio", "voice"].includes(reply.file)
+              ? reply.file
+              : "file"
+          }
           setReply={setReply}
         />
       )}

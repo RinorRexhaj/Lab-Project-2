@@ -1,24 +1,34 @@
 import React, { useEffect, useState } from "react";
 import { GroceryStore } from "../../types/grocery/GroceryStore";
-import { GroceryOrderItem, GroceryOrder } from "../../types/grocery/GroceryOrder";
+import {
+  GroceryOrderItem,
+  GroceryOrder,
+} from "../../types/grocery/GroceryOrder";
 import GroceryProductItem from "./GroceryProductItem";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faXmark, faShoppingBasket, faExclamationCircle } from "@fortawesome/free-solid-svg-icons";
-import { useSessionStore } from "../../store/useSessionStore";
+import { faXmark, faShoppingBasket } from "@fortawesome/free-solid-svg-icons";
 import { groceryOrderService } from "../../api/GroceryOrderService";
 import { useNavigate } from "react-router-dom";
+import { usePaymentStore } from "../../store/usePaymentStore";
 
 interface GroceryOrderModalProps {
   store: GroceryStore;
   onClose: () => void;
 }
 
-const GroceryOrderModal: React.FC<GroceryOrderModalProps> = ({ store, onClose }) => {
+const GroceryOrderModal: React.FC<GroceryOrderModalProps> = ({
+  store,
+  onClose,
+}) => {
   const [activeCategory, setActiveCategory] = useState<string>("");
-  const [orderItems, setOrderItems] = useState<Record<number, GroceryOrderItem>>({});
-  const [specialInstructions, setSpecialInstructions] = useState<Record<number, string>>({});
+  const [orderItems, setOrderItems] = useState<
+    Record<number, GroceryOrderItem>
+  >({});
+  const [specialInstructions, setSpecialInstructions] = useState<
+    Record<number, string>
+  >({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { accessToken } = useSessionStore();
+  const { setItems, setDeliveryFee } = usePaymentStore();
   const navigate = useNavigate();
 
   // Initialize the active category with the first category.
@@ -30,7 +40,9 @@ const GroceryOrderModal: React.FC<GroceryOrderModalProps> = ({ store, onClose })
 
   const handleQuantityChange = (itemId: number, newQuantity: number) => {
     if (newQuantity < 0) return;
-    const product = store.products?.flatMap((category) => category.items).find((item) => item.id === itemId);
+    const product = store.products
+      ?.flatMap((category) => category.items)
+      .find((item) => item.id === itemId);
     if (!product) return;
     if (newQuantity === 0) {
       const { [itemId]: removed, ...rest } = orderItems;
@@ -65,7 +77,10 @@ const GroceryOrderModal: React.FC<GroceryOrderModalProps> = ({ store, onClose })
   };
 
   const calculateSubtotal = () =>
-    Object.values(orderItems).reduce((sum, item) => sum + item.price * item.quantity, 0);
+    Object.values(orderItems).reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0
+    );
   const calculateTotal = () => calculateSubtotal() + store.deliveryFee;
 
   const handleSubmitOrder = async () => {
@@ -81,6 +96,8 @@ const GroceryOrderModal: React.FC<GroceryOrderModalProps> = ({ store, onClose })
         total: calculateTotal(),
       };
       await groceryOrderService.createOrder(order);
+      setItems(order.items);
+      setDeliveryFee(order.deliveryFee);
       navigate("/payment");
     } catch (error) {
       console.error("Failed to place order:", error);
@@ -89,22 +106,23 @@ const GroceryOrderModal: React.FC<GroceryOrderModalProps> = ({ store, onClose })
     }
   };
 
-  const getQuantityForItem = (itemId: number) => orderItems[itemId]?.quantity || 0;
-  const getSpecialInstructionsForItem = (itemId: number) => specialInstructions[itemId] || "";
+  const getQuantityForItem = (itemId: number) =>
+    orderItems[itemId]?.quantity || 0;
+  const getSpecialInstructionsForItem = (itemId: number) =>
+    specialInstructions[itemId] || "";
   const handleOutsideClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) {
       onClose();
     }
   };
 
-  const inStockProductsCount = store.products
-    ?.flatMap(category => category.items)
-    .filter(product => product.inStock)
-    .length || 0;
-  
-  const totalProductsCount = store.products
-    ?.flatMap(category => category.items)
-    .length || 0;
+  const inStockProductsCount =
+    store.products
+      ?.flatMap((category) => category.items)
+      .filter((product) => product.inStock).length || 0;
+
+  const totalProductsCount =
+    store.products?.flatMap((category) => category.items).length || 0;
 
   return (
     <div
@@ -176,7 +194,9 @@ const GroceryOrderModal: React.FC<GroceryOrderModalProps> = ({ store, onClose })
                   quantity={getQuantityForItem(product.id)}
                   onQuantityChange={handleQuantityChange}
                   onSpecialInstructions={handleSpecialInstructions}
-                  specialInstructions={getSpecialInstructionsForItem(product.id)}
+                  specialInstructions={getSpecialInstructionsForItem(
+                    product.id
+                  )}
                 />
               ))}
           </div>
@@ -186,7 +206,10 @@ const GroceryOrderModal: React.FC<GroceryOrderModalProps> = ({ store, onClose })
             <div className="h-full flex flex-col">
               <div className="p-4 border-b border-gray-200 flex-shrink-0">
                 <h3 className="text-lg font-semibold flex items-center">
-                  <FontAwesomeIcon icon={faShoppingBasket} className="mr-2 text-emerald-500" />
+                  <FontAwesomeIcon
+                    icon={faShoppingBasket}
+                    className="mr-2 text-emerald-500"
+                  />
                   Shopping Cart
                 </h3>
               </div>
@@ -194,17 +217,27 @@ const GroceryOrderModal: React.FC<GroceryOrderModalProps> = ({ store, onClose })
                 {Object.values(orderItems).length > 0 ? (
                   <ul className="space-y-3">
                     {Object.values(orderItems).map((item) => (
-                      <li key={item.productId} className="text-sm bg-white p-3 rounded-md shadow-sm">
+                      <li
+                        key={item.productId}
+                        className="text-sm bg-white p-3 rounded-md shadow-sm"
+                      >
                         <div className="flex justify-between font-medium">
                           <span>
                             {item.quantity}× {item.name}
-                            {item.weight && <span className="text-xs text-gray-500 ml-1">({item.weight})</span>}
+                            {item.weight && (
+                              <span className="text-xs text-gray-500 ml-1">
+                                ({item.weight})
+                              </span>
+                            )}
                           </span>
-                          <span>${(item.price * item.quantity).toFixed(2)}</span>
+                          <span>
+                            ${(item.price * item.quantity).toFixed(2)}
+                          </span>
                         </div>
                         {item.specialInstructions && (
                           <div className="text-xs text-gray-500 mt-1 border-t border-gray-100 pt-1">
-                            <span className="font-medium">Note:</span> {item.specialInstructions}
+                            <span className="font-medium">Note:</span>{" "}
+                            {item.specialInstructions}
                           </div>
                         )}
                       </li>
@@ -212,9 +245,16 @@ const GroceryOrderModal: React.FC<GroceryOrderModalProps> = ({ store, onClose })
                   </ul>
                 ) : (
                   <div className="flex flex-col items-center justify-center h-full text-gray-500">
-                    <FontAwesomeIcon icon={faShoppingBasket} className="text-4xl mb-3 text-gray-300" />
-                    <p className="text-center mb-2">Your shopping cart is empty</p>
-                    <p className="text-sm text-center">Add items from the store to get started</p>
+                    <FontAwesomeIcon
+                      icon={faShoppingBasket}
+                      className="text-4xl mb-3 text-gray-300"
+                    />
+                    <p className="text-center mb-2">
+                      Your shopping cart is empty
+                    </p>
+                    <p className="text-sm text-center">
+                      Add items from the store to get started
+                    </p>
                   </div>
                 )}
               </div>
@@ -235,7 +275,9 @@ const GroceryOrderModal: React.FC<GroceryOrderModalProps> = ({ store, onClose })
                 </div>
                 <button
                   onClick={handleSubmitOrder}
-                  disabled={Object.keys(orderItems).length === 0 || isSubmitting}
+                  disabled={
+                    Object.keys(orderItems).length === 0 || isSubmitting
+                  }
                   className={`mt-4 w-full py-3 rounded-md font-semibold ${
                     Object.keys(orderItems).length === 0 || isSubmitting
                       ? "bg-gray-300 text-gray-500 cursor-not-allowed"

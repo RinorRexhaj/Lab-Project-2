@@ -48,6 +48,14 @@ export const setupSocket = (io: Server) => {
       }
     });
 
+    socket.on("deleteMessage", async (message: Message) => {
+      const receiverSocketId = users.get(String(message.receiver));
+      const senderSocketId = users.get(String(message.sender));
+      if (receiverSocketId && senderSocketId) {
+        io.to(receiverSocketId).emit("receiveDeletedMessage", message);
+      }
+    });
+
     socket.on("sendTyping", (sender: number, receiver: number) => {
       const receiverSocketId = users.get(String(receiver));
       if (receiverSocketId) {

@@ -1,6 +1,13 @@
-import React, { useState } from "react";
+import React, { JSX, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUser } from "@fortawesome/free-solid-svg-icons";
+import {
+  faCirclePlay,
+  faFile,
+  faImage,
+  faMicrophoneLines,
+  faUser,
+  faVolumeHigh,
+} from "@fortawesome/free-solid-svg-icons";
 import { useChatStore } from "../../store/useChatStore";
 import { ChatUser } from "../../types/ChatUser";
 import { useChat } from "../../hooks/useChat";
@@ -19,15 +26,43 @@ const User: React.FC<UserProps> = ({ user }) => {
   const { openChat } = useChat();
   const { formatTime } = useTimeAgo();
 
-  const userMessage = (): string => {
+  const userMessage = (): string | JSX.Element => {
     if (!user.lastMessage) return "";
     if (typing.includes(user.id)) return "Typing...";
     else {
+      const lastSender = user.lastMessage.sender !== user.id;
+      if (user.lastMessage.file) {
+        let icon, text;
+        if (user.lastMessage.file === "image") {
+          icon = faImage;
+          text = "Image";
+        } else if (user.lastMessage.file === "video") {
+          icon = faCirclePlay;
+          text = "Video";
+        } else if (user.lastMessage.file === "audio") {
+          icon = faVolumeHigh;
+          text = "Audio";
+        } else if (user.lastMessage.file === "voice") {
+          icon = faMicrophoneLines;
+          text = "Voice Message";
+        } else {
+          icon = faFile;
+          text = "File Message";
+        }
+        return (
+          <div className="flex items-center mb-1">
+            {lastSender && <p>You: </p>}
+            <div className={`flex items-center ${lastSender && "ml-2"} gap-1`}>
+              <FontAwesomeIcon icon={icon} className="text-slate-700 w-4 h-4" />
+              <p className="text-slate-700">{text}</p>
+            </div>
+          </div>
+        );
+      }
       let text = user.lastMessage.text;
-      if (user.lastMessage.sender !== user.id) text = "You: " + text;
+      if (lastSender) text = "You: " + text;
       if (text.length > 25) {
-        if (user.lastMessage.sender === user.id)
-          text = text.slice(0, 20) + "...";
+        if (!lastSender) text = text.slice(0, 20) + "...";
         else text = text.slice(0, 15) + "...";
       }
       return text;
@@ -93,7 +128,7 @@ const User: React.FC<UserProps> = ({ user }) => {
       {/* User Info */}
       <div className="w-full flex flex-col justify-center ml-3">
         <p
-          className={`whitespace-nowrap text-base ${
+          className={`whitespace-nowrap text-base font-medium ${
             hasNewMessage() && "font-semibold"
           }`}
         >
@@ -102,13 +137,13 @@ const User: React.FC<UserProps> = ({ user }) => {
 
         {/* Message & Timestamp */}
         <div className="w-full flex items-center justify-between">
-          <p
+          <div
             className={`relative flex-1 text-sm truncate ${
               hasNewMessage() && "font-semibold"
             }`}
           >
             {userMessage()}
-          </p>
+          </div>
           <p
             className={`relative right-2 text-sm text-slate-500 text-right min-w-max pl-2 ${
               hasNewMessage() && "font-semibold"

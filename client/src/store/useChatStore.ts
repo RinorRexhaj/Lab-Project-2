@@ -64,7 +64,9 @@ export const useChatStore = create<ChatState>((set) => ({
   deleteMessage: (id) => {
     set((state) => ({
       messages: state.messages.map((msg) => {
-        if (msg.id === id) msg.deleted = true;
+        if (msg.id === id) {
+          msg.deleted = true;
+        }
         return msg;
       }),
     }));

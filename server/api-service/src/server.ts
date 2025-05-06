@@ -14,8 +14,11 @@ import orderRoutes from "./routes/OrderRoutes";
 import groceryRoutes from "./routes/GroceryRoutes";
 import groceryOrderRoutes from "./routes/GroceryOrderRoutes";
 import rideRoutes from "./routes/RideRoutes";
+import fileRoutes from "./routes/FileRoutes";
+import paymentRoutes from "./routes/PaymentRoutes";
 import { setupSocket } from "./chat/Chat";
 import { registerSocketHandlers } from "./Ride/Ride";
+import { connectMongo } from "./file-source";
 
 dotenv.config();
 
@@ -56,6 +59,9 @@ app.use("/grocery", groceryRoutes);
 app.use("/grocery-order", groceryOrderRoutes);
 
 app.use("/ride", rideRoutes);
+app.use("/file", fileRoutes);
+app.use("/payment", paymentRoutes);
+
 registerSocketHandlers(io);
 setupSocket(io);
 
@@ -63,6 +69,7 @@ async function startServer() {
   try {
     await connectDB();
     await seedDatabase();
+    await connectMongo();
     httpServer.listen(PORT, () => {
       console.log(`🚀 Server running on http://localhost:${PORT}`);
     });

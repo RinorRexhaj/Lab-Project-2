@@ -31,22 +31,85 @@ export class UserRepo {
     fullname: string,
     role: string,
     address: string,
-    avatar?: string
+    avatar?: string,
+    status?: string,
+    email?: string
   ): Promise<User | null> {
-    const userRepo = AppDataSource.getRepository(User);
+    try {
+      const userRepo = AppDataSource.getRepository(User);
 
-    const user = await userRepo.findOne({ where: { id } });
-    if (!user) return null;
+      const user = await userRepo.findOne({ where: { id } });
+      if (!user) return null;
 
-    user.fullName = fullname;
-    user.role = role;
-    user.address = address;
-    if (avatar) {
-      user.avatar = avatar;
+      // Only update fields that are provided
+      if (fullname) user.fullName = fullname;
+      if (role) user.role = role;
+      // Address can be empty string to clear it
+      user.address = address;
+      if (avatar) user.avatar = avatar;
+      if (status) user.status = status;
+      if (email) user.email = email;
+
+      await userRepo.save(user);
+      return user;
+    } catch (error) {
+      console.error('Error updating user:', error);
+      return null;
     }
-
-    await userRepo.save(user);
-    return user;
+  }
+  
+  static async updateUserStatus(
+    id: number,
+    status: string,
+    reason?: string,
+    expiryDate?: Date
+  ): Promise<User | null> {
+    try {
+      const userRepo = AppDataSource.getRepository(User);
+      const user = await userRepo.findOne({ where: { id } });
+      
+      if (!user) return null;
+      
+      user.status = status;
+      
+      if (status === 'suspended') {
+        if (reason) {
+          user.suspendReason = reason;
+        }
+        
+        if (expiryDate) {
+          user.suspendExpiryDate = expiryDate;
+        } else {
+          user.suspendExpiryDate = undefined;
+        }
+      } else if (status === 'active') {
+        // Clear suspension data when activating a user
+        user.suspendReason = undefined;
+        user.suspendExpiryDate = undefined;
+      }
+      
+      await userRepo.save(user);
+      return user;
+    } catch (error) {
+      console.error('Error updating user status:', error);
+      return null;
+    }
+  }
+  
+  static async updateLastLogin(id: number): Promise<boolean> {
+    try {
+      const userRepo = AppDataSource.getRepository(User);
+      const user = await userRepo.findOne({ where: { id } });
+      
+      if (!user) return false;
+      
+      user.lastLogin = new Date();
+      await userRepo.save(user);
+      return true;
+    } catch (error) {
+      console.error('Error updating last login:', error);
+      return false;
+    }
   }
   
   static async updateAvatar(
@@ -62,6 +125,26 @@ export class UserRepo {
 
     await userRepo.save(user);
     return user;
+  }
+  
+  static async adminResetPassword(
+    id: number,
+    hashedPassword: string
+  ): Promise<User | null> {
+    try {
+      const userRepo = AppDataSource.getRepository(User);
+      const user = await userRepo.findOne({ where: { id } });
+      
+      if (!user) return null;
+      
+      // Update the password directly (admin override)
+      user.password = hashedPassword;
+      await userRepo.save(user);
+      return user;
+    } catch (error) {
+      console.error('Error resetting password:', error);
+      return null;
+    }
   }
   
   static async updatePassword(

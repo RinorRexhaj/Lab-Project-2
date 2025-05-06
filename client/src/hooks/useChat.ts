@@ -10,13 +10,20 @@ import { useChatUsersStore } from "../store/useChatUsersStore";
 const prod = import.meta.env.VITE_PROD === "true";
 const SOCKET_SERVER_URL = prod ? environment.prodUrl : environment.apiUrl;
 
+// type MessagePayload = {
+//   event: string;
+//   data: Message;
+// };
+
 export const useChat = () => {
   const [socket, setSocket] = useState<Socket | null>(null);
+  // const [queue, setQueue] = useState<MessagePayload[]>([]);
   const { user } = useUserStore();
   const {
     openUser,
     addTyping,
     addMessage,
+    deleteMessage: delMessage,
     reactMessage,
     setMessages,
     setMessagesSeen,
@@ -35,10 +42,27 @@ export const useChat = () => {
       query: { userId: user.id },
       transports: [prod ? "polling" : "websocket", "websocket"],
     });
+    // newSocket.on("connect", () => {
+
+    //   queue.forEach(({ event, data }) => {
+    //     newSocket.emit(event, data);
+    //   });
+    //   setQueue([]); //
+    // });
     setSocket(newSocket);
 
     newSocket.on("receiveMessage", (message: Message) => {
       receiveMessage(message);
+    });
+
+    newSocket.on("receiveDeletedMessage", (message: Message) => {
+      if (user && message) {
+        if (openUser?.id === message.sender) {
+          delMessage(message.id);
+        } else if (!openUser) {
+          getUsers();
+        }
+      }
     });
 
     newSocket.on("seenMessage", (receiver: number) => {
@@ -66,6 +90,15 @@ export const useChat = () => {
       newSocket.disconnect();
     };
   }, [user?.id]);
+
+  const refreshSocket = () => {
+    const newSocket = io(SOCKET_SERVER_URL, {
+      query: { userId: user?.id },
+      transports: [prod ? "polling" : "websocket", "websocket"],
+    });
+    setSocket(newSocket);
+    return newSocket;
+  };
 
   const getMessages = async (receiver: number) => {
     if (user && receiver) {
@@ -96,9 +129,12 @@ export const useChat = () => {
   const sendMessage = async (
     receiver: number,
     text: string,
-    reply?: Message
+    reply?: Message,
+    file?: File
   ) => {
-    if (socket && user) {
+    let newSocket = socket;
+    if (file?.name === "voice-message.webm") newSocket = refreshSocket();
+    if (newSocket && user) {
       const { active } = await get("/chat/active/" + receiver);
       let same = null;
       const { sameChat } = await get(`/chat/same/${user.id}/${receiver}`);
@@ -112,8 +148,15 @@ export const useChat = () => {
         seen: same ? new Date() : new Date("01/01/2000"),
         replyTo: reply,
       });
+      if (file) {
+        const formData = new FormData();
+        formData.append("file", file);
+        await post(`/file/upload/${message.id}`, formData);
+        const fileType = file.type.slice(0, file.type.indexOf("/"));
+        message.file = fileType;
+      }
       addMessage(message);
-      socket.emit("sendMessage", message);
+      newSocket.emit("sendMessage", message);
     }
   };
 
@@ -124,6 +167,13 @@ export const useChat = () => {
       } else if (!openUser) {
         getUsers();
       }
+    }
+  };
+
+  const deleteMessage = (message: Message) => {
+    if (socket && user && message) {
+      delMessage(message.id);
+      socket.emit("deleteMessage", message);
     }
   };
 
@@ -162,6 +212,7 @@ export const useChat = () => {
     openChat,
     closeChat,
     sendMessage,
+    deleteMessage,
     sendTyping,
     receiveTyping,
     sendRemoveTyping,

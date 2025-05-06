@@ -8,12 +8,14 @@ import { SearchUsers } from "../types/SearchUsers";
 import { GetUsers } from "../types/GetUsers";
 import { Reply } from "../models/Reply";
 import { Reaction } from "../models/Reaction";
+import { MessageFile } from "../models/MessageFile";
 
 export class MessageRepo {
   static messageRepo = AppDataSource.getRepository(Message);
   static userRepo = AppDataSource.getRepository(User);
   static replyRepo = AppDataSource.getRepository(Reply);
   static reactionRepo = AppDataSource.getRepository(Reaction);
+  static fileRepo = AppDataSource.getRepository(MessageFile);
 
   static async createMessage(
     message: Partial<Message> & { replyTo?: { id: number } }
@@ -44,6 +46,14 @@ export class MessageRepo {
       relations: ["sender", "receiver"],
     });
 
+    const file = replyToId
+      ? await this.fileRepo.findOne({
+          where: { message: { id: replyToId } },
+          relations: ["message"],
+        })
+      : null;
+    let isFile = file?.type || "";
+
     return {
       id: fullMessage.id,
       sender: fullMessage.sender.id,
@@ -57,6 +67,7 @@ export class MessageRepo {
             id: replyToMessage.id,
             text: replyToMessage.text,
             sender: replyToMessage.sender?.id ?? null,
+            file: isFile ?? undefined,
           }
         : undefined,
     };
@@ -101,9 +112,19 @@ export class MessageRepo {
       relations: ["message"],
     });
 
+    const files = await this.fileRepo.find({
+      where: { message: { id: In(messageIds) } },
+      relations: ["message"],
+    });
+
     const reactionMap = new Map<number, string>();
     for (const reaction of reactions) {
       reactionMap.set(reaction.message.id, reaction.reaction);
+    }
+
+    const fileMap = new Map<number, string>();
+    for (const file of files) {
+      fileMap.set(file.message.id, file.type);
     }
 
     const hasNextPage = messages.length > pageSize;
@@ -111,6 +132,7 @@ export class MessageRepo {
     return messages.map((message) => {
       const reply = replyMap.get(message.id);
       const reaction = reactionMap.get(message.id);
+      const file = fileMap.get(message.id);
 
       return {
         id: message.id,
@@ -126,10 +148,34 @@ export class MessageRepo {
               id: reply.replyTo.id,
               text: reply.replyTo.text,
               sender: reply.replyTo.sender?.id ?? null,
+              file: fileMap.get(reply.replyTo.id) ?? undefined,
             }
           : undefined,
+        file: file ?? undefined,
       };
     });
+  }
+
+  static async deleteMessage(
+    messageId: number,
+    userId: number
+  ): Promise<boolean> {
+    let messageExists = false;
+
+    await AppDataSource.transaction(async (manager) => {
+      const message = await manager.findOne(Message, {
+        where: { id: messageId },
+        relations: ["sender"],
+      });
+      if (!message || message.sender.id !== userId) return;
+      messageExists = true;
+      await manager.delete(Reaction, { message: { id: messageId } });
+      await manager.delete(Reply, { replyTo: { id: messageId } });
+      await manager.delete(Reply, { message: { id: messageId } });
+      await manager.delete(MessageFile, { message: { id: messageId } });
+      await manager.delete(Message, { id: messageId });
+    });
+    return messageExists;
   }
 
   static async getUsersWithConversations(userId: number): Promise<GetUsers> {
@@ -155,41 +201,57 @@ export class MessageRepo {
 
     let newChats = 0;
 
-    const usersWithMessages: ChatUser[] = users.map((user) => {
-      const conversationMessages = messages.filter(
-        (message) =>
-          (message.sender.id === user.id || message.receiver.id === user.id) &&
-          (message.sender.id === userId || message.receiver.id === userId)
-      );
+    const usersWithMessages: ChatUser[] = await Promise.all(
+      users.map(async (user) => {
+        const conversationMessages = messages.filter(
+          (message) =>
+            (message.sender.id === user.id ||
+              message.receiver.id === user.id) &&
+            (message.sender.id === userId || message.receiver.id === userId)
+        );
 
-      const lastMessage = conversationMessages[0] || null;
+        const lastMessage = conversationMessages[0] || null;
 
-      const unseenMessagesCount = conversationMessages.filter(
-        (message) =>
-          message.receiver.id === userId && message.seen.getFullYear() === 2000
-      ).length;
+        let isFileMessage = "";
 
-      if (unseenMessagesCount > 0) newChats++;
+        if (lastMessage) {
+          const file = await this.fileRepo.findOne({
+            where: { message: { id: lastMessage.id } },
+            relations: ["message"],
+          });
 
-      return {
-        id: user.id,
-        fullName: user.fullName,
-        lastMessage: lastMessage
-          ? {
-              id: lastMessage.id,
-              sender: lastMessage.sender.id,
-              receiver: lastMessage.receiver.id,
-              text:
-                unseenMessagesCount > 1 && lastMessage.sender.id !== userId
-                  ? `${unseenMessagesCount} new messages`
-                  : lastMessage.text,
-              sent: lastMessage.sent,
-              delivered: lastMessage.delivered,
-              seen: lastMessage.seen,
-            }
-          : null,
-      };
-    });
+          isFileMessage = file?.type || "";
+        }
+
+        const unseenMessagesCount = conversationMessages.filter(
+          (message) =>
+            message.receiver.id === userId &&
+            message.seen.getFullYear() === 2000
+        ).length;
+
+        if (unseenMessagesCount > 0) newChats++;
+
+        return {
+          id: user.id,
+          fullName: user.fullName,
+          lastMessage: lastMessage
+            ? {
+                id: lastMessage.id,
+                sender: lastMessage.sender.id,
+                receiver: lastMessage.receiver.id,
+                text:
+                  unseenMessagesCount > 1 && lastMessage.sender.id !== userId
+                    ? `${unseenMessagesCount} new messages`
+                    : lastMessage.text,
+                sent: lastMessage.sent,
+                delivered: lastMessage.delivered,
+                seen: lastMessage.seen,
+                file: isFileMessage ?? undefined,
+              }
+            : null,
+        };
+      })
+    );
 
     return {
       users: usersWithMessages.sort((a, b) => {
@@ -236,39 +298,53 @@ export class MessageRepo {
       order: { id: "DESC" },
     });
 
-    const usersWithMessages: ChatUser[] = users.map((user) => {
-      const conversationMessages = messages.filter(
-        (message) =>
-          (message.sender.id === user.id || message.receiver.id === user.id) &&
-          (message.sender.id === id || message.receiver.id === id)
-      );
+    const usersWithMessages: ChatUser[] = await Promise.all(
+      users.map(async (user) => {
+        const conversationMessages = messages.filter(
+          (message) =>
+            (message.sender.id === user.id ||
+              message.receiver.id === user.id) &&
+            (message.sender.id === id || message.receiver.id === id)
+        );
 
-      const lastMessage = conversationMessages[0] || null;
+        const lastMessage = conversationMessages[0] || null;
 
-      const unseenMessagesCount = conversationMessages.filter(
-        (message) =>
-          message.receiver.id === id && message.seen.getFullYear() === 2000
-      ).length;
+        let isFileMessage = null;
+        if (lastMessage) {
+          const file = await this.fileRepo.findOne({
+            where: { message: { id: lastMessage.id } },
+            relations: ["message"],
+          });
 
-      return {
-        id: user.id,
-        fullName: user.fullName,
-        lastMessage: lastMessage
-          ? {
-              id: lastMessage.id,
-              sender: lastMessage.sender.id,
-              receiver: lastMessage.receiver.id,
-              text:
-                unseenMessagesCount > 1 && lastMessage.sender.id !== id
-                  ? `${unseenMessagesCount} new messages`
-                  : lastMessage.text,
-              sent: lastMessage.sent,
-              delivered: lastMessage.delivered,
-              seen: lastMessage.seen,
-            }
-          : null,
-      };
-    });
+          isFileMessage = file?.type || "";
+        }
+
+        const unseenMessagesCount = conversationMessages.filter(
+          (message) =>
+            message.receiver.id === id && message.seen.getFullYear() === 2000
+        ).length;
+
+        return {
+          id: user.id,
+          fullName: user.fullName,
+          lastMessage: lastMessage
+            ? {
+                id: lastMessage.id,
+                sender: lastMessage.sender.id,
+                receiver: lastMessage.receiver.id,
+                text:
+                  unseenMessagesCount > 1 && lastMessage.sender.id !== id
+                    ? `${unseenMessagesCount} new messages`
+                    : lastMessage.text,
+                sent: lastMessage.sent,
+                delivered: lastMessage.delivered,
+                seen: lastMessage.seen,
+                file: isFileMessage ?? undefined,
+              }
+            : null,
+        };
+      })
+    );
 
     const sortedUsers = usersWithMessages.sort((a, b) => {
       if (!a.lastMessage) return 1;

@@ -6,6 +6,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark } from "@fortawesome/free-solid-svg-icons";
 import { orderService } from "../../api/OrderService";
 import { useNavigate } from "react-router-dom";
+import { usePaymentStore } from "../../store/usePaymentStore";
 
 interface FoodOrderModalProps {
   restaurant: Restaurant;
@@ -22,13 +23,26 @@ const FoodOrderModal: React.FC<FoodOrderModalProps> = ({
     Record<number, string>
   >({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  // const { accessToken } = useSessionStore();
+  const { setItems, setDeliveryFee } = usePaymentStore();
   const navigate = useNavigate();
 
   // Initialize the active category with the first category.
   useEffect(() => {
     if (restaurant.menu && restaurant.menu.length > 0) {
       setActiveCategory(restaurant.menu[0].name);
+    }
+
+    // Debug menu items for image URLs
+    if (restaurant.menu) {
+      restaurant.menu.forEach((category) => {
+        if (category.items) {
+          category.items.forEach((item) => {
+            if (!item.imageUrl) {
+              console.log(`Food item missing image: ${item.name}`);
+            }
+          });
+        }
+      });
     }
   }, [restaurant]);
 
@@ -87,6 +101,8 @@ const FoodOrderModal: React.FC<FoodOrderModalProps> = ({
         subtotal: calculateSubtotal(),
         total: calculateTotal(),
       };
+      setItems(order.items);
+      setDeliveryFee(order.deliveryFee);
       await orderService.createOrder(order);
       navigate("/payment");
     } catch (error) {

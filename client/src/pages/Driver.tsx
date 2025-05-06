@@ -86,9 +86,9 @@ const Driver = () => {
 
     const { rideId, pickupLocation, dropoffLocation, userId } = acceptedRide;
 
-    socket.emit("booked", { rideId });
+    socket.emit("completeRide", { rideId });
     try {
-      await post("/ride/booked", {
+      await post("/ride/complete", {
         userId,
         driverId,
         pickupLocation,

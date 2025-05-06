@@ -79,7 +79,7 @@ const Checkout: React.FC<CheckoutProps> = ({ total }) => {
         }
         className="w-full bg-emerald-500 hover:bg-emerald-600 transition font-semibold text-white py-2 px-4 rounded-md disabled:opacity-50"
       >
-        {loading ? <FontAwesomeIcon icon={faSpinner} spin /> : "Pay"}
+        {loading ? <FontAwesomeIcon icon={faSpinner} spin /> : "Pay Now"}
       </button>
     </form>
   );

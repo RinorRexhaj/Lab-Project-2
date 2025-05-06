@@ -86,19 +86,8 @@ export class RideRepo {
     return null;
   }
 
-  static async completeRide(rideId: number): Promise<Ride | null> {
+  static async completeRide(rideId: number, status: string): Promise<void> {
     const rideRepo = AppDataSource.getRepository(Ride);
-    const ride = await rideRepo.findOne({
-      where: { id: rideId },
-      relations: ["user", "driver"],
-    });
-
-    if (ride && ride.status === "accepted") {
-      ride.status = "completed"; // Mark the ride as completed
-      await rideRepo.save(ride);
-      return ride;
-    }
-
-    return null;
+    await rideRepo.update(rideId, { status: "completed" });
   }
 }

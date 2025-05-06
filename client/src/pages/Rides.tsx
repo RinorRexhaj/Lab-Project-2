@@ -76,6 +76,8 @@ const Rides: React.FC = () => {
   const [waitingForDriver, setWaitingForDriver] = useState(false);
   const [buttonText, setButtonText] = useState("Book Ride");
   const [rideBooked, setRideBooked] = useState(false);
+  const [rideId, setRideId] = useState();
+
   // const socket = useRef(io("https://lab-project-2.onrender.com")).current;
 
   useEffect(() => {
@@ -221,6 +223,7 @@ const Rides: React.FC = () => {
         userSocketId: socket.id,
       });
       const rideId = response.id;
+      setRideId(rideId);
       socket.emit("booked", { rideId });
       setTimeout(() => {
         setShowModal(true);
@@ -235,7 +238,8 @@ const Rides: React.FC = () => {
     }
   };
   const handleCancelRide = () => {
-    socket.emit("cancelRideRequest", { userSocketId: socket.id });
+    if (!rideId) return;
+    socket.emit("cancelRideRequest", { userSocketId: socket.id, rideId });
     setRideBooked(false);
     setWaitingForDriver(false);
     setShowModal(false);

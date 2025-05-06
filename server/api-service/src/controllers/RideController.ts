@@ -71,22 +71,11 @@ export const getUserRides = async (req: Request, res: Response) => {
   }
 };
 
-export const completeRide = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
+export const completeRide = async (req: Request, res: Response) => {
   const { rideId } = req.body;
-  console.log("new", rideId);
-
-  try {
-    const updatedRide = await RideService.completeRide(rideId);
-    res
-      .status(200)
-      .json({ message: "Ride marked as completed", ride: updatedRide });
-  } catch (error) {
-    console.error("Error completing ride:", error);
-    res.status(500).json({ message: "Failed to complete ride" });
-  }
+  const rideRepo = AppDataSource.getRepository(Ride);
+  await rideRepo.update(rideId, { status: "completed" });
+  res.send({ message: "Ride marked as completed" });
 };
 
 export const deleteRide: RequestHandler = async (req, res): Promise<void> => {

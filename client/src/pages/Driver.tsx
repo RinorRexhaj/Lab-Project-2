@@ -32,7 +32,7 @@ const Driver = () => {
     socket.on("receiveNewRideRequest", (rideDetails) => {
       setTimeout(() => {
         if (!rideAccepted) {
-          setRideRequest((prev) => [...prev, rideDetails.response]);
+          setRideRequest((prev) => [...prev, rideDetails]);
         }
       }, 5000);
     });
@@ -40,7 +40,7 @@ const Driver = () => {
       setRideRequest((prev) => prev.filter((ride) => ride.rideId !== rideId));
     });
     socket.on("rideAlreadyAccepted", ({ rideId }) => {
-      alert("This ride has already been accepted by another driver.");
+      alert("Ride already accepted by another driver.");
       setRideRequest((prev) => prev.filter((r) => r.rideId !== rideId));
       setRideAccepted(false);
     });
@@ -54,10 +54,8 @@ const Driver = () => {
   }, []);
 
   useEffect(() => {
-    socket.on("rideRequestCancelled", ({ userSocketId }) => {
-      setRideRequest((prev) =>
-        prev.filter((ride) => ride.userId !== userSocketId)
-      );
+    socket.on("rideRequestCancelled", ({ rideId }) => {
+      setRideRequest((prev) => prev.filter((ride) => ride.rideId !== rideId));
       setRideAccepted(false);
     });
 
@@ -78,9 +76,9 @@ const Driver = () => {
     socket.emit("acceptRide", {
       rideId: selectedRide.rideId,
       driverName: user?.fullName,
-      userSocketId: socket.id,
+      // userSocketId: socket.id,
     });
-    startLocationTracking(selectedRide.userId);
+    startLocationTracking(selectedRide.rideId);
   };
 
   const completeRide = async () => {
@@ -105,13 +103,14 @@ const Driver = () => {
     }
   };
 
-  const startLocationTracking = (userSocketId: unknown) => {
+  const startLocationTracking = (rideId: number) => {
     const watchId = navigator.geolocation.watchPosition(
       (position) => {
         socket.emit("driverLocation", {
           lat: position.coords.latitude,
           lng: position.coords.longitude,
-          userSocketId,
+          rideId,
+          // rideId: acceptedRide.rideId,
         });
       },
       (error) => {

@@ -1,14 +1,9 @@
 import { environment } from "../environment/environment";
 import axios from "axios";
 import { User } from "../types/User";
+import { useSessionStore } from "../store/useSessionStore";
 
 const API_BASE_URL = environment.apiUrl + "/user";
-
-// // Create a function to get the token from localStorage
-// const getAuthHeader = () => {
-//   const token = localStorage.getItem("accessToken");
-//   return token ? { Authorization: `Bearer ${token}` } : {};
-// };
 
 // Create an axios instance with the base URL
 const api = axios.create({
@@ -17,7 +12,7 @@ const api = axios.create({
 
 // Add a request interceptor to include the auth token in all requests
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("accessToken");
+  const token = useSessionStore.getState().accessToken;
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -38,45 +33,20 @@ export const userService = {
     address: string,
     avatar?: string
   ): Promise<User> => {
+    const role = useSessionStore.getState().role;
     const response = await api.patch(`/${id}`, {
       fullname: fullName,
-      role: "User", // fixed role for all normal users
+      role: role,
       address,
       avatar,
     });
 
-    // Update userData in localStorage to ensure persistence
-    const userData = localStorage.getItem("userData");
-    if (userData) {
-      try {
-        const user = JSON.parse(userData);
-        user.fullName = fullName;
-        user.address = address;
-        if (avatar) user.avatar = avatar;
-        localStorage.setItem("userData", JSON.stringify(user));
-      } catch (e) {
-        console.error("Failed to update userData in localStorage", e);
-      }
-    }
     return response.data.user;
   },
 
   // Update just the avatar
   updateAvatar: async (id: number, avatar: string): Promise<User> => {
     const response = await api.patch(`/${id}/avatar`, { avatar });
-
-    // Update avatar in localStorage to ensure persistence
-    const userData = localStorage.getItem("userData");
-    if (userData) {
-      try {
-        const user = JSON.parse(userData);
-        user.avatar = avatar;
-        localStorage.setItem("userData", JSON.stringify(user));
-      } catch (e) {
-        console.error("Failed to update avatar in localStorage", e);
-      }
-    }
-
     return response.data.user;
   },
 

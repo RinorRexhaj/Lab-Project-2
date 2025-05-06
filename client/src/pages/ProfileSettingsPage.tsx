@@ -230,9 +230,7 @@ const ProfileSettingsPage: React.FC = () => {
         setRole("");
 
         // Clear localStorage
-        localStorage.removeItem("accessToken");
         localStorage.removeItem("refreshToken");
-        localStorage.removeItem("userData");
 
         toast.success("Your account has been deleted");
 

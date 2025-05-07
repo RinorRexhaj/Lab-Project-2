@@ -61,7 +61,7 @@ const Rides: React.FC = () => {
   const mapRef = useRef<google.maps.Map | null>(null);
 
   const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: import.meta.env.VITE_GOOGLE_API_KEY,
+    googleMapsApiKey: "AIzaSyBktowD3f6WMWzkZMP-abfJmwHxy5pE61w",
     libraries,
   });
   const { post } = useApi();

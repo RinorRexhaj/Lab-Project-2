@@ -18,7 +18,7 @@ import fileRoutes from "./routes/FileRoutes";
 import paymentRoutes from "./routes/PaymentRoutes";
 import { setupSocket } from "./chat/Chat";
 import { registerSocketHandlers } from "./Ride/Ride";
-import { connectMongo } from "./file-source";
+// import { connectMongo } from "./file-source";
 
 dotenv.config();
 
@@ -69,7 +69,7 @@ async function startServer() {
   try {
     await connectDB();
     await seedDatabase();
-    await connectMongo();
+    // await connectMongo();
     httpServer.listen(PORT, () => {
       console.log(`🚀 Server running on http://localhost:${PORT}`);
     });

@@ -56,7 +56,8 @@ const Navbar: React.FC<NavbarProps> = ({ activeLink, setActiveLink }) => {
             className="text-emerald-500 text-3xl tb:hidden font-bold cursor-pointer"
             onClick={() => setActiveLink(0)}
           >
-            Lab Project 2
+            <span className="text-emerald-400">Urban</span>
+            <span className="text-emerald-600">Center</span>
           </Link>
           <Link
             to={"/"}

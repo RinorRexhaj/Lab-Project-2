@@ -2,6 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
 import { RefreshToken } from "./RefreshToken";
 import { Message } from "./Message";
 
+
 @Entity({ name: "Users" })
 export class User {
   @PrimaryGeneratedColumn()
@@ -57,4 +58,5 @@ export class User {
     onDelete: "CASCADE"
   })
   receivedMessage!: Message;
+    utilityPayments: any;
 }

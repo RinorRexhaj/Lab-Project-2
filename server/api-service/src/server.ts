@@ -16,6 +16,10 @@ import groceryOrderRoutes from "./routes/GroceryOrderRoutes";
 import rideRoutes from "./routes/RideRoutes";
 import fileRoutes from "./routes/FileRoutes";
 import paymentRoutes from "./routes/PaymentRoutes";
+
+// SHTO KETU IMPORTIN PËR UTILITY PAYMENT ROUTES:
+import utilityPaymentRoutes from "./routes/utilityPaymentRoutes";
+
 import { setupSocket } from "./chat/Chat";
 import { registerSocketHandlers } from "./Ride/Ride";
 import { connectMongo } from "./file-source";
@@ -62,6 +66,9 @@ app.use("/ride", rideRoutes);
 app.use("/file", fileRoutes);
 app.use("/payment", paymentRoutes);
 
+// SHTO KETU ROUTERIN E UTILITY PAYMENTS:
+app.use("/utility-payments", utilityPaymentRoutes);
+
 registerSocketHandlers(io);
 setupSocket(io);
 
@@ -78,5 +85,6 @@ async function startServer() {
     process.exit(1);
   }
 }
+
 export { io, httpServer, app };
 startServer();

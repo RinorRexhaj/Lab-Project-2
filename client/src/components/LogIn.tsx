@@ -72,7 +72,8 @@ const LogIn = () => {
       try {
         const response = await post("/auth/login", { email, password });
         setSession(response);
-      } catch (error: any) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      } catch (error) {
         // Let the useApi hook set the error messages
         // All errors including suspension will show below the password field - this might be a bug, will fix in next commit
       }

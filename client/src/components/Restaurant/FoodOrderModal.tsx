@@ -53,6 +53,7 @@ const FoodOrderModal: React.FC<FoodOrderModalProps> = ({
       .find((item) => item.id === itemId);
     if (!item) return;
     if (newQuantity === 0) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { [itemId]: removed, ...rest } = orderItems;
       setOrderItems(rest);
     } else {

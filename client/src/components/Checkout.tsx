@@ -38,6 +38,7 @@ const Checkout: React.FC<CheckoutProps> = ({ total }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (total <= 0) return;
     setLoading(true);
     const { clientSecret } = await post("/payment/create-payment-intent", {
       amount: total,

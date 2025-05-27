@@ -45,6 +45,7 @@ const GroceryOrderModal: React.FC<GroceryOrderModalProps> = ({
       .find((item) => item.id === itemId);
     if (!product) return;
     if (newQuantity === 0) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { [itemId]: removed, ...rest } = orderItems;
       setOrderItems(rest);
     } else {

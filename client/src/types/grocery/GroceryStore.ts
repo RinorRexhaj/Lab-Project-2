@@ -9,10 +9,10 @@ export interface GroceryStore {
   estimatedDeliveryTime: string;
   rating: number;
   category?: string;
-  products?: GroceryCategory[];
   openingTime?: string;
   closingTime?: string;
-  isOpen24Hours?: boolean;
+  isOpen24Hours: boolean;
+  products?: GroceryCategory[];
 }
 
 export interface GroceryCategory {

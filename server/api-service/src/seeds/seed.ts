@@ -4,7 +4,6 @@ import { FoodCategory } from "../models/FoodCategory";
 import { FoodItem } from "../models/FoodItem";
 import { User } from "../models/User";
 import { seedGroceryStores } from "./seedGroceryStores";
-import { GroceryStore } from "../models/GroceryStore";
 
 // Function to ensure avatar column exists for all users
 async function ensureUserAvatars() {

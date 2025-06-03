@@ -4,8 +4,8 @@ export interface GroceryProduct {
   description: string;
   price: number;
   imageUrl?: string;
-  categoryId: number;
   unit?: string;
   weight?: string;
   inStock: boolean;
+  categoryId?: number;
 }

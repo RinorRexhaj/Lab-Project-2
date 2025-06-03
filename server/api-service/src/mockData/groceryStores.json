@@ -22,7 +22,7 @@
               "name": "Organic Bananas",
               "description": "Bunch of organic bananas, approximately 5-7 pieces",
               "price": 2.99,
-              "imageUrl": "/assets/img/grocery/banana.jpg",
+              "imageUrl": "/assets/img/grocery/grocery_items/banana.jpg",
               "categoryId": 1,
               "unit": "bunch",
               "inStock": true
@@ -32,7 +32,7 @@
               "name": "Fresh Strawberries",
               "description": "Sweet and juicy strawberries, perfect for snacking or desserts",
               "price": 4.99,
-              "imageUrl": "/assets/img/grocery/strawberry.jpg",
+              "imageUrl": "/assets/img/grocery/grocery_items/strawberry.jpg",
               "categoryId": 1,
               "weight": "1 lb",
               "inStock": true
@@ -42,7 +42,7 @@
               "name": "Avocados",
               "description": "Ripe Hass avocados, ready to eat",
               "price": 2.49,
-              "imageUrl": "/assets/img/grocery/avocado.jpg",
+              "imageUrl": "/assets/img/grocery/grocery_items/avocado.jpg",
               "categoryId": 1,
               "unit": "each",
               "inStock": true
@@ -52,7 +52,7 @@
               "name": "Organic Baby Spinach",
               "description": "Fresh organic baby spinach, pre-washed and ready to eat",
               "price": 3.99,
-              "imageUrl": "/assets/img/grocery/spinach.jpg",
+              "imageUrl": "/assets/img/grocery/grocery_items/spinach.jpg",
               "categoryId": 1,
               "weight": "5 oz",
               "inStock": true
@@ -62,10 +62,54 @@
               "name": "Red Bell Peppers",
               "description": "Sweet red bell peppers, great for salads or cooking",
               "price": 1.79,
-              "imageUrl": "/assets/img/grocery/red-bell.jpg",
+              "imageUrl": "/assets/img/grocery/grocery_items/red-bell.jpg",
               "categoryId": 1,
               "unit": "each",
               "inStock": false
+            },
+            {
+              "name": "test",
+              "description": "test",
+              "price": 3,
+              "imageUrl": "/assets/img/grocery/grocery_items/Edamame.png",
+              "unit": "bunch",
+              "weight": "300g",
+              "inStock": true,
+              "id": 106,
+              "categoryId": 1
+            },
+            {
+              "name": "test",
+              "description": "test",
+              "price": 2,
+              "imageUrl": "/assets/img/grocery/grocery_items/Smoothie.png",
+              "unit": "lb",
+              "weight": "1lb",
+              "inStock": true,
+              "categoryId": 1,
+              "id": 107
+            },
+            {
+              "name": "test2",
+              "description": "test",
+              "price": 1,
+              "imageUrl": "",
+              "unit": "lb",
+              "weight": "1lb",
+              "inStock": true,
+              "id": 108,
+              "categoryId": 1
+            },
+            {
+              "name": "test4",
+              "description": "test33",
+              "price": 3,
+              "imageUrl": "/assets/img/grocery/grocery_items/BBQ-Meat.png",
+              "unit": "bunch",
+              "weight": "300g",
+              "inStock": true,
+              "id": 109,
+              "categoryId": 1
             }
           ]
         },
@@ -78,7 +122,7 @@
               "name": "Organic Whole Milk",
               "description": "Grade A organic whole milk from grass-fed cows",
               "price": 4.49,
-              "imageUrl": "/assets/img/grocery/milk.jpg",
+              "imageUrl": "/assets/img/grocery/grocery_items/milk.jpg",
               "categoryId": 2,
               "weight": "1 gallon",
               "inStock": true
@@ -88,7 +132,7 @@
               "name": "Large Brown Eggs",
               "description": "Farm-fresh large brown eggs from free-range chickens",
               "price": 5.99,
-              "imageUrl": "/assets/img/grocery/eggs.jpg",
+              "imageUrl": "/assets/img/grocery/grocery_items/eggs.jpg",
               "categoryId": 2,
               "unit": "dozen",
               "inStock": true
@@ -98,7 +142,7 @@
               "name": "Greek Yogurt",
               "description": "Plain Greek yogurt, high in protein and perfect for breakfast",
               "price": 3.49,
-              "imageUrl": "/assets/img/grocery/yogurt.jpg",
+              "imageUrl": "/assets/img/grocery/grocery_items/yogurt.jpg",
               "categoryId": 2,
               "weight": "32 oz",
               "inStock": true
@@ -108,7 +152,7 @@
               "name": "Cheddar Cheese Block",
               "description": "Sharp cheddar cheese, aged for 12 months",
               "price": 6.99,
-              "imageUrl": "/assets/img/grocery/cheddar.jpg",
+              "imageUrl": "/assets/img/grocery/grocery_items/cheddar.jpg",
               "categoryId": 2,
               "weight": "8 oz",
               "inStock": false
@@ -124,7 +168,7 @@
               "name": "Artisan Sourdough Bread",
               "description": "Freshly baked sourdough bread with a crispy crust",
               "price": 4.99,
-              "imageUrl": "/assets/img/grocery/bread.jpg",
+              "imageUrl": "/assets/img/grocery/grocery_items/bread.jpg",
               "categoryId": 3,
               "unit": "loaf",
               "inStock": true
@@ -134,7 +178,7 @@
               "name": "Blueberry Muffins",
               "description": "Freshly baked blueberry muffins made with real blueberries",
               "price": 5.99,
-              "imageUrl": "/assets/img/grocery/muffin.jpg",
+              "imageUrl": "/assets/img/grocery/grocery_items/muffin.jpg",
               "categoryId": 3,
               "unit": "pack of 4",
               "inStock": true
@@ -144,77 +188,10 @@
               "name": "Chocolate Chip Cookies",
               "description": "Soft and chewy chocolate chip cookies, baked fresh daily",
               "price": 3.99,
-              "imageUrl": "/assets/img/grocery/cookies.jpg",
+              "imageUrl": "/assets/img/grocery/grocery_items/cookies.jpg",
               "categoryId": 3,
               "unit": "pack of 6",
               "inStock": true
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": 2,
-      "name": "City Market",
-      "imageUrl": "/assets/img/grocery/city-market.jpg",
-      "description": "Your neighborhood grocery store with affordable prices and friendly service",
-      "deliveryFee": 2.99,
-      "estimatedDeliveryTime": "30-45 min",
-      "rating": 4.3,
-      "category": "Supermarket",
-      "openingTime": "07:00",
-      "closingTime": "23:00",
-      "isOpen24Hours": false,
-      "products": [
-        {
-          "id": 4,
-          "name": "Fruits & Vegetables",
-          "items": [
-            {
-              "id": 401,
-              "name": "Apples",
-              "description": "Fresh Gala apples, sweet and crisp",
-              "price": 1.99,
-              "imageUrl": "/assets/img/grocery/apples.jpg",
-              "categoryId": 4,
-              "unit": "lb",
-              "inStock": true
-            },
-            {
-              "id": 402,
-              "name": "Carrots",
-              "description": "Fresh organic carrots, perfect for snacking or cooking",
-              "price": 2.49,
-              "imageUrl": "/assets/img/grocery/carrots.jpg",
-              "categoryId": 4,
-              "weight": "2 lb",
-              "inStock": true
-            }
-          ]
-        },
-        {
-          "id": 5,
-          "name": "Meat & Seafood",
-          "items": [
-            {
-              "id": 501,
-              "name": "Ground Beef",
-              "description": "80/20 ground beef, perfect for burgers or meatballs",
-              "price": 5.99,
-              "imageUrl": "/assets/img/grocery/beef.jpg",
-              "categoryId": 5,
-              "weight": "1 lb",
-              "inStock": true
-            },
-            {
-              "id": 502,
-              "name": "Chicken Breast",
-              "description": "Boneless, skinless chicken breast",
-              "price": 6.99,
-              "imageUrl": "/assets/img/grocery/chicken.jpg",
-              "categoryId": 5,
-              "weight": "1 lb",
-              "inStock": false
             }
           ]
         }
@@ -269,6 +246,46 @@
       "rating": 4.2,
       "category": "Convenience",
       "isOpen24Hours": true
+    },
+    {
+      "name": "test",
+      "description": "test",
+      "category": "Supermarket",
+      "deliveryFee": 0.3,
+      "estimatedDeliveryTime": "14 min",
+      "rating": 4,
+      "imageUrl": "/assets/img/food_items/Bruschetta.png",
+      "isOpen24Hours": false,
+      "openingTime": "08:00",
+      "closingTime": "20:00",
+      "id": 7,
+      "products": [
+        {
+          "id": 1,
+          "name": "test",
+          "items": []
+        }
+      ]
+    },
+    {
+      "name": "test2",
+      "description": "test2",
+      "category": "Convenience",
+      "deliveryFee": 0.75,
+      "estimatedDeliveryTime": "30 min",
+      "rating": 5,
+      "imageUrl": "/assets/img/food_items/Asian-Noodles.png",
+      "isOpen24Hours": true,
+      "openingTime": "08:00",
+      "closingTime": "22:00",
+      "id": 8,
+      "products": [
+        {
+          "id": 1,
+          "name": "testing2",
+          "items": []
+        }
+      ]
     }
   ]
 }

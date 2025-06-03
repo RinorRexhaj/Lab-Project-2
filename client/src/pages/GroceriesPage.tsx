@@ -34,7 +34,7 @@ const GroceriesPage: React.FC = () => {
   const { loading, error } = useApi();
 
   useEffect(() => {
-    fetchGroceryStores(selectedCategory);
+    fetchStores(selectedCategory);
   }, [selectedCategory]);
 
   // Close suggestions when clicking outside
@@ -53,9 +53,10 @@ const GroceriesPage: React.FC = () => {
     };
   }, []);
 
-  const fetchGroceryStores = async (category: string = "All") => {
+  // Replace fetchGroceryStores with fetchStores
+  const fetchStores = async (category: string = "All") => {
     try {
-      const data = await groceryService.getAllGroceryStores(category);
+      const data = await groceryService.getAllStores(category);
       setStores(data);
     } catch (error) {
       console.error("Failed to fetch grocery stores:", error);
@@ -66,7 +67,7 @@ const GroceriesPage: React.FC = () => {
     try {
       // Fetch store with product details
       const storeWithProducts =
-        await groceryService.getGroceryStoreWithProducts(store.id);
+        await groceryService.getStoreWithProducts(store.id);
       setSelectedStore(storeWithProducts);
       setModalOpen(true);
     } catch (error) {

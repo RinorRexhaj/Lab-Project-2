@@ -1,21 +1,22 @@
-export interface GroceryOrderItem {
-  productId: number;
-  quantity: number;
-  specialInstructions?: string;
-  price: number;
-  name: string;
-  unit?: string;
-  weight?: string;
-}
-
 export interface GroceryOrder {
-  id?: number;
-  userId: number;
+  id: number;
   storeId: number;
+  storeName: string;
   items: GroceryOrderItem[];
   deliveryFee: number;
   subtotal: number;
   total: number;
-  status?: string;
-  createdAt?: Date;
+  status: string;
+  createdAt: string;
+}
+
+export interface GroceryOrderItem {
+  id: number;
+  productId: number;
+  name: string;
+  price: number;
+  quantity: number;
+  specialInstructions?: string;
+  unit?: string;
+  weight?: string;
 }

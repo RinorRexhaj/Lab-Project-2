@@ -1,7 +1,7 @@
-import React from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit } from '@fortawesome/free-solid-svg-icons';
-import { User } from '../../types/User';
+import React from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEdit } from "@fortawesome/free-solid-svg-icons";
+import { User } from "../../types/User";
 
 interface UserTableProps {
   users: User[];
@@ -9,28 +9,28 @@ interface UserTableProps {
   onViewUser: (user: User) => void;
 }
 
-const UserTable: React.FC<UserTableProps> = ({ 
-  users, 
-  loading, 
-  onViewUser
+const UserTable: React.FC<UserTableProps> = ({
+  users,
+  loading,
+  onViewUser,
 }) => {
   const formatDate = (dateString: string) => {
-    if (!dateString) return 'N/A';
+    if (!dateString) return "N/A";
     try {
       const date = new Date(dateString);
-      if (isNaN(date.getTime())) return 'Invalid date';
-      
-      const formattedDate = new Intl.DateTimeFormat('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
+      if (isNaN(date.getTime())) return "Invalid date";
+
+      const formattedDate = new Intl.DateTimeFormat("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
       }).format(date);
-      
-      const formattedTime = new Intl.DateTimeFormat('en-US', {
-        hour: '2-digit',
-        minute: '2-digit',
+
+      const formattedTime = new Intl.DateTimeFormat("en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
       }).format(date);
-      
+
       return (
         <div className="flex flex-col">
           <span>{formattedDate}</span>
@@ -38,21 +38,21 @@ const UserTable: React.FC<UserTableProps> = ({
         </div>
       );
     } catch {
-      return 'Invalid date';
+      return "Invalid date";
     }
   };
 
   const getStatusBadge = (status: string) => {
     // Default to active if status is not provided
-    const actualStatus = status || 'active';
-    
+    const actualStatus = status || "active";
+
     const statusStyles = {
-      active: 'bg-green-100 text-green-800',
-      suspended: 'bg-yellow-100 text-yellow-800'
+      active: "bg-green-100 text-green-800",
+      suspended: "bg-yellow-100 text-yellow-800",
     };
 
     const statusType = actualStatus.toLowerCase() as keyof typeof statusStyles;
-    const style = statusStyles[statusType] || 'bg-gray-100 text-gray-800';
+    const style = statusStyles[statusType] || "bg-gray-100 text-gray-800";
 
     return (
       <span className={`px-2 py-1 rounded-full text-xs font-medium ${style}`}>
@@ -82,25 +82,46 @@ const UserTable: React.FC<UserTableProps> = ({
       <table className="min-w-full divide-y divide-gray-200">
         <thead className="bg-gray-50">
           <tr>
-            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th
+              scope="col"
+              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+            >
               Name
             </th>
-            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th
+              scope="col"
+              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+            >
               Email
             </th>
-            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th
+              scope="col"
+              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+            >
               Role
             </th>
-            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th
+              scope="col"
+              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+            >
               Status
             </th>
-            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th
+              scope="col"
+              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+            >
               Joined
             </th>
-            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th
+              scope="col"
+              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+            >
               Last Login
             </th>
-            <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th
+              scope="col"
+              className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
+            >
               Actions
             </th>
           </tr>
@@ -114,27 +135,41 @@ const UserTable: React.FC<UserTableProps> = ({
                     {user.avatar ? (
                       <img
                         className="h-10 w-10 rounded-full object-cover border border-gray-200"
-                        src={`${user.avatar.startsWith('http') ? user.avatar : `/images/${user.avatar}`}`}
+                        src={`${
+                          user.avatar.startsWith("http")
+                            ? user.avatar
+                            : `/images/${user.avatar}`
+                        }`}
                         alt={user.fullName}
                         onError={(e) => {
                           // If image fails to load, show initials instead
-                          e.currentTarget.style.display = 'none';
-                          const initials = document.getElementById(`table-user-initials-${user.id}`);
-                          if (initials) initials.style.display = 'flex';
+                          e.currentTarget.style.display = "none";
+                          const initials = document.getElementById(
+                            `table-user-initials-${user.id}`
+                          );
+                          if (initials) initials.style.display = "flex";
                         }}
                       />
                     ) : null}
-                    <div 
-                      id={`table-user-initials-${user.id}`} 
-                      className={`h-10 w-10 rounded-full bg-emerald-100 flex items-center justify-center ${user.avatar ? 'hidden' : ''}`}
+                    <div
+                      id={`table-user-initials-${user.id}`}
+                      className={`h-10 w-10 rounded-full bg-emerald-100 flex items-center justify-center ${
+                        user.avatar ? "hidden" : ""
+                      }`}
                     >
                       <span className="text-emerald-800 font-medium">
-                        {user.fullName.split(' ').map(n => n[0]).join('').toUpperCase()}
+                        {user.fullName
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")
+                          .toUpperCase()}
                       </span>
                     </div>
                   </div>
                   <div className="ml-4">
-                    <div className="text-sm font-medium text-gray-900">{user.fullName}</div>
+                    <div className="text-sm font-medium text-gray-900">
+                      {user.fullName}
+                    </div>
                   </div>
                 </div>
               </td>
@@ -145,13 +180,13 @@ const UserTable: React.FC<UserTableProps> = ({
                 <div className="text-sm text-gray-900">{user.role}</div>
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
-                {getStatusBadge(user.status || 'active')}
+                {getStatusBadge(user.status || "active")}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {user.dateJoined ? formatDate(user.dateJoined) : 'N/A'}
+                {user.dateJoined ? formatDate(user.dateJoined) : "N/A"}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {user.lastLogin ? formatDate(user.lastLogin) : 'N/A'}
+                {user.lastLogin ? formatDate(user.lastLogin) : "N/A"}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                 <button

@@ -1,8 +1,10 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAdminUsersStore } from "../../../store/useAdminUsersStore";
 import { useUserService } from "../../../services/userService";
 import { SuspendUserData, UpdateUserData, User } from "../../../types/User";
 import { toast } from "react-hot-toast";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPlus, faX } from "@fortawesome/free-solid-svg-icons";
 
 // Import components
 import UserFilters from "../../../components/admin/UserFilters";
@@ -38,6 +40,9 @@ const UsersTab = () => {
     resetPassword,
     // deleteUser
   } = useUserService();
+
+  const [showModal, setShowModal] = useState(false);
+  const [dataType, setDataType] = useState("VARCHAR");
 
   // Fetch users
   useEffect(() => {
@@ -163,9 +168,143 @@ const UsersTab = () => {
   return (
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
-        <h2 className="text-xl font-semibold text-gray-700 mb-2 sm:mb-0">
-          User Management
-        </h2>
+        <div className="flex justify-between items-center">
+          <h2 className="text-xl font-semibold text-gray-700 mb-2 sm:mb-0">
+            User Management
+          </h2>
+          <button
+            title="Add a column for Users table"
+            className="flex items-center gap-2 bg-emerald-500 text-white hover:bg-emerald-700 p-[8px] rounded-full"
+            onClick={() => setShowModal(true)}
+          >
+            <FontAwesomeIcon icon={faPlus} />
+            Add a Column
+          </button>
+          {showModal && (
+            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+              <div className="relative flex flex-col justify-center items-center bg-white p-8 rounded-md text-center max-w-lg w-full">
+                <button
+                  onClick={() => setShowModal(false)}
+                  className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+                >
+                  <FontAwesomeIcon icon={faX} />
+                </button>
+                <h2 className="text-xl font-bold mb-4">Add New Column</h2>
+
+                <form className="space-y-4">
+                  <div>
+                    <input
+                      type="text"
+                      className="w-full border px-3 py-2 rounded"
+                      placeholder="Column Name..."
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-left">
+                      Data Type
+                    </label>
+                    <select
+                      className="w-full border px-3 py-2 rounded"
+                      value={dataType}
+                      onChange={(e) => setDataType(e.target.value)}
+                    >
+                      <option value="VARCHAR">VARCHAR</option>
+                      <option value="INTEGER">INTEGER</option>
+                      <option value="DECIMAL">DECIMAL</option>
+                      <option value="BOOLEAN">BOOLEAN</option>
+                      <option value="DATE">DATE</option>
+                    </select>
+                  </div>
+
+                  {/* VARCHAR: Needs Length */}
+                  {dataType === "VARCHAR" && (
+                    <div>
+                      <input
+                        type="number"
+                        min="0"
+                        max="255"
+                        className="w-full border px-3 py-2 rounded"
+                        placeholder="Length (0-255)..."
+                        required
+                      />
+                    </div>
+                  )}
+
+                  {/* DECIMAL: Needs Precision */}
+                  {dataType === "DECIMAL" && (
+                    <div className="flex gap-4">
+                      <div className="flex-1">
+                        <input
+                          type="number"
+                          className="w-full border px-3 py-2 rounded"
+                          placeholder="Precision (e.g. 10)..."
+                        />
+                      </div>
+                      <div className="flex-1">
+                        <input
+                          type="number"
+                          className="w-full border px-3 py-2 rounded"
+                          placeholder="Scale (e.g. 2)..."
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* INTEGER: Auto Increment */}
+                  {dataType === "INTEGER" && (
+                    <div>
+                      <label className="flex items-center gap-2 mt-2">
+                        <input type="checkbox" />
+                        Auto Increment
+                      </label>
+                    </div>
+                  )}
+
+                  {/* Shared Optional Fields (when relevant) */}
+                  {[
+                    "VARCHAR",
+                    "INTEGER",
+                    "DECIMAL",
+                    "BOOLEAN",
+                    "DATE",
+                  ].includes(dataType) && (
+                    <div className="flex flex-wrap gap-4 mt-2">
+                      <label className="flex items-center gap-2">
+                        <input type="checkbox" />
+                        Nullable
+                      </label>
+                      <label className="flex items-center gap-2">
+                        <input type="checkbox" />
+                        Unique
+                      </label>
+                    </div>
+                  )}
+
+                  {/* Optional: Default Value */}
+                  {dataType !== "BOOLEAN" && (
+                    <div>
+                      <input
+                        type="text"
+                        className="w-full border px-3 py-2 rounded"
+                        placeholder="Default Value..."
+                      />
+                    </div>
+                  )}
+
+                  <button
+                    type="submit"
+                    className="bg-emerald-600 text-white px-4 py-2 rounded"
+                  >
+                    Add Column
+                  </button>
+                </form>
+              </div>
+            </div>
+          )}
+        </div>
+
         <div className="flex items-center space-x-2">
           <span className="text-sm text-gray-500">
             {totalUsers} {totalUsers === 1 ? "user" : "users"} found

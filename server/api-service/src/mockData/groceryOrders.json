@@ -1,0 +1,25 @@
+{
+  "orders": [
+    {
+      "userId": 0,
+      "storeId": 15,
+      "items": [
+        {
+          "productId": 2,
+          "quantity": 2,
+          "specialInstructions": "",
+          "price": 3,
+          "name": "test33",
+          "unit": "tte",
+          "weight": "test"
+        }
+      ],
+      "deliveryFee": 0.3,
+      "subtotal": 6,
+      "total": 6.3,
+      "id": 1448,
+      "status": "Pending",
+      "createdAt": "2025-06-08T19:10:14.424Z"
+    }
+  ]
+}

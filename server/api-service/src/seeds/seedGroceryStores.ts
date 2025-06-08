@@ -4,278 +4,33 @@ import { GroceryCategory } from "../models/GroceryCategory";
 import { GroceryProduct } from "../models/GroceryProduct";
 
 export async function seedGroceryStores() {
-  const groceryStoreRepository = AppDataSource.getRepository(GroceryStore);
-  const groceryCategoryRepository = AppDataSource.getRepository(GroceryCategory);
-  const groceryProductRepository = AppDataSource.getRepository(GroceryProduct);
-
-  // Check if data already exists
-  const existingStores = await groceryStoreRepository.count();
-  if (existingStores > 0) {
-    console.log("📝 Grocery stores already seeded");
-    return;
-  }
-
-  console.log("🌱 Seeding grocery stores...");
-
   try {
-    // Create Fresh Market
-    const freshMarket = groceryStoreRepository.create({
-      name: "Fresh Market",
-      imageUrl: "https://placehold.co/600x400/81c784/FFFFFF/png?text=Fresh+Market",
-      description: "Premium grocery store with a wide selection of fresh produce, meats, and specialty items",
-      deliveryFee: 3.99,
-      estimatedDeliveryTime: "25-40 min",
-      rating: 4.8,
-      category: "Supermarket",
-      openingTime: "08:00",
-      closingTime: "22:00",
-      isOpen24Hours: false,
-    });
-    await groceryStoreRepository.save(freshMarket);
-
-    // Create categories and products for Fresh Market
-    // Fruits & Vegetables Category
-    const fruitsVeggies = groceryCategoryRepository.create({
-      name: "Fruits & Vegetables",
-      store: freshMarket,
-    });
-    await groceryCategoryRepository.save(fruitsVeggies);
-
-    // Add products to Fruits & Vegetables
-    const fruitsVeggiesProducts = [
-      {
-        name: "Organic Bananas",
-        description: "Bunch of organic bananas, approximately 5-7 pieces",
-        price: 2.99,
-        imageUrl: "https://placehold.co/200x200/FFE135/FFFFFF/png?text=Bananas",
-        unit: "bunch",
-        inStock: true,
-      },
-      {
-        name: "Fresh Strawberries",
-        description: "Sweet and juicy strawberries, perfect for snacking or desserts",
-        price: 4.99,
-        imageUrl: "https://placehold.co/200x200/E30B5C/FFFFFF/png?text=Strawberries",
-        weight: "1 lb",
-        inStock: true,
-      },
-      {
-        name: "Avocados",
-        description: "Ripe Hass avocados, ready to eat",
-        price: 2.49,
-        imageUrl: "https://placehold.co/200x200/2E8B57/FFFFFF/png?text=Avocados",
-        unit: "each",
-        inStock: true,
-      },
-      {
-        name: "Organic Baby Spinach",
-        description: "Fresh organic baby spinach, pre-washed and ready to eat",
-        price: 3.99,
-        imageUrl: "https://placehold.co/200x200/175732/FFFFFF/png?text=Spinach",
-        weight: "5 oz",
-        inStock: true,
-      },
-      {
-        name: "Red Bell Peppers",
-        description: "Sweet red bell peppers, great for salads or cooking",
-        price: 1.79,
-        imageUrl: "https://placehold.co/200x200/ED2939/FFFFFF/png?text=Peppers",
-        unit: "each",
-        inStock: false,
-      },
-    ];
-
-    for (const productData of fruitsVeggiesProducts) {
-      const product = groceryProductRepository.create({
-        ...productData,
-        category: fruitsVeggies,
-      });
-      await groceryProductRepository.save(product);
+    // Check if grocery stores already exist
+    const groceryStoreCount = await AppDataSource.getRepository(GroceryStore).count();
+    if (groceryStoreCount > 0) {
+      console.log("🏪 Grocery stores already seeded, skipping...");
+      return;
     }
 
-    // Dairy & Eggs Category
-    const dairyEggs = groceryCategoryRepository.create({
-      name: "Dairy & Eggs",
-      store: freshMarket,
-    });
-    await groceryCategoryRepository.save(dairyEggs);
+    console.log("🌱 Seeding grocery stores...");
 
-    // Add products to Dairy & Eggs
-    const dairyEggsProducts = [
+    // 1. Seed Grocery Stores
+    const groceryStores = [
       {
-        name: "Organic Whole Milk",
-        description: "Grade A organic whole milk from grass-fed cows",
-        price: 4.49,
-        imageUrl: "https://placehold.co/200x200/FFFFFF/000000/png?text=Milk",
-        weight: "1 gallon",
-        inStock: true,
+        name: "Fresh Market",
+        imageUrl: "/assets/img/grocery/24-7-market.jpg",
+        description: "Premium grocery store with a wide selection of fresh produce, meats, and specialty items",
+        deliveryFee: 3.99,
+        estimatedDeliveryTime: "25-40 min",
+        rating: 4.8,
+        category: "Supermarket",
+        openingTime: "08:00",
+        closingTime: "22:00",
+        isOpen24Hours: false,
       },
-      {
-        name: "Large Brown Eggs",
-        description: "Farm-fresh large brown eggs from free-range chickens",
-        price: 5.99,
-        imageUrl: "https://placehold.co/200x200/E2C88A/000000/png?text=Eggs",
-        unit: "dozen",
-        inStock: true,
-      },
-      {
-        name: "Greek Yogurt",
-        description: "Plain Greek yogurt, high in protein and perfect for breakfast",
-        price: 3.49,
-        imageUrl: "https://placehold.co/200x200/F5F5F5/000000/png?text=Yogurt",
-        weight: "32 oz",
-        inStock: true,
-      },
-      {
-        name: "Cheddar Cheese Block",
-        description: "Sharp cheddar cheese, aged for 12 months",
-        price: 6.99,
-        imageUrl: "https://placehold.co/200x200/FFB90F/000000/png?text=Cheese",
-        weight: "8 oz",
-        inStock: false,
-      },
-    ];
-
-    for (const productData of dairyEggsProducts) {
-      const product = groceryProductRepository.create({
-        ...productData,
-        category: dairyEggs,
-      });
-      await groceryProductRepository.save(product);
-    }
-
-    // Bakery Category
-    const bakery = groceryCategoryRepository.create({
-      name: "Bakery",
-      store: freshMarket,
-    });
-    await groceryCategoryRepository.save(bakery);
-
-    // Add products to Bakery
-    const bakeryProducts = [
-      {
-        name: "Artisan Sourdough Bread",
-        description: "Freshly baked sourdough bread with a crispy crust",
-        price: 4.99,
-        imageUrl: "https://placehold.co/200x200/D2691E/FFFFFF/png?text=Bread",
-        unit: "loaf",
-        inStock: true,
-      },
-      {
-        name: "Blueberry Muffins",
-        description: "Freshly baked blueberry muffins made with real blueberries",
-        price: 5.99,
-        imageUrl: "https://placehold.co/200x200/9370DB/FFFFFF/png?text=Muffins",
-        unit: "pack of 4",
-        inStock: true,
-      },
-      {
-        name: "Chocolate Chip Cookies",
-        description: "Soft and chewy chocolate chip cookies, baked fresh daily",
-        price: 3.99,
-        imageUrl: "https://placehold.co/200x200/CD853F/FFFFFF/png?text=Cookies",
-        unit: "pack of 6",
-        inStock: true,
-      },
-    ];
-
-    for (const productData of bakeryProducts) {
-      const product = groceryProductRepository.create({
-        ...productData,
-        category: bakery,
-      });
-      await groceryProductRepository.save(product);
-    }
-
-    // Create City Market
-    const cityMarket = groceryStoreRepository.create({
-      name: "City Market",
-      imageUrl: "https://placehold.co/600x400/42a5f5/FFFFFF/png?text=City+Market",
-      description: "Your neighborhood grocery store with affordable prices and friendly service",
-      deliveryFee: 2.99,
-      estimatedDeliveryTime: "30-45 min",
-      rating: 4.3,
-      category: "Supermarket",
-      openingTime: "07:00",
-      closingTime: "23:00",
-      isOpen24Hours: false,
-    });
-    await groceryStoreRepository.save(cityMarket);
-
-    // Create categories and products for City Market
-    // Fruits & Vegetables Category for City Market
-    const cityFruitsVeggies = groceryCategoryRepository.create({
-      name: "Fruits & Vegetables",
-      store: cityMarket,
-    });
-    await groceryCategoryRepository.save(cityFruitsVeggies);
-
-    const cityFruitsVeggiesProducts = [
-      {
-        name: "Apples",
-        description: "Fresh Gala apples, sweet and crisp",
-        price: 1.99,
-        imageUrl: "https://placehold.co/200x200/FF0800/FFFFFF/png?text=Apples",
-        unit: "lb",
-        inStock: true,
-      },
-      {
-        name: "Carrots",
-        description: "Fresh organic carrots, perfect for snacking or cooking",
-        price: 2.49,
-        imageUrl: "https://placehold.co/200x200/FF7F00/FFFFFF/png?text=Carrots",
-        weight: "2 lb",
-        inStock: true,
-      },
-    ];
-
-    for (const productData of cityFruitsVeggiesProducts) {
-      const product = groceryProductRepository.create({
-        ...productData,
-        category: cityFruitsVeggies,
-      });
-      await groceryProductRepository.save(product);
-    }
-
-    // Meat & Seafood Category for City Market
-    const meatSeafood = groceryCategoryRepository.create({
-      name: "Meat & Seafood",
-      store: cityMarket,
-    });
-    await groceryCategoryRepository.save(meatSeafood);
-
-    const meatSeafoodProducts = [
-      {
-        name: "Ground Beef",
-        description: "80/20 ground beef, perfect for burgers or meatballs",
-        price: 5.99,
-        imageUrl: "https://placehold.co/200x200/8B0000/FFFFFF/png?text=Ground+Beef",
-        weight: "1 lb",
-        inStock: true,
-      },
-      {
-        name: "Chicken Breast",
-        description: "Boneless, skinless chicken breast",
-        price: 6.99,
-        imageUrl: "https://placehold.co/200x200/F5F5DC/000000/png?text=Chicken",
-        weight: "1 lb",
-        inStock: false,
-      },
-    ];
-
-    for (const productData of meatSeafoodProducts) {
-      const product = groceryProductRepository.create({
-        ...productData,
-        category: meatSeafood,
-      });
-      await groceryProductRepository.save(product);
-    }
-
-    // Create additional grocery stores
-    const additionalStores = [
       {
         name: "Organic Harvest",
-        imageUrl: "https://placehold.co/600x400/66bb6a/FFFFFF/png?text=Organic+Harvest",
+        imageUrl: "/assets/img/grocery/organic-harvest.jpg",
         description: "Specializing in organic and locally sourced produce and products",
         deliveryFee: 4.99,
         estimatedDeliveryTime: "35-50 min",
@@ -287,7 +42,7 @@ export async function seedGroceryStores() {
       },
       {
         name: "QuickMart",
-        imageUrl: "https://placehold.co/600x400/f44336/FFFFFF/png?text=QuickMart",
+        imageUrl: "/assets/img/grocery/quickmart.png",
         description: "Convenience store with all the essentials, open late for your last-minute needs",
         deliveryFee: 1.99,
         estimatedDeliveryTime: "15-25 min",
@@ -299,7 +54,7 @@ export async function seedGroceryStores() {
       },
       {
         name: "Global Foods",
-        imageUrl: "https://placehold.co/600x400/ffb300/000000/png?text=Global+Foods",
+        imageUrl: "/assets/img/grocery/global-food.jpg",
         description: "International grocery store featuring products from around the world",
         deliveryFee: 3.49,
         estimatedDeliveryTime: "40-55 min",
@@ -311,7 +66,7 @@ export async function seedGroceryStores() {
       },
       {
         name: "24/7 Grocery",
-        imageUrl: "https://placehold.co/600x400/7e57c2/FFFFFF/png?text=24/7+Grocery",
+        imageUrl: "/assets/img/grocery/24-7-market.jpg",
         description: "Always open, always stocked with everything you need day or night",
         deliveryFee: 3.99,
         estimatedDeliveryTime: "20-35 min",
@@ -321,13 +76,229 @@ export async function seedGroceryStores() {
       },
     ];
 
-    for (const storeData of additionalStores) {
-      const store = groceryStoreRepository.create(storeData);
-      await groceryStoreRepository.save(store);
-    }
+    const savedStores = await AppDataSource.getRepository(GroceryStore).save(groceryStores);
+    console.log(`✅ Seeded ${savedStores.length} grocery stores successfully`);
 
-    console.log("✅ Grocery store seed completed successfully");
+    // 2. Seed Grocery Categories
+    console.log("🗂️ Seeding grocery categories...");
+
+    const groceryCategories = [
+      // Fresh Market categories
+      { name: "Fruits & Vegetables", storeId: 1 },
+      { name: "Dairy & Eggs", storeId: 1 },
+      { name: "Bakery", storeId: 1 },
+      { name: "Meat & Seafood", storeId: 1 },
+      
+      // Organic Harvest categories
+      { name: "Organic Produce", storeId: 2 },
+      { name: "Organic Dairy", storeId: 2 },
+      { name: "Natural Products", storeId: 2 },
+      
+      // QuickMart categories
+      { name: "Snacks", storeId: 3 },
+      { name: "Beverages", storeId: 3 },
+      { name: "Ready Meals", storeId: 3 },
+      
+      // Global Foods categories
+      { name: "Asian Foods", storeId: 4 },
+      { name: "European Products", storeId: 4 },
+      { name: "Spices & Seasonings", storeId: 4 },
+      
+      // 24/7 Grocery categories
+      { name: "Essentials", storeId: 5 },
+      { name: "Frozen Foods", storeId: 5 },
+      { name: "Household Items", storeId: 5 },
+    ];
+
+    const savedCategories = await AppDataSource.getRepository(GroceryCategory).save(groceryCategories);
+    console.log(`✅ Seeded ${savedCategories.length} grocery categories successfully`);
+
+    // 3. Seed Grocery Products
+    console.log("🛒 Seeding grocery products...");
+
+    const groceryProducts = [
+      // Fresh Market - Fruits & Vegetables (categoryId: 1)
+      {
+        name: "Organic Bananas",
+        description: "Bunch of organic bananas, approximately 5-7 pieces",
+        price: 2.99,
+        imageUrl: "/assets/img/grocery/grocery_items/banana.jpg",
+        categoryId: 1,
+        unit: "bunch",
+        inStock: true
+      },
+      {
+        name: "Fresh Strawberries",
+        description: "Sweet and juicy strawberries, perfect for snacking or desserts",
+        price: 4.99,
+        imageUrl: "/assets/img/grocery/grocery_items/strawberry.jpg",
+        categoryId: 1,
+        weight: "1 lb",
+        inStock: true
+      },
+      {
+        name: "Avocados",
+        description: "Ripe Hass avocados, ready to eat",
+        price: 2.49,
+        imageUrl: "/assets/img/grocery/grocery_items/avocado.jpg",
+        categoryId: 1,
+        unit: "each",
+        inStock: true
+      },
+      {
+        name: "Organic Baby Spinach",
+        description: "Fresh organic baby spinach, pre-washed and ready to eat",
+        price: 3.99,
+        imageUrl: "/assets/img/grocery/grocery_items/spinach.jpg",
+        categoryId: 1,
+        weight: "5 oz",
+        inStock: true
+      },
+      {
+        name: "Red Bell Peppers",
+        description: "Sweet red bell peppers, great for salads or cooking",
+        price: 1.79,
+        imageUrl: "/assets/img/grocery/grocery_items/red-bell.jpg",
+        categoryId: 1,
+        unit: "each",
+        inStock: false
+      },
+
+      // Fresh Market - Dairy & Eggs (categoryId: 2)
+      {
+        name: "Organic Whole Milk",
+        description: "Grade A organic whole milk from grass-fed cows",
+        price: 4.49,
+        imageUrl: "/assets/img/grocery/grocery_items/milk.jpg",
+        categoryId: 2,
+        weight: "1 gallon",
+        inStock: true
+      },
+      {
+        name: "Large Brown Eggs",
+        description: "Farm-fresh large brown eggs from free-range chickens",
+        price: 5.99,
+        imageUrl: "/assets/img/grocery/grocery_items/eggs.jpg",
+        categoryId: 2,
+        unit: "dozen",
+        inStock: true
+      },
+      {
+        name: "Greek Yogurt",
+        description: "Plain Greek yogurt, high in protein and perfect for breakfast",
+        price: 3.49,
+        imageUrl: "/assets/img/grocery/grocery_items/yogurt.jpg",
+        categoryId: 2,
+        weight: "32 oz",
+        inStock: true
+      },
+      {
+        name: "Cheddar Cheese Block",
+        description: "Sharp cheddar cheese, aged for 12 months",
+        price: 6.99,
+        imageUrl: "/assets/img/grocery/grocery_items/cheddar.jpg",
+        categoryId: 2,
+        weight: "8 oz",
+        inStock: false
+      },
+
+      // Fresh Market - Bakery (categoryId: 3)
+      {
+        name: "Artisan Sourdough Bread",
+        description: "Freshly baked sourdough bread with a crispy crust",
+        price: 4.99,
+        imageUrl: "/assets/img/grocery/grocery_items/bread.jpg",
+        categoryId: 3,
+        unit: "loaf",
+        inStock: true
+      },
+      {
+        name: "Blueberry Muffins",
+        description: "Freshly baked blueberry muffins made with real blueberries",
+        price: 5.99,
+        imageUrl: "/assets/img/grocery/grocery_items/muffin.jpg",
+        categoryId: 3,
+        unit: "pack of 4",
+        inStock: true
+      },
+      {
+        name: "Chocolate Chip Cookies",
+        description: "Soft and chewy chocolate chip cookies, baked fresh daily",
+        price: 3.99,
+        imageUrl: "/assets/img/grocery/grocery_items/cookies.jpg",
+        categoryId: 3,
+        unit: "pack of 6",
+        inStock: true
+      },
+
+      // Organic Harvest - Organic Produce (categoryId: 5)
+      {
+        name: "Organic Kale",
+        description: "Fresh organic kale, perfect for smoothies and salads",
+        price: 2.99,
+        imageUrl: "/assets/img/grocery/grocery_items/kale.jpg",
+        categoryId: 5,
+        weight: "1 bunch",
+        inStock: true
+      },
+      {
+        name: "Organic Carrots",
+        description: "Sweet organic carrots, great for snacking or cooking",
+        price: 2.49,
+        imageUrl: "/assets/img/grocery/grocery_items/carrots.jpg",
+        categoryId: 5,
+        weight: "2 lb bag",
+        inStock: true
+      },
+
+      // QuickMart - Snacks (categoryId: 8)
+      {
+        name: "Potato Chips",
+        description: "Crispy potato chips, classic salted flavor",
+        price: 2.99,
+        imageUrl: "/assets/img/grocery/grocery_items/chips.jpg",
+        categoryId: 8,
+        weight: "6 oz",
+        inStock: true
+      },
+      {
+        name: "Mixed Nuts",
+        description: "Premium mixed nuts with almonds, cashews, and peanuts",
+        price: 5.99,
+        imageUrl: "/assets/img/grocery/grocery_items/nuts.jpg",
+        categoryId: 8,
+        weight: "8 oz",
+        inStock: true
+      },
+
+      // QuickMart - Beverages (categoryId: 9)
+      {
+        name: "Energy Drink",
+        description: "Popular energy drink to keep you energized",
+        price: 2.49,
+        imageUrl: "/assets/img/grocery/grocery_items/energy-drink.jpg",
+        categoryId: 9,
+        weight: "16 fl oz",
+        inStock: true
+      },
+      {
+        name: "Bottled Water",
+        description: "Pure spring water in convenient bottles",
+        price: 1.99,
+        imageUrl: "/assets/img/grocery/grocery_items/water.jpg",
+        categoryId: 9,
+        weight: "24 pack",
+        inStock: true
+      },
+    ];
+
+    const savedProducts = await AppDataSource.getRepository(GroceryProduct).save(groceryProducts);
+    console.log(`✅ Seeded ${savedProducts.length} grocery products successfully`);
+
+    console.log("🏪 Grocery store seeding completed successfully!");
+    
   } catch (error) {
     console.error("❌ Error seeding grocery stores:", error);
+    throw error;
   }
 }

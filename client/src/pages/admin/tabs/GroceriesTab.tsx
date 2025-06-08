@@ -11,10 +11,12 @@ import {
   faSortUp,
   faSortDown,
   faStore,
+  faExclamationTriangle,
 } from "@fortawesome/free-solid-svg-icons";
 import AddGroceryStoreWizard from "../../../components/admin/AddGroceryStoreWizard";
 import EditGroceryStoreWizard from "../../../components/admin/EditGroceryStoreWizard";
 import DeleteConfirmationModal from "../../../components/admin/DeleteConfirmationModal";
+import { useSessionStore } from "../../../store/useSessionStore";
 
 const GroceryTab: React.FC = () => {
   const [stores, setStores] = useState<GroceryStore[]>([]);
@@ -27,20 +29,50 @@ const GroceryTab: React.FC = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedStore, setSelectedStore] = useState<GroceryStore | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const { accessToken, role } = useSessionStore();
 
   useEffect(() => {
+    console.log('GroceryTab mounted');
+    console.log('Current user role:', role);
+    console.log('Access token exists:', !!accessToken);
+    console.log('Access token in localStorage:', !!localStorage.getItem('accessToken'));
+    
+    if (!accessToken && !localStorage.getItem('accessToken')) {
+      setError('Not authenticated. Please log in again.');
+      setLoading(false);
+      return;
+    }
+    
     fetchStores();
-  }, []);
+  }, [accessToken, role]);
 
   const fetchStores = async () => {
+    console.log('Fetching grocery stores...');
     setLoading(true);
+    setError(null);
+    
     try {
+      // Now fetch grocery stores directly
+      console.log('Fetching grocery stores via service...');
       const allStores = await groceryService.getAllStores();
+      console.log('Successfully fetched stores:', allStores);
       setStores(allStores);
       setError(null);
-    } catch (err) {
+    } catch (err: any) {
       console.error("Failed to fetch grocery stores:", err);
-      setError("Failed to load grocery stores. Please try again.");
+      
+      // Provide more specific error messages
+      if (err.response?.status === 401) {
+        setError("Authentication failed. Please log in again.");
+      } else if (err.response?.status === 403) {
+        setError("Access denied. Admin privileges required.");
+      } else if (err.response?.status === 500) {
+        setError("Server error. Please check if the backend is running.");
+      } else if (err.message?.includes('Network Error') || err.code === 'ERR_NETWORK') {
+        setError("Cannot connect to server. Please check if the backend is running on port 5000.");
+      } else {
+        setError(err.response?.data?.error || err.message || "Failed to load grocery stores. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
@@ -84,7 +116,7 @@ const GroceryTab: React.FC = () => {
       setShowDeleteModal(false);
       setSelectedStore(null);
       fetchStores(); // Refresh the list after deletion
-    } catch (err) {
+    } catch (err: any) {
       console.error("Failed to delete grocery store:", err);
       setError("Failed to delete grocery store. Please try again.");
     }
@@ -103,6 +135,10 @@ const GroceryTab: React.FC = () => {
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
+  };
+
+  const handleRefresh = () => {
+    fetchStores();
   };
 
   // Filter and sort the stores
@@ -168,6 +204,8 @@ const GroceryTab: React.FC = () => {
         </button>
       </div>
 
+
+
       {/* Search bar */}
       <div className="mb-6">
         <div className="relative">
@@ -186,8 +224,18 @@ const GroceryTab: React.FC = () => {
 
       {/* Error message */}
       {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
-          {error}
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6 flex items-center space-x-2">
+          <FontAwesomeIcon icon={faExclamationTriangle} />
+          <div>
+            <div className="font-semibold">Error:</div>
+            <div>{error}</div>
+            <button 
+              onClick={handleRefresh}
+              className="mt-2 px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700"
+            >
+              Try Again
+            </button>
+          </div>
         </div>
       )}
 
@@ -195,6 +243,7 @@ const GroceryTab: React.FC = () => {
       {loading ? (
         <div className="flex justify-center items-center py-10">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-emerald-500"></div>
+          <span className="ml-3 text-gray-600">Loading grocery stores...</span>
         </div>
       ) : sortedStores.length > 0 ? (
         <div className="overflow-x-auto bg-white rounded-lg shadow">
@@ -258,6 +307,9 @@ const GroceryTab: React.FC = () => {
                           className="h-10 w-10 rounded-md object-cover"
                           src={store.imageUrl}
                           alt={store.name}
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = '/assets/img/placeholder.jpg';
+                          }}
                         />
                       </div>
                       <div className="ml-4">
@@ -312,14 +364,20 @@ const GroceryTab: React.FC = () => {
             </tbody>
           </table>
         </div>
-      ) : (
+      ) : !error ? (
         <div className="bg-white p-6 rounded-lg shadow text-center">
           <FontAwesomeIcon icon={faStore} className="text-gray-300 text-5xl mb-3" />
           <p className="text-gray-500">
             No grocery stores found matching your search.
           </p>
+          <button
+            onClick={handleRefresh}
+            className="mt-3 px-4 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600"
+          >
+            Refresh
+          </button>
         </div>
-      )}
+      ) : null}
 
       {showAddWizard && <AddGroceryStoreWizard onClose={handleCloseAddWizard} />}
 

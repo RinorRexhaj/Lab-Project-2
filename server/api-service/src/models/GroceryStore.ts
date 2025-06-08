@@ -1,41 +1,41 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
 import { GroceryCategory } from "./GroceryCategory";
 
-@Entity()
+@Entity({ name: "GroceryStores" })
 export class GroceryStore {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Column()
+  @Column({ length: 100 })
   name!: string;
 
-  @Column()
+  @Column({ length: 255 })
   imageUrl!: string;
 
-  @Column({ type: "text" })
+  @Column({ length: 500 })
   description!: string;
 
-  @Column("decimal", { precision: 5, scale: 2 })
+  @Column({ type: "decimal", precision: 10, scale: 2 })
   deliveryFee!: number;
 
-  @Column()
+  @Column({ length: 50 })
   estimatedDeliveryTime!: string;
 
-  @Column("decimal", { precision: 3, scale: 1 })
+  @Column({ type: "decimal", precision: 3, scale: 1, default: 0 })
   rating!: number;
 
-  @Column({ nullable: true })
+  @Column({ length: 50, nullable: true, default: 'All' })
   category?: string;
 
-  @Column({ nullable: true })
+  @Column({ length: 10, nullable: true })
   openingTime?: string;
 
-  @Column({ nullable: true })
+  @Column({ length: 10, nullable: true })
   closingTime?: string;
 
   @Column({ default: false })
   isOpen24Hours!: boolean;
 
-  @OneToMany(() => GroceryCategory, (category) => category.store, { cascade: true })
+  @OneToMany(() => GroceryCategory, (category) => category.store)
   categories!: GroceryCategory[];
 }

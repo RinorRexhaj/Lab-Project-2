@@ -254,7 +254,7 @@ const AddGroceryStoreWizard: React.FC<AddGroceryStoreWizardProps> = ({ onClose }
         );
         const items = products[cat.id!] || [];
         for (const item of items) {
-          await groceryService.createProduct(createdCat.id, {
+          await groceryService.createProduct(created.id, createdCat.id, {
             name: item.name!,
             description: item.description!,
             price: item.price!,

@@ -1,18 +1,22 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColumn } from "typeorm";
 import { GroceryStore } from "./GroceryStore";
 import { GroceryProduct } from "./GroceryProduct";
 
-@Entity()
+@Entity({ name: "GroceryCategories" })
 export class GroceryCategory {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Column()
+  @Column({ length: 100 })
   name!: string;
 
+  @Column()
+  storeId!: number;
+
   @ManyToOne(() => GroceryStore, (store) => store.categories)
+  @JoinColumn({ name: "storeId" })
   store!: GroceryStore;
 
-  @OneToMany(() => GroceryProduct, (product) => product.category, { cascade: true })
+  @OneToMany(() => GroceryProduct, (product) => product.category)
   products!: GroceryProduct[];
 }

@@ -285,6 +285,7 @@ const EditGroceryStoreWizard: React.FC<EditGroceryStoreWizardProps> = ({ store: 
 
     try {
       const newProduct = await groceryService.createProduct(
+        store.id,
         currentCategory,
         {
           name: tempProduct.name,
@@ -358,6 +359,7 @@ const EditGroceryStoreWizard: React.FC<EditGroceryStoreWizardProps> = ({ store: 
       const productId = products[currentCategory][editItemIndex].id;
       
       const updatedProduct = await groceryService.updateProduct(
+        store.id,
         currentCategory,
         productId,
         {
@@ -399,7 +401,7 @@ const EditGroceryStoreWizard: React.FC<EditGroceryStoreWizardProps> = ({ store: 
     try {
       const productId = products[categoryId][productIndex].id;
       
-      await groceryService.deleteProduct(categoryId, productId);
+      await groceryService.deleteProduct(store.id, categoryId, productId);
       
       const updatedProducts = { ...products };
       updatedProducts[categoryId] = [

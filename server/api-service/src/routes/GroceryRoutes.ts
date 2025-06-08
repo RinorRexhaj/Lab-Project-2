@@ -1,21 +1,46 @@
-import { Router } from 'express';
-import { GroceryController } from '../controllers/GroceryController';
+import express from "express";
+import {
+  getGroceryStores,
+  getGroceryStore,
+  getGroceryStoreProducts,
+  createGroceryStore,
+  updateGroceryStore,
+  deleteGroceryStore,
+  addGroceryCategory,
+  updateGroceryCategory,
+  deleteGroceryCategory,
+  addGroceryProduct,
+  updateGroceryProduct,
+  deleteGroceryProduct,
+  getGroceryStoreImages,
+  getGroceryProductImages
+} from "../controllers/GroceryController";
+import { authenticateToken, isAdmin } from "../services/TokenService";
 
-const router = Router();
+const router = express.Router();
 
-// Get all grocery stores
-router.get('/', GroceryController.getAllGroceryStores);
+// Guest and user routes
+router.get("/", authenticateToken, getGroceryStores);
+router.get("/:id", authenticateToken, getGroceryStore);
+router.get("/:id/products", authenticateToken, getGroceryStoreProducts);
 
-// Get a grocery store by ID with its products
-router.get('/:id/products', GroceryController.getGroceryStoreWithProducts);
+// Admin routes
+router.post("/", authenticateToken, isAdmin, createGroceryStore);
+router.put("/:id", authenticateToken, isAdmin, updateGroceryStore);
+router.delete("/:id", authenticateToken, isAdmin, deleteGroceryStore);
 
-// Create a new grocery store (admin only)
-router.post('/', GroceryController.createGroceryStore);
+// Grocery category management
+router.post("/:id/category", authenticateToken, isAdmin, addGroceryCategory);
+router.put("/:id/category/:categoryId", authenticateToken, isAdmin, updateGroceryCategory);
+router.delete("/:id/category/:categoryId", authenticateToken, isAdmin, deleteGroceryCategory);
 
-// Create a new product category for a store (admin only)
-router.post('/:storeId/categories', GroceryController.createProductCategory);
+// Grocery product management
+router.post("/:id/category/:categoryId/product", authenticateToken, isAdmin, addGroceryProduct);
+router.put("/:id/category/:categoryId/product/:productId", authenticateToken, isAdmin, updateGroceryProduct);
+router.delete("/:id/category/:categoryId/product/:productId", authenticateToken, isAdmin, deleteGroceryProduct);
 
-// Create a new product for a category (admin only)
-router.post('/categories/:categoryId/products', GroceryController.createProduct);
+// Image resource endpoints
+router.get("/images/stores", authenticateToken, getGroceryStoreImages);
+router.get("/images/products", authenticateToken, getGroceryProductImages);
 
 export default router;

@@ -2,6 +2,7 @@ import { environment } from "../environment/environment";
 import { GroceryStore, GroceryCategory } from "../types/grocery/GroceryStore";
 import { GroceryProduct } from "../types/grocery/GroceryProduct";
 import { GroceryOrder } from "../types/grocery/GroceryOrder";
+import { useSessionStore } from "../store/useSessionStore";
 import axios from "axios";
 
 const API_BASE_URL = environment.apiUrl + "/grocery";
@@ -24,72 +25,23 @@ const orderApi = axios.create({
 });
 
 // Add auth token to requests
-api.interceptors.request.use(
-  (config) => {
-    // Get token from localStorage instead of Zustand store for interceptor
-    const token = localStorage.getItem('accessToken');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    console.log('Grocery API Request:', config.method?.toUpperCase(), config.url, config.headers);
-    return config;
-  },
-  (error) => {
-    console.error('Grocery request interceptor error:', error);
-    return Promise.reject(error);
+api.interceptors.request.use((config) => {
+  const token = useSessionStore.getState().accessToken;
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
   }
-);
+  return config;
+});
 
-orderApi.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('accessToken');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    console.log('Grocery Order API Request:', config.method?.toUpperCase(), config.url, config.headers);
-    return config;
-  },
-  (error) => {
-    console.error('Grocery order request interceptor error:', error);
-    return Promise.reject(error);
+orderApi.interceptors.request.use((config) => {
+  const token = useSessionStore.getState().accessToken;
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
   }
-);
+  return config;
+});
 
-// Add response interceptor for better error handling
-api.interceptors.response.use(
-  (response) => {
-    console.log('Grocery API Response:', response.status, response.config.url);
-    return response;
-  },
-  (error) => {
-    console.error('Grocery API Error:', error.response?.status, error.response?.data || error.message);
-    
-    // Handle 401 Unauthorized
-    if (error.response?.status === 401) {
-      localStorage.removeItem('accessToken');
-      window.location.href = '/login';
-    }
-    
-    return Promise.reject(error);
-  }
-);
 
-orderApi.interceptors.response.use(
-  (response) => {
-    console.log('Grocery Order API Response:', response.status, response.config.url);
-    return response;
-  },
-  (error) => {
-    console.error('Grocery Order API Error:', error.response?.status, error.response?.data || error.message);
-    
-    if (error.response?.status === 401) {
-      localStorage.removeItem('accessToken');
-      window.location.href = '/login';
-    }
-    
-    return Promise.reject(error);
-  }
-);
 
 export const groceryService = {
   // Get all grocery stores
@@ -228,7 +180,7 @@ export const groceryService = {
   // Get available product images
   getProductImages: async (): Promise<string[]> => {
     try {
-      const response = await api.get<{ images: string[] }>("/images/products");
+      const response = await api.get<{ images: string[] }>("/images/grocery_items");
       return response.data.images;
     } catch (error) {
       console.error('Error fetching grocery product images:', error);

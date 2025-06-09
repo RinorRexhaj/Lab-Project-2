@@ -1,4 +1,5 @@
 import express from "express";
+import path from "path";
 import {
   getGroceryStores,
   getGroceryStore,
@@ -16,6 +17,7 @@ import {
   getGroceryProductImages
 } from "../controllers/GroceryController";
 import { authenticateToken, isAdmin } from "../services/TokenService";
+
 
 const router = express.Router();
 
@@ -40,7 +42,26 @@ router.put("/:id/category/:categoryId/product/:productId", authenticateToken, is
 router.delete("/:id/category/:categoryId/product/:productId", authenticateToken, isAdmin, deleteGroceryProduct);
 
 // Image resource endpoints
+router.get("/images/grocery_items", authenticateToken, getGroceryProductImages);
 router.get("/images/stores", authenticateToken, getGroceryStoreImages);
-router.get("/images/products", authenticateToken, getGroceryProductImages);
+
+// Test if the function exists
+router.get("/debug/function-test", (req, res) => {
+  console.log('Testing getGroceryProductImages function exists:', typeof getGroceryProductImages);
+  res.json({ 
+    message: "Function test", 
+    functionExists: typeof getGroceryProductImages === 'function'
+  });
+});
+
+// Test endpoint (no auth for testing)
+router.get("/test", (req, res) => {
+  res.json({ message: "Grocery routes working!" });
+});
+
+// Test endpoint with auth
+router.get("/test-auth", authenticateToken, (req, res) => {
+  res.json({ message: "Grocery routes working with auth!" });
+});
 
 export default router;

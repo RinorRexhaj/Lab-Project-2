@@ -409,7 +409,6 @@ export const getGroceryProductImages: RequestHandler = async (req, res) => {
       "public",
       "assets",
       "img",
-      "grocery",
       "grocery_items"
     );
 
@@ -427,7 +426,7 @@ export const getGroceryProductImages: RequestHandler = async (req, res) => {
           file.endsWith(".webp")
       );
 
-      const imageUrls = imageFiles.map((file) => `/assets/img/grocery/grocery_items/${file}`);
+      const imageUrls = imageFiles.map((file) => `/assets/img/grocery_items/${file}`);
 
       res.json({ images: imageUrls });
     });

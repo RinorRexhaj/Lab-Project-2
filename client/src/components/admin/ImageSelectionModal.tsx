@@ -2,9 +2,10 @@ import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark, faImage, faSearch } from "@fortawesome/free-solid-svg-icons";
 import { restaurantService } from "../../api/RestaurantService";
+import { groceryService } from "../../api/GroceryService";
 
 interface ImageSelectionModalProps {
-  imageType: "restaurant" | "foodItem";
+  imageType: "restaurant" | "foodItem" | "grocery" | "groceryProduct";
   onSelect: (imagePath: string) => void;
   onClose: () => void;
 }
@@ -24,15 +25,27 @@ const ImageSelectionModal: React.FC<ImageSelectionModalProps> = ({
   useEffect(() => {
     const fetchImages = async () => {
       try {
+        console.log('ImageSelectionModal - imageType:', imageType);
         setLoading(true);
         let imageUrls: string[] = [];
         
         if (imageType === "restaurant") {
+          console.log('Fetching restaurant images...');
           imageUrls = await restaurantService.getRestaurantImages();
-        } else {
+        } else if (imageType === "foodItem") {
+          console.log('Fetching food item images...');
           imageUrls = await restaurantService.getFoodItemImages();
+        } else if (imageType === "grocery") {
+          console.log('Fetching grocery store images...');
+          imageUrls = await groceryService.getStoreImages();
+        } else if (imageType === "groceryProduct") {
+          console.log('Fetching grocery product images...');
+          imageUrls = await groceryService.getProductImages();
+        } else {
+          console.log('Unknown imageType:', imageType);
         }
         
+        console.log('Fetched images:', imageUrls);
         setImages(imageUrls);
         setFilteredImages(imageUrls);
         setError(null);
@@ -85,7 +98,9 @@ const ImageSelectionModal: React.FC<ImageSelectionModalProps> = ({
       <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[80vh] flex flex-col">
         <div className="px-4 py-3 border-b border-gray-200 flex justify-between items-center">
           <h3 className="text-base font-medium text-gray-900">
-            Select {imageType === "restaurant" ? "Restaurant" : "Food Item"} Image
+            Select {imageType === "restaurant" ? "Restaurant" : 
+                    imageType === "foodItem" ? "Food Item" :
+                    imageType === "grocery" ? "Grocery Store" : "Grocery Product"} Image
           </h3>
           <button 
             onClick={onClose}
@@ -121,7 +136,9 @@ const ImageSelectionModal: React.FC<ImageSelectionModalProps> = ({
             <div className="text-center py-8">
               <FontAwesomeIcon icon={faImage} className="text-gray-300 text-3xl mb-2" />
               <p className="text-red-500 mb-2">{error}</p>
-              <p className="text-gray-500">Please make sure there are images in the {imageType === "restaurant" ? "restaurants" : "food_items"} folder.</p>
+              <p className="text-gray-500">Please make sure there are images in the {imageType === "restaurant" ? "restaurants" : 
+                                                                                          imageType === "foodItem" ? "food_items" :
+                                                                                          imageType === "grocery" ? "grocery" : "grocery/grocery_items"} folder.</p>
             </div>
           ) : filteredImages.length > 0 ? (
             <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2">

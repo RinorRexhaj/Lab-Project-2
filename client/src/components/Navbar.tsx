@@ -56,7 +56,7 @@ const Navbar: React.FC<NavbarProps> = ({ activeLink, setActiveLink }) => {
             className="text-emerald-500 text-3xl tb:hidden font-bold cursor-pointer"
             onClick={() => setActiveLink(0)}
           >
-            Lab Project 2
+            UrbanCenter
           </Link>
           <Link
             to={"/"}
@@ -64,7 +64,7 @@ const Navbar: React.FC<NavbarProps> = ({ activeLink, setActiveLink }) => {
             className="text-emerald-500 hidden text-2xl tb:flex font-bold cursor-pointer"
             onClick={() => setActiveLink(0)}
           >
-            Lab 2
+            UrbanCenter
           </Link>
           <div className="flex gap-6 items-center">
             <div className="flex md:hidden items-center gap-5 tb:gap-3">
